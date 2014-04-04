@@ -2,9 +2,9 @@
   "name": "xyz",
   "version": "0.0.0",
   "description": "insane js module pattern",
-  "main": "index.js",
+  "main": "lib/node/xyz.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node ./test/mocha/node-suite.js"
   },
   "repository": {
     "type": "git",
