@@ -1,5 +1,6 @@
 // test/mocha/node-suite.js
-require('../../lib/node/xyz');
+
+// require('../../lib/node/xyz');
 
 // This runs with mocha programmatically rather than from the command line.
 // how-to-with-comments taken from https://github.com/itaylor/qunit-mocha-ui
