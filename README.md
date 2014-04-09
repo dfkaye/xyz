@@ -85,37 +85,37 @@ which collapses nicely to
 
 + anonymous module - node.js
 
-    (define)
-    ('a:path')
-    ('b:path')
-    (function callback() {
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
-      
-      // now proceed with the rest of commonjs
-      module.exports = function () {
-      
-      }
-      
-      // etc.
-    });
+        (define)
+        ('a:path')
+        ('b:path')
+        (function callback() {
+          console.log('a : ' + (!!a));
+          console.log('b : ' + (!!b));
+          
+          // now proceed with the rest of commonjs
+          module.exports = function () {
+          
+          }
+          
+          // etc.
+        });
 
 + named module - mainly for browsers - build tool can insert .as() etc.
-
-    (define.as('an/id/path'))
-    ('a:path')
-    ('b:path')
-    (function callback() {
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
-      
-      // now proceed with the rest of commonjs
-      module.exports = function () {
-      
-      }
-      
-      // etc.
-    });   
+    
+        (define.as('an/id/path'))
+        ('a:path')
+        ('b:path')
+        (function callback() {
+          console.log('a : ' + (!!a));
+          console.log('b : ' + (!!b));
+          
+          // now proceed with the rest of commonjs
+          module.exports = function () {
+          
+          }
+          
+          // etc.
+        });   
 
 ## License
 
