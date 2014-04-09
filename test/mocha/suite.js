@@ -1,49 +1,9 @@
 // mocha/suite.js
 
+require('../../lib/node/define');
 
-require('../../lib/node/xyz');
 require('should');
 
-module.monadic();
-
-////////////////////////////////////////////////////////////////////////////////
-//
-// LEARNING TESTS ABOUT MOCHA TDD INTERFACE
-//
-////////////////////////////////////////////////////////////////////////////////
-
-
-suite('xyz');
-
-before(function() {
-  this.all = 'before-all'
-});
-
-after(function() {
-  this.all = 'after-all'
-});
-
-beforeEach(function() {
-  this.something = 'default';
-});
-
-afterEach(function() {
-  this.something = undefined;
-});
-
-test('before each', function() {
-  this.something.should.be.equal('default');
-  this.something = 'hello';
-  this.something.should.be.equal('hello');
-});
-
-test('nested suite', function () {
-  suite('heart');
-  test('inside', function () {
-    test.should.be.Function;
-    //throw new Error();
-  });
-});
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -51,53 +11,115 @@ test('nested suite', function () {
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-test('require should - not good', function() {
+suite('define');
 
-  should.should.be.ok;
-  require.cache['should'].should.be.ok;
-  module.constructor._cache['should'].should.be.ok;
-  delete require.cache['should'];
-  (typeof require.cache['should']).should.be.Null;
-  
-  should.should.be.ok;
-  should = undefined;
+test('exists', function () {
+  should.should.be.ok
+  define.should.be.Function
+});
 
-  //delete Object.prototype.should;
-
-  //module.default();
-
-  //console.log(require.toString());
-  //console.log(module.require.toString());
-
-  require('should');
-
-  //module.monadic();
-  
-  //console.log(require.toString());
-  //console.log(module.require.toString());
-  
-  (require)
-  ('fs')
-  (function() {
-    should.should.be.ok;
-    fs.should.be.ok;
+test('globals', function () {
+  (define)
+  (function () {
+    module.should.be.ok;
+    module.exports.should.be.ok;
+    exports.should.be.ok;
+    require.should.be.Function;
+    module.require.should.be.Function;
+    global.should.be.ok;
+    __dirname.should.be.ok;
+    __filename.should.be.ok;
   });
+});
+
+test('import fake', function () {
+  (define)
+  ('./fake')
+  (function () {
+    fake.should.be.ok;
+  });
+});
+
+test('use strict', function () {
+  (define)
+  ('./fake')
+  (function () {
+    'use strict';
+    fake.should.be.ok;
+  });
+});
+
+test('multiple deps, no leaks', function() {
+  (define)
+  ('fs')
+  ('./fake')
+  (function () {  
+    fs.should.be.ok;
+    fake.should.be.ok;
+  });
+});
+
+test('no deps, no leaks', function() {
+  (define) 
+  (function () {  
+    (typeof fs).should.be.equal('undefined');    
+    module.filename.should.containEql('suite.js');
+  });
+});
+
+test('returns module.exports', function () {
+  var exported = (define)
+                  (function () {
+                    'use strict';
+                    module.exports = { id: 'exported' };
+                  });
+  
+  exported.id.should.be.equal('exported');
+});
+
+test('return an import', function () {
+  
+  (f === undefined).should.be.true;
+  
+  var f = (define)
+          ('./fake')
+          (function () {
+            'use strict';
+            fake.should.be.ok;
+            return fake;
+          });
+  
+  f.should.be.ok;
+  
+  // didn't leak?
+  (typeof fake).should.be.equal('undefined');
   
 });
 
-test('fake module', function() {
+test('require still works', function () {
+  var fake = (define)
+  (function () {
+    'use strict';
+    module.exports = require('./fake');
+  });
+  
+  fake('exported').should.be.equal('exported');
+});
 
-  (require)
+
+test('complex nested module', function() {
+
+  (define)
   ('./fake')
   ('should')
   ('fs')  
   (function () {
   
     // INNER NESTED SCOPE
-    (require)
+    (define)
     ('fs')
     (function () {
-      (typeof fs).should.not.be.equal('undefined');
+      fs.should.be.ok;
       (typeof fake).should.be.equal('undefined');
     });
     
@@ -106,9 +128,12 @@ test('fake module', function() {
     fs.should.be.ok;
     (typeof require).should.be.equal('function');
     
+    // no leakage from exec
     (typeof fn).should.be.equal('undefined');
     (typeof context).should.be.equal('undefined');
     (typeof exec).should.be.equal('undefined');
+    
+    // this, exports, module.exports
     module.exports.should.be.equal(exports);
     this.should.be.equal(exports);
   });
@@ -119,8 +144,8 @@ test('fake module', function() {
   
 });
 
-test('hyphenated-test-module', function() {
-  (require)
+test('camelize hyphenated-test-module', function() {
+  (define)
   ('fs')  
   ('./hyphenated-test-module')
   (function () {
@@ -129,16 +154,8 @@ test('hyphenated-test-module', function() {
   });
 });
 
-test('no deps, no leaks', function() {
-  (require)
-  (function () {  
-    (typeof fs).should.be.equal('undefined');
-    module.filename.should.containEql('suite.js');
-  });
-});
-
 test('require.cache', function () {  
-  (require)
+  (define)
   ('./fake')
   (function () {
   
@@ -157,40 +174,26 @@ test('require.cache', function () {
   });
 });
 
-test('use strict', function () {
-  (require)
-  ('./fake')
-  (function () {
-    'use strict';
-    fake.should.be.ok;
+test('delete and re-require should', function() {
+  (define)
+  (function() {
+    require.cache['should'].should.be.ok;
+    module.constructor._cache['should'].should.be.ok;
+    
+    delete require.cache['should'];
+    (typeof require.cache['should']).should.be.Null;
+    
+    should.should.be.ok;
+    should = undefined;
+
+    // don't do this - it breaks all existing objects with should
+    //delete Object.prototype.should;
+
+    require('should');
+    should.should.be.ok;
   });
 });
 
-test('returns module.exports', function () {
-  var exported = (require)
-                  (function () {
-                    'use strict';
-                    module.exports = {};
-                  });
-  
-  exported.should.be.ok;
-});
-
-test('return an import', function () {
-  
-  (f === undefined).should.be.true;
-  
-  var f = (require)
-          ('./fake')
-          (function () {
-            'use strict';
-            fake.should.be.ok;
-            return fake;
-          });
-  
-  f.should.be.ok;
-  
-  // didn't leak?
-  (typeof fake).should.be.equal('undefined');
-  
+test('define as ', function () {
+  should.throws('not implemented');
 });
