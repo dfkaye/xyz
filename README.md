@@ -16,6 +16,7 @@ insane js module pattern (working name)
 + expected global (not a module.export) `'global.$ := path/to/jQuery'`
 + injection from outer to inner scope ~ mmmmm, maybe
 + browser version of this ~ 
++ content security policy
 + rawgithub page
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
@@ -133,6 +134,68 @@ and named modules (assert on node, assign + assert on browser)
       
       // etc.
     });   
+
+## what happened to callback param names?
+
+they're "injected" as variables in the callback indirectly via a `Function()` 
+call which writes out a new function object, including callback.toString().
+
+as commonjs modules return an export rather than a name we have to alias them in 
+an assignment like `var name = require('module-name');`  that api is, however, 
+synchronous which means it doesn't play well in the asynchronous world of the 
+browser.
+
+by default then, a required dependency that exports something is assigned to an 
+alias derived from the filename.  An export defined in a file referenced at 
+`'./path/to/cool-module.js'` will be assigned to a camelCased variable named 
+`coolModule`.
+
+    (define)
+    ('./path/to/cool-module')
+    (function() {
+      coolModule
+    });
+    
+## var aliases
+
+if more than one file is named `'cool-module'`, however, we need a way to avoid 
+the name clash on `coolModule` that would result.
+
+__still being worked out__
+
+    (define)
+    ('./path/to/cool-module')
+    ('alias := ./path/to/another/cool-module')  // := token denotes name alias
+    
+    (function() {
+      coolModule
+      alias
+    });
+
+## path aliases
+
+for testing modules with mocks of their dependencies it makes sense to add 
+configuration injection close to the actual use of the thing
+
+__still being worked out__
+
+    (define)
+    ('./path/to/cool-module')
+    ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
+    
+    (function() {
+      coolModule
+      dependency => mock
+    });
+
+## content security policy
+
+csp headers allow clients to disable script evaluation by default, which means 
+`Function()` can't be used.  
+
+__still being worked out__
+
+this could be mitigated by a build process/nightmare
 
 ## it will just be better
 
