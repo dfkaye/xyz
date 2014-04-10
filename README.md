@@ -27,10 +27,12 @@ insane js module pattern (working name)
 exorcising code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
 
 es6 imports is a huge disaster ~ the only people who could possibly favor it are 
-unlikely to make their living working in browser JavaScript on a daily basis.
+unlikely to make their living working in __cross-browser__ JavaScript on a daily 
+basis.
 
-turns out the chaining pattern of jQuery is one way to do this ~ see Labjs ~ but 
-that kind of chaining is more suited to BCE (before commonjs era) scripts.
+turns out the chaining pattern of jQuery is one way to do this ~ see 
+[Labjs](http://labjs.com/documentation.php), for example ~ but that kind of 
+chaining is more suited to BCE scripts (i.e., "(before CommonJS era").
 
 the JavaScript dependency loading API should be monadic for better readability, 
 scoping, nesting, leak prevention, composability, blah blah.
