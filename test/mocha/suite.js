@@ -31,11 +31,19 @@ test('globals', function () {
   });
 });
 
-test('import fake', function () {
+test('import ./fake as fake', function () {
   (define)
   ('./fake')
   (function () {
     fake.should.be.ok;
+  });
+});
+
+test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
+  (define)
+  ('./hyphenated-test-module')
+  (function () {
+    hyphenatedTestModule().should.be.equal('hyphenated');
   });
 });
 
@@ -56,6 +64,8 @@ test('multiple deps, no leaks', function() {
     fs.should.be.ok;
     fake.should.be.ok;
   });
+  
+  (typeof fs).should.be.equal('undefined');
 });
 
 test('no deps, no leaks', function() {
@@ -63,50 +73,10 @@ test('no deps, no leaks', function() {
   (define) 
   (function () {  
     (typeof fs).should.be.equal('undefined');    
-    //module.filename.should.containEql('suite.js');
   });
 });
 
-test('returns module.exports', function () {
-  var exported = (define)
-                  (function () {
-                    'use strict';
-                    module.exports = { id: 'exported' };
-                  });
-  
-  exported.id.should.be.equal('exported');
-});
-
-test('return an import', function () {
-  
-  (f === undefined).should.be.true;
-  
-  var f = (define)
-            ('./fake')
-            (function () {
-              'use strict';
-              fake.should.be.ok;
-              return fake;
-            });
-  
-  f.should.be.ok;
-  
-  // didn't leak?
-  (typeof fake).should.be.equal('undefined');
-  
-});
-
-test('require still works', function () {
-  var fake = (define)
-              (function () {
-                'use strict';
-                module.exports = require('./fake');
-              });
-  
-  fake('exported').should.be.equal('exported');
-});
-
-test('complex nested module', function() {
+test('nested modules have own scope', function() {
 
   (define)
   ('./fake')
@@ -143,13 +113,55 @@ test('complex nested module', function() {
   
 });
 
-test('camelize hyphenated-test-module', function() {
+test('returns module.exports', function () {
+  var exported = (define)
+                  (function () {
+                    'use strict';
+                    module.exports = { id: 'exported' };
+                  });
+  
+  exported.id.should.be.equal('exported');
+});
+
+test('return an import', function () {
+  
+  (f === undefined).should.be.true;
+  
+  var f = (define)
+            ('./fake')
+            (function () {
+              'use strict';
+              fake.should.be.ok;
+              return fake;
+            });
+  
+  f.should.be.ok;
+  
+  // didn't leak?
+  (typeof fake).should.be.equal('undefined');
+  
+});
+
+suite('require');
+
+test('still works', function () {
+  var fake = (define)
+              (function () {
+                'use strict';
+                module.exports = require('./fake');
+              });
+  
+  fake('exported').should.be.equal('exported');
+});
+
+test('AMD-like', function() {
   (define)
-  ('fs')  
-  ('./hyphenated-test-module')
   (function () {
-    fs.should.be.ok;
-    hyphenatedTestModule().should.be.equal('hyphenated');
+    var q = require('fs');
+    var x = require('./fake');
+    
+    q.should.be.ok;
+    x.should.be.ok;
   });
 });
 
