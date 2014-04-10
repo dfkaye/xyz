@@ -35,7 +35,7 @@ the huge mistake that kind of chaining turned out to be.
 the JavaScript dependency loading API should be monadic for better readability, 
 scoping, nesting, leak prevention, composability, blah blah.
 
-## Node.js `require`
+## node.js `require`
 
 instead of 
 
@@ -98,41 +98,39 @@ all we have to do is pull the dependency statements up, into a monadic pattern
       // etc.
     });
 
-which collapses nicely to
+which collapses nicely to anonymous modules (node.js)
 
-+ anonymous module - node.js
+    (define)
+    ('a:path')
+    ('b:path')
+    (function callback() {
+      console.log('a : ' + (!!a));
+      console.log('b : ' + (!!b));
+      
+      // now proceed with the rest of commonjs
+      module.exports = function () {
+      
+      }
+      
+      // etc.
+    });
 
-        (define)
-        ('a:path')
-        ('b:path')
-        (function callback() {
-          console.log('a : ' + (!!a));
-          console.log('b : ' + (!!b));
-          
-          // now proceed with the rest of commonjs
-          module.exports = function () {
-          
-          }
-          
-          // etc.
-        });
-
-+ named module - mainly for browsers - build tool can insert .as() etc.
+and named modules (mainly for browsers - build tool can insert .as() etc.)
     
-        (define.as('an/id/path'))  // <= not sure about "as()" here
-        ('a:path')
-        ('b:path')
-        (function callback() {
-          console.log('a : ' + (!!a));
-          console.log('b : ' + (!!b));
-          
-          // now proceed with the rest of commonjs
-          module.exports = function () {
-          
-          }
-          
-          // etc.
-        });   
+    (define.as('an/id/path'))  // <= not sure about "as()" here
+    ('a:path')
+    ('b:path')
+    (function callback() {
+      console.log('a : ' + (!!a));
+      console.log('b : ' + (!!b));
+      
+      // now proceed with the rest of commonjs
+      module.exports = function () {
+      
+      }
+      
+      // etc.
+    });   
 
 ## it will just be better
 
