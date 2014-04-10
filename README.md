@@ -32,7 +32,7 @@ basis.
 
 turns out the chaining pattern of jQuery is one way to do this ~ see 
 [Labjs](http://labjs.com/documentation.php), for example ~ but that kind of 
-chaining is more suited to BCE scripts (i.e., "(before CommonJS era").
+chaining is more suited to BCE scripts ~ i.e., "before CommonJS era".
 
 the JavaScript dependency loading API should be monadic for better readability, 
 scoping, nesting, leak prevention, composability, blah blah.
