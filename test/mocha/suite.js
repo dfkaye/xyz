@@ -194,6 +194,32 @@ test('delete and re-require should', function() {
   });
 });
 
-test('define as ', function () {
-  should.should.throw('not implemented');
+suite('define.assert');
+
+test('define.assert filename', function () {
+  (define).assert('./suite.js')
+  ('path')
+  (function() {  
+    var id = ['suite.js'].join(path.sep);
+    module.id.should.containEql(id);
+  });
+});
+
+test('define.assert relative filename', function () {
+  (define).assert('../../test/mocha/suite.js')
+  ('path')
+  (function() {  
+    var id = ['test', 'mocha', 'suite.js'].join(path.sep);
+    module.id.should.containEql(id);
+  });
+});
+
+test('define.assert filename mismatch', function () {
+  (function() {
+    (define).assert('something');
+  }).should.throw(/Cannot find module/);
+});
+
+test('define.assert cannot be called more than once', function () {
+  (typeof define.assert('./suite.js').assert).should.be.equal('undefined');
 });
