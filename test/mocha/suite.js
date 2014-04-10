@@ -1,9 +1,8 @@
 // mocha/suite.js
 
+// in this order we verify that should() isn't broken by define()
 require('../../lib/node/define');
-
 require('should');
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -60,10 +59,11 @@ test('multiple deps, no leaks', function() {
 });
 
 test('no deps, no leaks', function() {
+  var fs = {};
   (define) 
   (function () {  
     (typeof fs).should.be.equal('undefined');    
-    module.filename.should.containEql('suite.js');
+    //module.filename.should.containEql('suite.js');
   });
 });
 
@@ -82,12 +82,12 @@ test('return an import', function () {
   (f === undefined).should.be.true;
   
   var f = (define)
-          ('./fake')
-          (function () {
-            'use strict';
-            fake.should.be.ok;
-            return fake;
-          });
+            ('./fake')
+            (function () {
+              'use strict';
+              fake.should.be.ok;
+              return fake;
+            });
   
   f.should.be.ok;
   
@@ -98,14 +98,13 @@ test('return an import', function () {
 
 test('require still works', function () {
   var fake = (define)
-  (function () {
-    'use strict';
-    module.exports = require('./fake');
-  });
+              (function () {
+                'use strict';
+                module.exports = require('./fake');
+              });
   
   fake('exported').should.be.equal('exported');
 });
-
 
 test('complex nested module', function() {
 
@@ -182,17 +181,21 @@ test('delete and re-require should', function() {
     
     delete require.cache['should'];
     (typeof require.cache['should']).should.be.Null;
-    
+    (typeof module.constructor._cache['should']).should.be.Null;
     should.should.be.ok;
-    should = undefined;
 
-    // don't do this - it breaks all existing objects with should
+    // don't do this - it breaks all existing objects and tests with should
+    // which defines with ES5 Object.defineProperty
     //delete Object.prototype.should;
+
+    // instead nullify should.should, then verify that require restores it
+    should.should = undefined;
 
     require('should');
     should.should.be.ok;
   });
 });
+
 
 suite('define.assert');
 
