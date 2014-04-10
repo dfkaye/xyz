@@ -11,9 +11,22 @@ insane js module pattern (working name)
 
 + travis config
 + testem config
-+ var alias  `'x := path/to/something'`
-+ path alias `'path/to/something := path/to/mock'`
-+ expected global (not a module.export) `'global.$ := path/to/jQuery'`
++ var alias ~ *debating*
+  - `'x := path/to/something'`
+  - `'{x} := path/to/something'`
++ path alias ~ *debating*
+  - `'path/to/something := path/to/mock'`
++ alias expected global (not a module.export) ~ *debating* 
+  - `'global.$ := path/to/jQuery'`
+  - `'{$} := path/to/jQuery'`
++ pick an alias separator ~ *debating*
+
+  - `:`
+  - `:-`
+  - `:=`
+  - `::`
+  - `->`
+  
 + injection from outer to inner scope ~ mmmmm, maybe
 + browser version of this ~ 
 + content security policy
