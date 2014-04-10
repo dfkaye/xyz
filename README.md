@@ -5,7 +5,7 @@ insane js module pattern (working name)
 
 ## in progress
 
-[9 APR 2104] node.js version "works" with mocha+should tests
+[9-10 APR 2104] node.js version "works" with mocha+should tests
 
 ## TODO
 
