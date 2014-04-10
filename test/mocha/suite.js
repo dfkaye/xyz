@@ -195,5 +195,5 @@ test('delete and re-require should', function() {
 });
 
 test('define as ', function () {
-  should.throws('not implemented');
+  should.should.throw('not implemented');
 });
