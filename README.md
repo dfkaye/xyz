@@ -200,7 +200,7 @@ this could be mitigated by a build process/nightmare
 ## it will just be better
 
 we'd be able to run a concat of scripts written in this way without having to 
-re-wrap and/or transform everything <i>a la</i> browserify or r.js.  
+re-wrap and/or transform everything <i>&agrave; la</i> browserify or r.js.  
 
 then we could get back to work solving our real issues.
 
