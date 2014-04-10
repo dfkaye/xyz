@@ -29,8 +29,8 @@ exorcising code demons that disturb sleep ~ https://gist.github.com/dfkaye/73904
 es6 imports is a huge disaster ~ the only people who could possibly favor it are 
 unlikely to make their living working in browser JavaScript on a daily basis.
 
-turns out the chaining pattern of jQuery is one way to do this ~ see Labjs for 
-the huge mistake that kind of chaining turned out to be.
+turns out the chaining pattern of jQuery is one way to do this ~ see Labjs ~ but 
+that kind of chaining is more suited to BCE (before commonjs era) scripts.
 
 the JavaScript dependency loading API should be monadic for better readability, 
 scoping, nesting, leak prevention, composability, blah blah.
@@ -66,9 +66,9 @@ That "could" work on the browser but `require` on node.js is pretty much locked
 down.  For node.js we'd have to wrap the module loading API with a different 
 name, such as `define` which is used in&hellip;
 
-## browser AMD
+## AMD
 
-this is actually really close (requirejs, seajs)
+this is actually really really close (requirejs, seajs)
 
     define(function(module, require, exports) {
     
@@ -115,9 +115,9 @@ which collapses nicely to anonymous modules (node.js)
       // etc.
     });
 
-and named modules (mainly for browsers - build tool can insert .as() etc.)
+and named modules (assert on node, assign + assert on browser)
     
-    (define.as('an/id/path'))  // <= not sure about "as()" here
+    (define.assert('./an/id/path')) // assert on node, assign + assert on browser
     ('a:path')
     ('b:path')
     (function callback() {
