@@ -58,7 +58,7 @@ test('use strict', function () {
 
 test('multiple deps, no leaks', function() {
   (define)
-  ('fs')
+  ('fs') // notice we import the fs module
   ('./fake')
   (function () {  
     fs.should.be.ok;
@@ -81,12 +81,12 @@ test('nested modules have own scope', function() {
   (define)
   ('./fake')
   ('should')
-  ('fs')  
+  ('fs') // notice we import the fs module
   (function () {
   
     // INNER NESTED SCOPE
     (define)
-    ('fs')
+    ('fs') // ...and again
     (function () {
       fs.should.be.ok;
       (typeof fake).should.be.equal('undefined');
@@ -157,7 +157,7 @@ test('still works', function () {
 test('AMD-like', function() {
   (define)
   (function () {
-    var q = require('fs');
+    var q = require('fs'); // node.js fs module
     var x = require('./fake');
     
     q.should.be.ok;
@@ -213,7 +213,7 @@ suite('define.assert');
 
 test('define.assert filename', function () {
   (define).assert('./suite.js')
-  ('path')
+  ('path') // notice we import the path module
   (function() {  
     var id = ['suite.js'].join(path.sep);
     module.id.should.containEql(id);
@@ -222,7 +222,7 @@ test('define.assert filename', function () {
 
 test('define.assert relative filename', function () {
   (define).assert('../../test/mocha/suite.js')
-  ('path')
+  ('path') // notice we import the path module
   (function() {  
     var id = ['test', 'mocha', 'suite.js'].join(path.sep);
     module.id.should.containEql(id);
