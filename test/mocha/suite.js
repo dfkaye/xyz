@@ -69,10 +69,11 @@ test('multiple deps, no leaks', function() {
 });
 
 test('no deps, no leaks', function() {
-  var fs = {};
+  var q = {};
   (define) 
-  (function () {  
-    (typeof fs).should.be.equal('undefined');    
+  (function () {
+    // INNER SCOPE DOES NOT SEE OUTSIDE VARS
+    (typeof q).should.be.equal('undefined');    
   });
 });
 
@@ -84,15 +85,6 @@ test('nested modules have own scope', function() {
   ('fs') // notice we import the fs module
   (function () {
   
-    // INNER NESTED SCOPE
-    (define)
-    ('fs') // ...and again
-    (function () {
-      fs.should.be.ok;
-      (typeof fake).should.be.equal('undefined');
-    });
-    
-    // INNER SCOPE
     fake('id').should.be.equal('id');
     fs.should.be.ok;
     (typeof require).should.be.equal('function');
@@ -105,6 +97,26 @@ test('nested modules have own scope', function() {
     // this, exports, module.exports
     module.exports.should.be.equal(exports);
     this.should.be.equal(exports);
+    
+    fs = null;
+    fake = null;
+    
+    (define)
+    (function () {
+    
+      /*
+       * 11 APR 2014
+       * I THINK THIS IS A MISTAKE
+       * INNER NESTED SCOPE PROBABLY SHOULDN'T SEE IMPORTS FROM OUTER CONTEXT
+       */
+    
+      // INNER NESTED SCOPE SEES OUTSIDE IMPORTS
+      fs.should.be.ok;
+      fake.should.be.ok;
+    });
+
+    (!!fs).should.be.false;
+    (!!fake).should.be.false;
   });
   
   // OUTSIDE SCOPE
@@ -237,4 +249,16 @@ test('define.assert filename mismatch', function () {
 
 test('define.assert cannot be called more than once', function () {
   (typeof define.assert('./suite.js').assert).should.be.equal('undefined');
+});
+
+
+// should have been first...
+suite('import another file that imports another file');
+
+test('suite => def => fake', function () {
+    (define).assert('./suite.js')
+    ('./def')
+    (function(){
+      def('leppard').should.be.equal('should see defness for ' + 'leppard');
+    });
 });

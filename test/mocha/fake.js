@@ -1,6 +1,6 @@
-// test module
+// fake module
 
-module.exports = test;
-function test(id) {
+module.exports = fake;
+function fake(id) {
   return id;
 }

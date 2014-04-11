@@ -7,35 +7,6 @@ insane js module pattern (working name)
 
 [9-10 APR 2104] node.js version "works" with mocha+should tests
 
-## TODO
-
-+ travis config
-+ testem config
-+ var alias ~ *debating*
-  - `'x := path/to/something'`
-  - `'{x} := path/to/something'`
-+ path alias ~ *debating*
-  - `'path/to/something := path/to/mock'`
-+ alias expected global (not a module.export) ~ *debating* 
-  - `'global.$ := path/to/jQuery'`
-  - `'{$} := path/to/jQuery'`
-+ pick an alias separator ~ *debating*
-
-  - `:`
-  - `:-`
-  - `:=`
-  - `::`
-  - `->`
-  
-+ injection from outer to inner scope ~ mmmmm, maybe
-+ browser version of this ~ 
-+ content security policy
-+ rawgithub page
-+ happy build/concat tool with tests  (use `task()` pattern)
-+ acknowledgements & support
-+ rename it
-+ push to npm
-
 ## motivation
 
 exorcising code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
@@ -51,7 +22,7 @@ chaining is more suited to BCE scripts ~ i.e., "before CommonJS era".
 the JavaScript dependency loading API should be monadic for better readability, 
 scoping, nesting, leak prevention, composability, blah blah.
 
-## node.js `require`
+## commonjs `require`
 
 instead of 
 
@@ -133,7 +104,7 @@ which collapses nicely to anonymous modules (node.js)
 
 and named modules (assert on node, assign + assert on browser)
     
-    (define.assert('./an/id/path')) // assert on node, assign + assert on browser
+    (define.assert('./an/id/path')) // assert on node, assign-assert on browser
     ('a:path')
     ('b:path')
     (function callback() {
@@ -198,7 +169,7 @@ __still being worked out__
     
     (function() {
       coolModule
-      dependency => mock
+      dependency //=> mock
     });
 
 ## content security policy
@@ -213,10 +184,43 @@ this could be mitigated by a build process/nightmare
 ## it will just be better
 
 we'd be able to run a concat of scripts written in this way without having to 
-re-wrap and/or transform everything <i>&agrave; la</i> browserify or r.js.  
+re-wrap and/or transform everything <i>&agrave; la</i> browserify or r.js or 
+traceur or es6ify or any of the other trendy-but-wrong, 
+might-as-well-be-coffeescript transpoilers&trade;.  
 
 then we could get back to work solving our real issues.
 
 ## License
 
 JSON (modified MIT)
+
+
+
+## TODO
+
++ travis config
++ testem config
++ var alias ~ *debating*
+  - `'x := path/to/something'`
+  - `'{x} := path/to/something'`
++ path alias ~ *debating*
+  - `'path/to/something := path/to/mock'`
++ alias expected global (not a module.export) ~ *debating* 
+  - `'global.$ := path/to/jQuery'`
+  - `'{$} := path/to/jQuery'`
++ pick an alias separator ~ *debating*
+
+  - `:`
+  - `:-`
+  - `:=`
+  - `::`
+  - `->`
+  
++ injection from outer to inner scope ~ mmmmm, maybe
++ browser version of this ~ 
++ content security policy
++ rawgithub page
++ happy build/concat tool with tests  (use `task()` pattern)
++ acknowledgements & support
++ rename it
++ push to npm
