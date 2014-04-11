@@ -53,10 +53,13 @@ test('delete and re-require should', function() {
   (typeof require.cache['should']).should.be.Null;
   
   should.should.be.ok;
-  should = undefined;
 
-  // don't do this - it breaks all existing objects with should
+  // don't do this - it breaks all existing objects and tests with should
+  // which defines with ES5 Object.defineProperty
   //delete Object.prototype.should;
+
+  // instead nullify should.should, then verify that require restores it
+  should.should = undefined;
 
   require('should');
   should.should.be.ok;
