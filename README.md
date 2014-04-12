@@ -24,7 +24,7 @@ scoping, nesting, leak prevention, composability, blah blah.
 
 ## commonjs `require`
 
-instead of 
+gave us this
 
     var a = require('a/path');
     var b = require('b/path');
@@ -34,7 +34,7 @@ instead of
     
     }
     
-should be
+but that should be
 
     require('a/path')('b/path')(function () {
     
