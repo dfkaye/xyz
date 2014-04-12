@@ -5,7 +5,7 @@ insane js module pattern (working name)
 
 ## in progress
 
-[9-10 APR 2104] node.js version "works" with mocha+should tests
+[9-10-11 APR 2104] node.js version "works" with mocha+should tests
 
 ## motivation
 
@@ -198,6 +198,7 @@ JSON (modified MIT)
 
 ## TODO
 
++ should nested defs in one file see deps in outer scopes?
 + travis config
 + testem config
 + var alias ~ *debating*
