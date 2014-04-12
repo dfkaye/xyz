@@ -198,7 +198,7 @@ JSON (modified MIT)
 
 ## TODO
 
-+ should nested defs in one file see deps in outer scopes?
++ should nested defs in one file see deps in outer scopes? ~ *debating*
 + travis config
 + testem config
 + var alias ~ *debating*
@@ -209,17 +209,21 @@ JSON (modified MIT)
 + alias expected global (not a module.export) ~ *debating* 
   - `'global.$ := path/to/jQuery'`
   - `'{$} := path/to/jQuery'`
-+ pick an alias separator ~ *debating*
-
-  - `:`
-  - `:-`
-  - `:=`
-  - `::`
-  - `->`
-  
-+ injection from outer to inner scope ~ mmmmm, maybe
-+ browser version of this ~ 
-+ content security policy
++ pick an alias separator ~ *debating (excessively)*
+  - ` : `
+  - ` :- `
+  - ` := `
+  - ` :: `
+  - ` -> `
+  - ` ? `
+  - ` ! `
+  - ` !! `
+  - ` % `
+  - ` @ `
+  - ` & `
++ <del>injection from outer to inner scope ~ mmmmm, maybe</del> - No. SRP.
++ browser version of this ~ *once the node version is "locked" down enough*
++ content security policy ~ *workaround needed*
 + rawgithub page
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
