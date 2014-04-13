@@ -4,6 +4,6 @@
 (function() {
   module.exports = def;
   function def(id) {
-    return 'should see defness for ' + fake(id);
+    return 'defness for ' + fake(id);
   }
 });
