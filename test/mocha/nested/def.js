@@ -1,5 +1,5 @@
 // nested/test module
-(define).assert('./nested/def')
+(define).assert(__filename)
 ('./nested/fake')
 (function() {
 

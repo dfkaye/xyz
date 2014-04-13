@@ -1,5 +1,5 @@
 // test module
-(define).assert('./def')
+(define).assert(__filename)
 ('./fake')
 (function() {
   module.exports = def;

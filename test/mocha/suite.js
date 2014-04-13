@@ -256,7 +256,7 @@ test('define.assert cannot be called more than once', function () {
 suite('import another file that imports another file');
 
 test('suite => def => fake', function () {
-  (define).assert('./suite.js')
+  (define).assert(__filename)
   ('./def')
   (function(){
     def('leppard').should.be.equal('defness for ' + 'leppard');
@@ -265,10 +265,10 @@ test('suite => def => fake', function () {
 
 //nested/ name clash or clobbering?
 test('suite => def + nested/def', function () {
-  (define).assert('./suite.js')
+  (define).assert(__filename)
   ('./def')
   ('./nested/def')
   (function(){
-    def('leppard').should.be.equal('nested defness for ' + 'leppard');
+    def('leppard').should.be.equal('nested defness for nested leppard');
   });
 });

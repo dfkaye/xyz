@@ -104,7 +104,7 @@ which collapses nicely to anonymous modules (node.js)
 
 and named modules (assert on node, assign + assert on browser)
     
-    (define.assert('./an/id/path')) // assert on node, assign-assert on browser
+    (define.assert(__filename))
     ('a:path')
     ('b:path')
     (function callback() {

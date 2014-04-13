@@ -2,5 +2,5 @@
 
 module.exports = fake;
 function fake(id) {
-  return id;
+  return 'nested ' + id;
 }
