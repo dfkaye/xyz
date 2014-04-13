@@ -241,9 +241,9 @@ test('define.assert relative filename', function () {
   });
 });
 
-test('define.assert filename mismatch', function () {
+test('define.assert filename not found', function () {
   (function() {
-    (define).assert('something');
+    (define).assert('&8*(D');
   }).should.throw(/Cannot find module/);
 });
 
@@ -256,7 +256,7 @@ test('define.assert cannot be called more than once', function () {
 suite('import another file that imports another file');
 
 test('suite => def => fake', function () {
-  (define).assert(__filename)
+  (define)//.assert(__filename)
   ('./def')
   (function(){
     def('leppard').should.be.equal('defness for ' + 'leppard');
@@ -265,7 +265,7 @@ test('suite => def => fake', function () {
 
 //nested/ name clash or clobbering?
 test('suite => def + nested/def', function () {
-  (define).assert(__filename)
+  (define)//.assert(__filename)
   ('./def')
   ('./nested/def')
   (function(){
