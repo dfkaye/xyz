@@ -5,7 +5,10 @@ insane js module pattern (working name)
 
 ## in progress
 
+[14 APR 2014] - starting over ~ needs better context init logic
+
 [9-10-11 APR 2104] node.js version "works" with mocha+should tests
+
 
 ## motivation
 
@@ -19,12 +22,19 @@ turns out the chaining pattern of jQuery is one way to do this ~ see
 [Labjs](http://labjs.com/documentation.php), for example ~ but that kind of 
 chaining is more suited to BCE scripts ~ i.e., "before CommonJS era".
 
+## monadic chaining vs object chaining
+
+jQuery chaining means returning the same object after each member method call on 
+the object.
+
+monadic chaining means returning the same *function*
+
 the JavaScript dependency loading API should be monadic for better readability, 
 scoping, nesting, leak prevention, composability, blah blah.
 
 ## commonjs `require`
 
-gave us this
+gives us
 
     var a = require('a/path');
     var b = require('b/path');
@@ -34,7 +44,7 @@ gave us this
     
     }
     
-but that should be
+should be
 
     require('a/path')('b/path')(function () {
     
@@ -85,7 +95,7 @@ all we have to do is pull the dependency statements up, into a monadic pattern
       // etc.
     });
 
-which collapses nicely to anonymous modules (node.js)
+then stack each call (node.js)
 
     (define)
     ('a:path')
@@ -102,7 +112,7 @@ which collapses nicely to anonymous modules (node.js)
       // etc.
     });
 
-and named modules (assert on node, assign + assert on browser)
+add a way to name modules by file (assert on node, assign + assert on browser)
     
     (define.assert(__filename))
     ('a:path')
@@ -129,8 +139,8 @@ an assignment like `var name = require('module-name');`  that api is, however,
 synchronous which means it doesn't play well in the asynchronous world of the 
 browser.
 
-by default then, a required dependency that exports something is assigned to an 
-alias derived from the filename.  An export defined in a file referenced at 
+a required dependency that exports something is assigned to an alias derived 
+from the filename.  An export defined in a file referenced at 
 `'./path/to/cool-module.js'` will be assigned to a camelCased variable named 
 `coolModule`.
 
@@ -142,8 +152,8 @@ alias derived from the filename.  An export defined in a file referenced at
     
 ## var aliases
 
-if more than one file is named `'cool-module'`, however, we need a way to avoid 
-the name clash on `coolModule` that would result.
+if more than one file is named `'cool-module'`, we need a way to avoid the name 
+clash on `coolModule` that would result.
 
 __still being worked out__
 
@@ -198,6 +208,7 @@ JSON (modified MIT)
 
 ## TODO
 
++ fix context init (facepalm 13 apr 2014)
 + should nested defs in one file see deps in outer scopes? ~ *debating*
 + travis config
 + testem config
@@ -210,9 +221,9 @@ JSON (modified MIT)
   - `'global.$ := path/to/jQuery'`
   - `'{$} := path/to/jQuery'`
 + pick an alias separator ~ *debating (excessively)*
-  - ` : `
+  - ` : `   // this makes sense but harder to isolate in urls (scheme,port,etc)
   - ` :- `
-  - ` := `
+  - ` := `  // this makes more sense esp on urls
   - ` :: `
   - ` -> `
   - ` ? `
