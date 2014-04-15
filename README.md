@@ -208,8 +208,10 @@ JSON (modified MIT)
 
 ## TODO
 
-+ fix context init (facepalm 13 apr 2014)
-+ should nested defs in one file see deps in outer scopes? ~ *debating*
++ <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
+    right ~ this api is *different* so need to make the mapping/loading rules 
+    more clear
++ should nested `define()` see deps in outer scope? ~ *debating*
 + travis config
 + testem config
 + var alias ~ *debating*
@@ -222,19 +224,19 @@ JSON (modified MIT)
   - `'{$} := path/to/jQuery'`
 + pick an alias separator ~ *debating (excessively)*
   - ` : `   // this makes sense but harder to isolate in urls (scheme,port,etc)
-  - ` :- `
+  - ` :- `  // prolog, kinda different
   - ` := `  // this makes more sense esp on urls
-  - ` :: `
-  - ` -> `
-  - ` ? `
-  - ` ! `
-  - ` !! `
-  - ` % `
-  - ` @ `
-  - ` & `
+  - ` :: `  // scope resolution operator ~ already means lookup, not bind
+  - ` -> `  // <- mmmmmm, no ~ too coffeescript-y
+  - ` ? `   // unusual
+  - ` ! `   // loader plugin syntax
+  - ` !! `  // could do that
+  - ` % `   // mmmmmm, no
+  - ` @ `   // mmmmmm, no
+  - ` & `   // mmmmmm, no
 + <del>injection from outer to inner scope ~ mmmmm, maybe</del> - No. SRP.
 + browser version of this ~ *once the node version is "locked" down enough*
-+ content security policy ~ *workaround needed*
++ content security policy ~ *workaround needed* ~ CSP is an ES6 co-conspirator
 + rawgithub page
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
