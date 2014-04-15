@@ -32,6 +32,27 @@ monadic chaining means returning the same *function*
 the JavaScript dependency loading API should be monadic for better readability, 
 scoping, nesting, leak prevention, composability, blah blah.
 
+some modules out there use this pattern
+
+    require('asyncModule')(arg1);
+
+more rarely but still possible for a promise-like api
+
+    require('asyncModule')(arg1)(arg2)(arg3);
+
+that could be turned into a lisp-y pattern as
+
+    (require)
+    ('asyncModule')(arg1)(arg2)(arg3);
+
+which I'm advocating with this library as
+
+    (define).assert(__filename)
+    ('asyncModule')
+    (function () {
+      asyncModule(arg1)(arg2)(arg3);
+    });
+    
 ## commonjs `require`
 
 gives us
