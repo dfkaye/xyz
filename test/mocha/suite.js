@@ -31,11 +31,11 @@ test('globals', function () {
   });
 });
 
-test('import ./fake as fake', function () {
+test('import ./abc as abc', function () {
   (define)
-  ('./fake')
+  ('./abc')
   (function () {
-    fake.should.be.ok;
+    abc.should.be.ok;
   });
 });
 
@@ -49,20 +49,20 @@ test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
 
 test('use strict', function () {
   (define)
-  ('./fake')
+  ('./abc')
   (function () {
     'use strict';
-    fake.should.be.ok;
+    abc.should.be.ok;
   });
 });
 
 test('multiple deps, no leaks', function() {
   (define)
   ('fs') // notice we import the fs module
-  ('./fake')
+  ('./abc')
   (function () {  
     fs.should.be.ok;
-    fake.should.be.ok;
+    abc.should.be.ok;
   });
   
   (typeof fs).should.be.equal('undefined');
@@ -80,12 +80,12 @@ test('no deps, no leaks', function() {
 test('nested modules have own scope', function() {
 
   (define)
-  ('./fake')
+  ('./abc')
   ('should')
   ('fs') // notice we import the fs module
   (function () {
   
-    fake('id').should.be.equal('id');
+    abc('id').should.be.equal('id');
     fs.should.be.ok;
     (typeof require).should.be.equal('function');
     
@@ -99,8 +99,9 @@ test('nested modules have own scope', function() {
     this.should.be.equal(exports);
     
     fs = null;
-    fake = null;
+    abc = null;
     
+    // INNER NESTED SCOPE WITH NO ADDITIONAL IMPORTS
     (define)
     (function () {
     
@@ -112,16 +113,16 @@ test('nested modules have own scope', function() {
     
       // INNER NESTED SCOPE SEES OUTSIDE IMPORTS
       fs.should.be.ok;
-      fake.should.be.ok;
+      abc.should.be.ok;
     });
 
     (!!fs).should.be.false;
-    (!!fake).should.be.false;
+    (!!abc).should.be.false;
   });
   
   // OUTSIDE SCOPE
   (typeof fs).should.be.equal('undefined');
-  (typeof fake).should.be.equal('undefined');
+  (typeof abc).should.be.equal('undefined');
   
 });
 
@@ -140,37 +141,37 @@ test('return an import', function () {
   (f === undefined).should.be.true;
   
   var f = (define)
-            ('./fake')
+            ('./abc')
             (function () {
               'use strict';
-              fake.should.be.ok;
-              return fake;
+              abc.should.be.ok;
+              return abc;
             });
   
   f.should.be.ok;
   
   // didn't leak?
-  (typeof fake).should.be.equal('undefined');
+  (typeof abc).should.be.equal('undefined');
   
 });
 
 suite('require');
 
 test('still works', function () {
-  var fake = (define)
+  var abc = (define)
               (function () {
                 'use strict';
-                module.exports = require('./fake');
+                module.exports = require('./abc');
               });
   
-  fake('exported').should.be.equal('exported');
+  abc('exported').should.be.equal('exported');
 });
 
 test('AMD-like', function() {
   (define)
   (function () {
     var q = require('fs'); // node.js fs module
-    var x = require('./fake');
+    var x = require('./abc');
     
     q.should.be.ok;
     x.should.be.ok;
@@ -179,16 +180,16 @@ test('AMD-like', function() {
 
 test('require.cache', function () {  
   (define)
-  ('./fake')
+  ('./abc')
   (function () {
   
     var m = module.constructor._cache;
     var r = require.cache;
-    var filename = module.constructor._resolveFilename('./fake', module);
+    var filename = module.constructor._resolveFilename('./abc', module);
     
     (!!r && !!m && (m === r)).should.be.true;
-    (m[filename].exports === fake).should.be.true;
-    (r[filename].exports === fake).should.be.true;
+    (m[filename].exports === abc).should.be.true;
+    (r[filename].exports === abc).should.be.true;
     
     delete r[filename];
     
@@ -255,7 +256,7 @@ test('define.assert cannot be called more than once', function () {
 // should have been first...
 suite('import another file that imports another file');
 
-test('suite => def => fake', function () {
+test('suite => def => abc', function () {
   (define)//.assert(__filename)
   ('./def')
   (function(){
