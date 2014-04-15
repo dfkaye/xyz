@@ -18,6 +18,7 @@ test('exists', function () {
 });
 
 test('globals', function () {
+
   (define)
   (function () {
     module.should.be.ok;
@@ -32,6 +33,7 @@ test('globals', function () {
 });
 
 test('import ./abc as abc', function () {
+
   (define)
   ('./abc')
   (function () {
@@ -40,6 +42,7 @@ test('import ./abc as abc', function () {
 });
 
 test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
+
   (define)
   ('./hyphenated-test-module')
   (function () {
@@ -48,6 +51,7 @@ test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
 });
 
 test('use strict', function () {
+
   (define)
   ('./abc')
   (function () {
@@ -57,6 +61,7 @@ test('use strict', function () {
 });
 
 test('multiple dependencies', function() {
+
   (define)
   ('fs') // notice we import the fs module
   ('./abc')
@@ -69,7 +74,9 @@ test('multiple dependencies', function() {
 });
 
 test('sandboxed', function() {
+
   var q = {};
+  
   (define) 
   (function () {
     // INNER SCOPE DOES NOT SEE OUTSIDE VARS
@@ -78,6 +85,7 @@ test('sandboxed', function() {
 });
 
 test('circular dependencies', function () {
+
   (define)
   ('./suite.js')
   (function () {
@@ -171,6 +179,7 @@ test('nested modules have own scope', function() {
 });
 
 test('returns module.exports', function () {
+
   var exported = (define)
                   (function () {
                     'use strict';
@@ -199,74 +208,14 @@ test('return an import', function () {
   
 });
 
-suite('require');
-
-test('still works', function () {
-  var abc = (define)
-              (function () {
-                'use strict';
-                module.exports = require('./abc');
-              });
-  
-  abc('exported').should.be.equal('exported');
-});
-
-test('AMD-like', function() {
-  (define)
-  (function () {
-    var q = require('fs'); // node.js fs module
-    var x = require('./abc');
-    
-    q.should.be.ok;
-    x.should.be.ok;
-  });
-});
-
-test('require.cache', function () {  
-  (define)
-  ('./abc')
-  (function () {
-  
-    var m = module.constructor._cache;
-    var r = require.cache;
-    var filename = module.constructor._resolveFilename('./abc', module);
-    
-    (!!r && !!m && (m === r)).should.be.true;
-    (m[filename].exports === abc).should.be.true;
-    (r[filename].exports === abc).should.be.true;
-    
-    delete r[filename];
-    
-    (r[filename] === undefined).should.be.true;
-    (m[filename] === undefined).should.be.true;
-  });
-});
-
-test('delete and re-require should', function() {
-  (define)
-  (function() {
-    require.cache['should'].should.be.ok;
-    module.constructor._cache['should'].should.be.ok;
-    
-    delete require.cache['should'];
-    (typeof require.cache['should']).should.be.Null;
-    (typeof module.constructor._cache['should']).should.be.Null;
-    should.should.be.ok;
-
-    // don't do this - it breaks all existing objects and tests with should
-    // which defines with ES5 Object.defineProperty
-    //delete Object.prototype.should;
-
-    // instead nullify should.should, then verify that require restores it
-    should.should = undefined;
-
-    require('should');
-    should.should.be.ok;
-  });
-});
-
-
 suite('define.assert');
+
+test('default filename', function () {
+  (define)
+  (function () {
+    module.filename.should.containEql('suite.js');
+  });
+});
 
 test('define.assert __filename', function () {
 
@@ -303,13 +252,86 @@ test('define.assert relative filename', function () {
 });
 
 test('define.assert filename not found', function () {
+
   (function() {
     (define).assert('&8*(D');
   }).should.throw(/Cannot find module/);
 });
 
 test('define.assert cannot be called more than once', function () {
+
   (typeof define.assert(__filename).assert).should.be.equal('undefined');
+});
+
+
+suite('require');
+
+test('still works', function () {
+
+  var abc = (define)
+              (function () {
+                'use strict';
+                module.exports = require('./abc');
+              });
+  
+  abc('exported').should.be.equal('exported');
+});
+
+test('AMD-like', function() {
+
+  (define)
+  (function () {
+    var q = require('fs'); // node.js fs module
+    var x = require('./abc');
+    
+    q.should.be.ok;
+    x.should.be.ok;
+  });
+});
+
+test('require.cache', function () {
+
+  (define)
+  ('./abc')
+  (function () {
+  
+    var m = module.constructor._cache;
+    var r = require.cache;
+    var filename = module.constructor._resolveFilename('./abc', module);
+    
+    (!!r && !!m && (m === r)).should.be.true;
+    (m[filename].exports === abc).should.be.true;
+    (r[filename].exports === abc).should.be.true;
+    
+    delete r[filename];
+    
+    (r[filename] === undefined).should.be.true;
+    (m[filename] === undefined).should.be.true;
+  });
+});
+
+test('delete and re-require should.js', function() {
+
+  (define)
+  (function() {
+    require.cache['should'].should.be.ok;
+    module.constructor._cache['should'].should.be.ok;
+    
+    delete require.cache['should'];
+    (typeof require.cache['should']).should.be.Null;
+    (typeof module.constructor._cache['should']).should.be.Null;
+    should.should.be.ok;
+
+    // don't do this - it breaks all existing objects and tests with should
+    // which defines with ES5 Object.defineProperty
+    //delete Object.prototype.should;
+
+    // instead nullify should.should, then verify that require restores it
+    should.should = undefined;
+
+    require('should');
+    should.should.be.ok;
+  });
 });
 
 
@@ -317,6 +339,7 @@ test('define.assert cannot be called more than once', function () {
 suite('require file that requires another file');
 
 test('suite => def => abc', function () {
+
   (define)//.assert(__filename)
   ('./def')
   (function(){
@@ -326,6 +349,7 @@ test('suite => def => abc', function () {
 
 //nested/ name clash or clobbering?
 test('suite => def & nested/def : nested/def wins', function () {
+
   (define)//.assert(__filename)
   ('./def')
   ('./nested/def')
