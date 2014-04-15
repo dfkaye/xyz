@@ -56,7 +56,7 @@ test('use strict', function () {
   });
 });
 
-test('multiple deps, no leaks', function() {
+test('multiple dependencies', function() {
   (define)
   ('fs') // notice we import the fs module
   ('./abc')
@@ -68,13 +68,57 @@ test('multiple deps, no leaks', function() {
   (typeof fs).should.be.equal('undefined');
 });
 
-test('no deps, no leaks', function() {
+test('sandboxed', function() {
   var q = {};
   (define) 
   (function () {
     // INNER SCOPE DOES NOT SEE OUTSIDE VARS
     (typeof q).should.be.equal('undefined');    
   });
+});
+
+test('circular dependencies', function () {
+  (define)
+  ('./suite.js')
+  (function () {
+    suite.should.be.equal(global.suite);
+    suite.should.not.be.equal(module.exports);
+  });
+});
+
+test('pass values by module properties', function() {
+
+  (define) 
+  (function () {
+    module.hello = 'hello';    
+  });
+  
+  (define) 
+  (function () {
+    module.hello.should.be.equal('hello');    
+  });
+  
+  // polluting other modules by properties
+  
+  (define)
+  ('./abc')
+  (function () {
+    abc.hello = 'abc';    
+  });
+  
+  (define)
+  ('./abc')
+  (function () {
+    abc.hello.should.be.equal('abc');    
+  });
+  
+  // names still protected
+  
+  (define)
+  ('./nested/abc')
+  (function () {
+    (typeof abc.hello).should.be.equal('undefined');    
+  });  
 });
 
 test('nested modules have own scope', function() {
@@ -107,8 +151,8 @@ test('nested modules have own scope', function() {
     
       /*
        * 11 APR 2014
-       * I THINK THIS IS A MISTAKE
-       * INNER NESTED SCOPE PROBABLY SHOULDN'T SEE IMPORTS FROM OUTER CONTEXT
+       * NOT SURE THIS IS RIGHT ~ INNER NESTED CONTEXT PROBABLY SHOULDN'T SEE 
+       * IMPORTS FROM AN OUTER CONTEXT ~ BUT I COULD BE WRONG...
        */
     
       // INNER NESTED SCOPE SEES OUTSIDE IMPORTS
@@ -224,7 +268,20 @@ test('delete and re-require should', function() {
 
 suite('define.assert');
 
-test('define.assert filename', function () {
+test('define.assert __filename', function () {
+
+  (define).assert(__filename)
+  ('path') // notice we import the path module
+  (function() {  
+    var id = ['suite.js'].join(path.sep);
+    module.id.should.containEql(id);
+  });
+});
+
+test('define.assert short filename', function () {
+
+  // this works but probably should be avoided
+  
   (define).assert('./suite.js')
   ('path') // notice we import the path module
   (function() {  
@@ -234,6 +291,9 @@ test('define.assert filename', function () {
 });
 
 test('define.assert relative filename', function () {
+
+  // this works but probably should be avoided
+
   (define).assert('../../test/mocha/suite.js')
   ('path') // notice we import the path module
   (function() {  
@@ -249,12 +309,12 @@ test('define.assert filename not found', function () {
 });
 
 test('define.assert cannot be called more than once', function () {
-  (typeof define.assert('./suite.js').assert).should.be.equal('undefined');
+  (typeof define.assert(__filename).assert).should.be.equal('undefined');
 });
 
 
-// should have been first...
-suite('import another file that imports another file');
+// should have done this first...
+suite('require file that requires another file');
 
 test('suite => def => abc', function () {
   (define)//.assert(__filename)
@@ -265,7 +325,7 @@ test('suite => def => abc', function () {
 });
 
 //nested/ name clash or clobbering?
-test('suite => def + nested/def', function () {
+test('suite => def & nested/def : nested/def wins', function () {
   (define)//.assert(__filename)
   ('./def')
   ('./nested/def')
