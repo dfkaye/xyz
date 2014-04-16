@@ -163,16 +163,28 @@ test('nested modules have own scope', function() {
        * IMPORTS FROM AN OUTER CONTEXT ~ BUT I COULD BE WRONG...
        */
     
-      // INNER NESTED SCOPE SEES OUTSIDE IMPORTS
-      fs.should.be.ok;
-      abc.should.be.ok;
+      // SHOULD INNER NESTED SCOPE SEE OUTSIDE IMPORTS?
+      (typeof fs).should.be.equal('undefined'); // fs.should.be.ok
+      (typeof abc).should.be.equal('undefined'); // abc.should.be.ok
     });
 
+    // INNER NESTED SCOPE WITH EXPLICIT IMPORTS
+    (define)
+    ('./abc')
+    ('fs')   
+    (function () {
+    
+      fs.should.be.ok
+      abc.should.be.ok
+    });
+    
+    // FINALLY VERIFY NESTED INNER DOESN'T LEAK TO INNER...
+    
     (!!fs).should.be.false;
     (!!abc).should.be.false;
   });
   
-  // OUTSIDE SCOPE
+  // ...OR TO OUTSIDE SCOPE
   (typeof fs).should.be.equal('undefined');
   (typeof abc).should.be.equal('undefined');
   
