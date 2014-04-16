@@ -12,9 +12,17 @@ require('should');
 
 suite('define');
 
+
+
 test('exists', function () {
   should.should.be.ok
   define.should.be.Function
+});
+
+test('assert param is string or function', function () {
+  (function() {
+    define({});
+  }).should.throw('param must be string or function');
 });
 
 test('globals', function () {
