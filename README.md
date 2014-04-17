@@ -25,13 +25,18 @@ chaining is more suited to BCE scripts ~ i.e., "before CommonJS era".
 
 ## monadic chaining vs object chaining
 
-jQuery chaining means returning the same object after each member method call on 
-the object.
+method chaining means returning the same *object* after each member method call 
+on the object.
 
-monadic chaining means returning the same *function*
+monadic chaining means returning the same *function*, bound to the same object 
+internally.
 
-the JavaScript dependency loading API should be monadic for better readability, 
-scoping, nesting, leak prevention, composability, blah blah.
+a monadic api is more declarative.
+
+the JavaScript dependency loading API should be more declarative, for better 
+readability, scoping, nesting, leak prevention, composability, blah blah.
+
+## what do you mean?
 
 some modules out there use this pattern
 
@@ -41,19 +46,25 @@ more rarely but still possible for a promise-like api
 
     require('asyncModule')(arg1)(arg2)(arg3);
 
-that could be turned into a lisp-y pattern as
+that could be turned into a lisp-y pattern or sequence as
 
     (require)
     ('asyncModule')(arg1)(arg2)(arg3);
 
-which I'm advocating with this library as
 
-    (define).assert(__filename)
-    ('asyncModule')
-    (function () {
-      asyncModule(arg1)(arg2)(arg3);
-    });
-    
+With this library you'll be able to do it for the whole module using a callback
+
+    (define)
+      ('asyncModule')
+      ('another-module')
+      (function () {
+        asyncModule(arg1)(arg2)(arg3);
+        anotherModule('hi, module');
+      });
+
+which is how "common" js modules should have been done in the first place, but 
+never mind.
+
 ## commonjs `require`
 
 gives us
@@ -120,36 +131,36 @@ all we have to do is pull the dependency statements up, into a monadic pattern
 then stack each call (node.js)
 
     (define)
-    ('a:path')
-    ('b:path')
-    (function callback() {
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
-      
-      // now proceed with the rest of commonjs
-      module.exports = function () {
-      
-      }
-      
-      // etc.
-    });
+      ('a:path')
+      ('b:path')
+      (function callback() {
+        console.log('a : ' + (!!a));
+        console.log('b : ' + (!!b));
+        
+        // now proceed with the rest of commonjs
+        module.exports = function () {
+        
+        }
+        
+        // etc.
+      });
 
 add a way to name modules by file (assert on node, assign + assert on browser)
     
     (define.assert(__filename))
-    ('a:path')
-    ('b:path')
-    (function callback() {
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
-      
-      // now proceed with the rest of commonjs
-      module.exports = function () {
-      
-      }
-      
-      // etc.
-    });   
+      ('a:path')
+      ('b:path')
+      (function callback() {
+        console.log('a : ' + (!!a));
+        console.log('b : ' + (!!b));
+        
+        // now proceed with the rest of commonjs
+        module.exports = function () {
+        
+        }
+        
+        // etc.
+      });   
 
 ## what happened to callback param names?
 
@@ -167,10 +178,10 @@ from the filename.  An export defined in a file referenced at
 `coolModule`.
 
     (define)
-    ('./path/to/cool-module')
-    (function() {
-      coolModule
-    });
+      ('./path/to/cool-module')
+      (function() {
+        coolModule
+      });
     
 ## var aliases
 
@@ -178,13 +189,13 @@ if more than one file is named `'cool-module'`, we need a way to avoid the name
 clash on `coolModule` that would result.
 
     (define)
-    ('./path/to/cool-module')
-    ('alias := ./path/to/another/cool-module')  // := token denotes name alias
-    
-    (function() {
-      coolModule
-      alias
-    });
+      ('./path/to/cool-module')
+      ('alias := ./path/to/another/cool-module')  // := token denotes name alias
+      
+      (function() {
+        coolModule
+        alias
+      });
 
 ## path aliases
 
@@ -195,20 +206,23 @@ configuration injection close to the actual use of the thing
 
 
     (define)
-    ('./path/to/cool-module')
-    ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
-    
-    (function() {
-      coolModule
-      dependency //=> mock
-    });
+      ('./path/to/cool-module')
+      ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
+      
+      (function() {
+        coolModule
+        dependency //=> mock
+      });
 
 ## content security policy
 
 __still being worked out__
 
-csp headers allow clients to disable script evaluation by default, which means 
-`Function()` can't be used.  
+CSP is an ES6 co-conspirator meant to make it all better but in fact raises the 
+barrier to understanding and expose developers to more footguns and pitfalls.
+
+that said, CSP headers allow clients to disable script evaluation by default, 
+which means `Function()` can't be used.  
 
 this could be mitigated by a build process/nightmare
 
@@ -255,9 +269,11 @@ JSON (modified MIT)
   - ` % `   // mmmmmm, no
   - ` @ `   // mmmmmm, no
   - ` & `   // mmmmmm, no</del>
+  
 + <del>injection from outer to inner scope ~ mmmmm, maybe</del> - No. SRP.
+
 + browser version of this ~ *once the node version is "locked" down enough*
-+ content security policy ~ *workaround needed* ~ CSP is an ES6 co-conspirator
++ content security policy ~ *workaround needed*
 + rawgithub page
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
