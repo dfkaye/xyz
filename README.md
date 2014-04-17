@@ -176,8 +176,6 @@ from the filename.  An export defined in a file referenced at
 if more than one file is named `'cool-module'`, we need a way to avoid the name 
 clash on `coolModule` that would result.
 
-__still being worked out__
-
     (define)
     ('./path/to/cool-module')
     ('alias := ./path/to/another/cool-module')  // := token denotes name alias
@@ -189,10 +187,11 @@ __still being worked out__
 
 ## path aliases
 
+__still being worked out__
+
 for testing modules with mocks of their dependencies it makes sense to add 
 configuration injection close to the actual use of the thing
 
-__still being worked out__
 
     (define)
     ('./path/to/cool-module')
@@ -205,10 +204,10 @@ __still being worked out__
 
 ## content security policy
 
+__still being worked out__
+
 csp headers allow clients to disable script evaluation by default, which means 
 `Function()` can't be used.  
-
-__still being worked out__
 
 this could be mitigated by a build process/nightmare
 
@@ -232,18 +231,18 @@ JSON (modified MIT)
 + <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
     right ~ this api is *different* so need to make the mapping/loading rules 
     more clear
-+ should nested `define()` see deps in outer scope? ~ *debating*
++ should nested `define()` see deps in outer scope? ~ *not yet ~ debating*
 + travis config
 + testem config
 + var alias ~ *debating*
-  - `'x := path/to/something'`
+  - `'x := path/to/something'` ~ *[17 APR 2014] ~ USING X:=Y*
   - `'{x} := path/to/something'`
-+ path alias ~ *debating*
-  - `'path/to/something := path/to/mock'`
 + alias expected global (not a module.export) ~ *debating* 
   - `'global.$ := path/to/jQuery'`
-  - `'{$} := path/to/jQuery'`
-+ pick an alias separator ~ *debating (excessively)*
+  - `'{$} := path/to/jQuery'`  
++ path alias ~ *debating*
+  - `'path/to/something := path/to/mock'`
++ <del>pick an alias separator ~ *debating (excessively)*
   - ` : `   // this makes sense but harder to isolate in urls (scheme,port,etc)
   - ` :- `  // prolog, kinda different
   - ` := `  // this makes more sense esp on urls
@@ -254,7 +253,7 @@ JSON (modified MIT)
   - ` !! `  // could do that
   - ` % `   // mmmmmm, no
   - ` @ `   // mmmmmm, no
-  - ` & `   // mmmmmm, no
+  - ` & `   // mmmmmm, no</del>
 + <del>injection from outer to inner scope ~ mmmmm, maybe</del> - No. SRP.
 + browser version of this ~ *once the node version is "locked" down enough*
 + content security policy ~ *workaround needed* ~ CSP is an ES6 co-conspirator

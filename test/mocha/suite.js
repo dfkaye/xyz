@@ -1,14 +1,13 @@
 // mocha/suite.js
 
-// in this order we verify that should() isn't broken by define()
+/* 
+ * TEST #1 
+ * BY REQUIRING IN THIS ORDER WE VERIFY THAT should() isn't broken by define().
+ */
 require('../../lib/node/define');
 require('should');
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// REAL TESTS START HERE
-//
-////////////////////////////////////////////////////////////////////////////////
+/* TESTS START HERE */
 
 suite('define');
 
@@ -85,7 +84,9 @@ test('sandboxed', function() {
   
   (define) 
   (function () {
+  
     // INNER SCOPE DOES NOT SEE OUTSIDE VARS
+    
     (typeof q).should.be.equal('undefined');    
   });
 });
@@ -159,27 +160,26 @@ test('nested modules have own scope', function() {
     fs = null;
     abc = null;
     
-    // INNER NESTED SCOPE WITH NO ADDITIONAL IMPORTS
     (define)
     (function () {
     
-      /*
-       * 11 APR 2014
-       * NOT SURE THIS IS RIGHT ~ INNER NESTED CONTEXT PROBABLY SHOULDN'T SEE 
-       * IMPORTS FROM AN OUTER CONTEXT ~ BUT I COULD BE WRONG...
-       */
-    
-      // SHOULD INNER NESTED SCOPE SEE OUTSIDE IMPORTS?
-      (typeof fs).should.be.equal('undefined'); // fs.should.be.ok
-      (typeof abc).should.be.equal('undefined'); // abc.should.be.ok
+      // 11 APR 2014 - NOT SURE THIS IS RIGHT...
+      // INNER NESTED SCOPE WITH NO EXTRA IMPORTS SHOULD NOT SEE OUTSIDE IMPORTS
+       
+      (typeof fs).should.be.equal('undefined');
+      (typeof abc).should.be.equal('undefined');       
+      //fs.should.be.ok;
+      //abc.should.be.ok;
+
     });
 
-    // INNER NESTED SCOPE WITH EXPLICIT IMPORTS
     (define)
     ('./abc')
     ('fs')   
     (function () {
     
+      // INNER NESTED SCOPE WITH EXPLICIT IMPORTS
+      
       fs.should.be.ok
       abc.should.be.ok
     });
@@ -221,10 +221,12 @@ test('return an import', function () {
   
   f.should.be.ok;
   
-  // didn't leak?
+  // SHOULD NOT LEAK
   (typeof abc).should.be.equal('undefined');
   
 });
+
+/* NAMING TESTS */
 
 suite('define.assert');
 
@@ -283,9 +285,11 @@ test('define.assert cannot be called more than once', function () {
 });
 
 
+/* REQUIRE() TESTS */
+
 suite('require');
 
-test('still works', function () {
+test('"global" require()', function () {
 
   var abc = (define)
               (function () {
@@ -294,6 +298,17 @@ test('still works', function () {
               });
   
   abc('exported').should.be.equal('exported');
+});
+
+test('module.require()', function () {
+
+  var abc = (define)
+              (function () {
+                'use strict';
+                module.exports = module.require('./nested/abc');
+              });
+  
+  abc('exported').should.be.equal('nested exported');
 });
 
 test('AMD-like', function() {
@@ -354,12 +369,10 @@ test('delete and re-require should.js', function() {
 });
 
 
-// should have done this first...
-suite('require file that requires another file');
+/* MULTIPLE NAME AND ALIAS TESTS */
 
-beforeEach(function() {
-  define.unload();
-});
+// should have done this first...
+suite('requiring files that require files');
 
 test('suite => def => abc', function () {
 
@@ -370,10 +383,7 @@ test('suite => def => abc', function () {
   });
 });
 
-//nested/ name clash or clobbering?
-test('suite => def & nested/def : nested/def wins', function () {
-
-  //define.unload();
+test('name collision, last one in wins', function () {
 
   (define).assert(__filename)
   ('./def')
@@ -383,13 +393,13 @@ test('suite => def & nested/def : nested/def wins', function () {
   });
 });
 
-test('var alias', function () {
-  
+test('prevent collisions with alias:=path', function () {
+
   (define).assert(__filename)
-  ('top:=./def')
-  ('nested:=./nested/def')
+  ('defness:=./def')
+  ('nesteddefness:=./nested/def')
   (function () {
-    top('test').should.be.equal('defness for test');
-    nested('tested').should.be.equal('nested defness for nested tested');
+    defness('test').should.be.equal('defness for test');
+    nesteddefness('tested').should.be.equal('nested defness for nested tested');
   });
 });
