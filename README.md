@@ -5,7 +5,8 @@ insane js module pattern (working name)
 
 ## in progress
 
-[14 APR 2014] - starting over ~ needs better context init logic
+[17 APR 2014] - var alias supported with `'x:=path/to/x'` ~ horrible caching 
+issue resolved for alias case
 
 [9-10-11 APR 2104] node.js version "works" with mocha+should tests
 
