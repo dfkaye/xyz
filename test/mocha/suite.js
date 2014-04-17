@@ -373,7 +373,7 @@ test('suite => def => abc', function () {
 //nested/ name clash or clobbering?
 test('suite => def & nested/def : nested/def wins', function () {
 
-  define.unload();
+  //define.unload();
 
   (define).assert(__filename)
   ('./def')
