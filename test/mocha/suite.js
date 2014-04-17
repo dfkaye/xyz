@@ -12,8 +12,6 @@ require('should');
 
 suite('define');
 
-
-
 test('exists', function () {
   should.should.be.ok
   define.should.be.Function
@@ -231,6 +229,7 @@ test('return an import', function () {
 suite('define.assert');
 
 test('default filename', function () {
+
   (define)
   (function () {
     module.filename.should.containEql('suite.js');
@@ -358,9 +357,13 @@ test('delete and re-require should.js', function() {
 // should have done this first...
 suite('require file that requires another file');
 
+beforeEach(function() {
+  define.unload();
+});
+
 test('suite => def => abc', function () {
 
-  (define)//.assert(__filename)
+  (define).assert(__filename)
   ('./def')
   (function(){
     def('leppard').should.be.equal('defness for ' + 'leppard');
@@ -370,10 +373,23 @@ test('suite => def => abc', function () {
 //nested/ name clash or clobbering?
 test('suite => def & nested/def : nested/def wins', function () {
 
-  (define)//.assert(__filename)
+  define.unload();
+
+  (define).assert(__filename)
   ('./def')
   ('./nested/def')
   (function(){
     def('leppard').should.be.equal('nested defness for nested leppard');
+  });
+});
+
+test('var alias', function () {
+  
+  (define).assert(__filename)
+  ('top:=./def')
+  ('nested:=./nested/def')
+  (function () {
+    top('test').should.be.equal('defness for test');
+    nested('tested').should.be.equal('nested defness for nested tested');
   });
 });
