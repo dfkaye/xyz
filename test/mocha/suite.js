@@ -124,6 +124,8 @@ test('pass values by module properties', function() {
   (define)
   ('./abc')
   (function () {
+    module.exports.should.not.be.equal(abc);
+  
     abc.hello.should.be.equal('abc');    
   });
   
@@ -132,6 +134,8 @@ test('pass values by module properties', function() {
   (define)
   ('./nested/abc')
   (function () {
+    module.exports.should.not.be.equal(abc);
+  
     (typeof abc.hello).should.be.equal('undefined');    
   });  
 });
@@ -252,7 +256,7 @@ test('define.assert short filename', function () {
   ('path') // notice we import the path module
   (function() {  
     var id = ['suite.js'].join(path.sep);
-    module.id.should.containEql(id);
+    module.id.should.containEql(id);    
   });
 });
 
@@ -305,8 +309,6 @@ test('module.require()', function () {
   var abc = (define)
               (function () {
                 'use strict';
-                
-                console.log('------------------------------------------');
                 module.exports = module.require('./nested/abc');
               });
   
@@ -374,13 +376,17 @@ test('delete and re-require should.js', function() {
 /* MULTIPLE NAME AND ALIAS TESTS */
 
 // should have done this first...
-suite('requiring files that require files');
+suite('requiring files that call define');
 
 test('suite => def => abc', function () {
 
   (define).assert(__filename)
   ('./def')
   (function(){
+  
+    // mapping bug
+    module.exports.should.not.be.equal(def);
+    
     def('leppard').should.be.equal('defness for ' + 'leppard');
   });
 });
@@ -391,6 +397,10 @@ test('name collision, last one in wins', function () {
   ('./def')
   ('./nested/def')
   (function(){
+  
+    // mapping bug 
+    module.exports.should.not.be.equal(def);
+  
     def('leppard').should.be.equal('nested defness for nested leppard');
   });
 });
@@ -401,6 +411,10 @@ test('prevent collisions with alias:=path', function () {
   ('defness:=./def')
   ('nesteddefness:=./nested/def')
   (function () {
+    module.exports.should.not.be.equal(def);
+    module.exports.should.not.be.equal(defness);
+    module.exports.should.not.be.equal(nesteddefness);
+  
     defness('test').should.be.equal('defness for test');
     nesteddefness('tested').should.be.equal('nested defness for nested tested');
   });
