@@ -313,38 +313,38 @@ test('module.require()', function () {
   abc('exported').should.be.equal('nested exported');
 });
 
-// test('AMD-like', function() {
+test('AMD-like', function() {
 
-  // (define)
-  // (function () {
-    // var q = require('fs'); // node.js fs module
-    // var x = require('./abc');
+  (define)
+  (function () {
+    var q = require('fs'); // node.js fs module
+    var x = require('./abc');
     
-    // q.should.be.ok;
-    // x.should.be.ok;
-  // });
-// });
+    q.should.be.ok;
+    x.should.be.ok;
+  });
+});
 
-// test('require.cache', function () {
+test('require.cache', function () {
 
-  // (define)
-  // ('./abc')
-  // (function () {
+  (define)
+  ('./abc')
+  (function () {
   
-    // var m = module.constructor._cache;
-    // var r = require.cache;
-    // var filename = module.constructor._resolveFilename('./abc', module);
+    var m = module.constructor._cache;
+    var r = require.cache;
+    var filename = module.constructor._resolveFilename('./abc', module);
     
-    // (!!r && !!m && (m === r)).should.be.true;
-    // (m[filename].exports === abc).should.be.true;
-    // (r[filename].exports === abc).should.be.true;
+    (!!r && !!m && (m === r)).should.be.true;
+    (m[filename].exports === abc).should.be.true;
+    (r[filename].exports === abc).should.be.true;
     
-    // delete r[filename];
+    delete r[filename];
     
-    // (r[filename] === undefined).should.be.true;
-    // (m[filename] === undefined).should.be.true;
-  // });
-// });
+    (r[filename] === undefined).should.be.true;
+    (m[filename] === undefined).should.be.true;
+  });
+});
 
 test('delete and re-require should.js', function() {
 
