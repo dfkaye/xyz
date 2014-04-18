@@ -5,10 +5,15 @@ insane js module pattern (working name)
 
 ## in progress
 
-[17 APR 2014] - var alias supported with `'x:=path/to/x'` ~ horrible caching 
-issue resolved for alias case
++ [18 APR 2014] __STARTING OVER (sort of)__ ~ better component tests (already 
+found a bug in exec()), and better model of the loading sequence and 
+dependencies
 
-[9-10-11 APR 2104] node.js version "works" with mocha+should tests
++ [17 APR 2014] - var alias supported with `'x:=path/to/x'` ~ horrible caching 
+issue resolved for alias case ~ demands a major refactoring to anticipate the 
+path_alias and global_alias cases
+
++ [9-10-11 APR 2104] node.js version "works" with mocha+should tests
 
 
 ## motivation

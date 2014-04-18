@@ -207,7 +207,7 @@ test('returns module.exports', function () {
   exported.id.should.be.equal('exported');
 });
 
-test('return an import', function () {
+test('does not return a return value', function () {
   
   (f === undefined).should.be.true;
   
@@ -215,15 +215,11 @@ test('return an import', function () {
             ('./abc')
             (function () {
               'use strict';
-              abc.should.be.ok;
+              abc.should.be.Function;
               return abc;
             });
-  
-  f.should.be.ok;
-  
-  // SHOULD NOT LEAK
-  (typeof abc).should.be.equal('undefined');
-  
+
+  f.should.not.be.Function;
 });
 
 /* NAMING TESTS */
