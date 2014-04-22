@@ -9,6 +9,9 @@ require('should');
 
 /* TESTS START HERE */
 
+/*
+ * make sure require still works
+ */
 suite('monad');
 
 test('exists', function () {
@@ -103,6 +106,9 @@ test('define.assert cannot be called more than once', function () {
 });
 
 
+/*
+ * make sure require still works
+ */
 suite('require');
 
 test('"global" require()', function () {
@@ -172,8 +178,20 @@ test('delete and re-require should.js', function() {
   });
 });
 
-
+/*
+ * various import and execution combinations
+ */
 suite('import trees');
+
+test('node_modules', function () {
+  (define).assert(__filename)
+  ('fs')
+  ('path')
+  (function () {
+    fs.should.be.ok;
+    path.should.be.ok;
+  });
+});
 
 test('monad requires common', function () {
   (define).assert(__filename)
@@ -221,7 +239,6 @@ test('pass values by module properties', function() {
 });
 
 test('pollute other modules by properties', function () {
-  
   (define).assert(__filename)
   ('../fixture/c')
   (function () {
@@ -261,7 +278,6 @@ test('common requires monad', function () {
 });
 
 test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
-
   (define).assert(__filename)
   ('../fixture/hyphenated-test-module')
   (function () {
@@ -295,11 +311,12 @@ test('inner', function () {
   });
 });
 
-
+/*
+ * anonymous modules have quirks ~ make sure we ironed them out
+ */
 suite('anonymous');
 
 test('dependency paths must be root-relative', function () {
-
   (define)
   ('../../test/mocha/fixture/c2m')
   (function() {
@@ -329,7 +346,9 @@ test('require node_modules', function () {
 });
 
 
-
+/*
+ * make sure require still works
+ */
 suite('aliasing');
 
 test('nesting', function () {
