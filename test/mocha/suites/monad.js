@@ -79,8 +79,8 @@ test('does not return a "return" value', function () {
   
   (f === undefined).should.be.true;
   
-  var f = (define)
-            ('./c')
+  var f = (define).assert(__filename)
+            ('../fixture/c')
             (function () {
               'use strict';
               c.should.be.Function;
@@ -110,7 +110,7 @@ test('"global" require()', function () {
   var c = (define).assert(__filename)
               (function () {
                 'use strict';
-                module.exports = require('./c');
+                module.exports = require('../fixture/c');
               });
   
   c('exported').should.be.equal('[c]' + 'exported');
@@ -121,7 +121,7 @@ test('module.require()', function () {
   var c = (define).assert(__filename)
               (function () {
                 'use strict';
-                module.exports = module.require('./c');
+                module.exports = module.require('../fixture/c');
               });
   
   c('exported').should.be.equal('[c]' + 'exported');
@@ -130,12 +130,12 @@ test('module.require()', function () {
 test('require.cache', function () {
 
   (define).assert(__filename)
-  ('./c')
+  ('../fixture/c')
   (function () {
   
     var m = module.constructor._cache;
     var r = require.cache;
-    var filename = module.constructor._resolveFilename('./c', module);
+    var filename = module.constructor._resolveFilename('../fixture/c', module);
     
     (!!r && !!m && (m === r)).should.be.true;
     (m[filename].exports === c).should.be.true;
@@ -177,7 +177,7 @@ suite('import trees');
 
 test('monad requires common', function () {
   (define).assert(__filename)
-  ('./c')
+  ('../fixture/c')
   (function() {
     c('test').should.be.equal('[c]' + 'test');
   });
@@ -186,7 +186,7 @@ test('monad requires common', function () {
 test('use strict', function () {
 
   (define).assert(__filename)
-  ('./c')
+  ('../fixture/c')
   (function () {
     'use strict';
     c.should.be.Function;
@@ -196,8 +196,8 @@ test('use strict', function () {
 test('multiple dependencies', function() {
 
   (define).assert(__filename)
-  ('./m')
-  ('./c')
+  ('../fixture/m')
+  ('../fixture/c')
   (function () {  
     m.should.be.Function;
     c.should.be.Function;
@@ -223,23 +223,22 @@ test('pass values by module properties', function() {
 test('pollute other modules by properties', function () {
   
   (define).assert(__filename)
-  ('./c')
+  ('../fixture/c')
   (function () {
     c.hello = 'hello';    
   });
   
   (define).assert(__filename)
-  ('./c')
+  ('../fixture/c')
   (function () {
     module.exports.should.not.be.equal(c);
-  
     c.hello.should.be.equal('hello');    
   });
 });
 
 test('monad requires monad', function () {
   (define).assert(__filename)
-  ('./m')
+  ('../fixture/m')
   (function() {
     m('test').should.be.equal('[m]' + 'test');
   });
@@ -247,7 +246,7 @@ test('monad requires monad', function () {
 
 test('monad requires nested monad', function () {
   (define).assert(__filename)
-  ('./m2m')
+  ('../fixture/m2m')
   (function() {
     m2m('test').should.be.equal('[m2m][m]' + 'test');
   });
@@ -255,7 +254,7 @@ test('monad requires nested monad', function () {
 
 test('common requires monad', function () {
   (define).assert(__filename)
-  ('./c2m')
+  ('../fixture/c2m')
   (function() {
     c2m('test').should.be.equal('[c2m][m]' + 'test');
   });
@@ -263,8 +262,8 @@ test('common requires monad', function () {
 
 test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
 
-  (define)
-  ('./hyphenated-test-module')
+  (define).assert(__filename)
+  ('../fixture/hyphenated-test-module')
   (function () {
     hyphenatedTestModule().should.be.equal('hyphenated');
   });
@@ -273,17 +272,14 @@ test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
 test('inner', function () {
 
   var a = 'a';
-  
-  // outer
-  
+
   (define).assert(__filename)
-  ('./c2m')
+  ('../fixture/c2m')
   (function() {
   
     var b = 'b';
     
     (typeof a).should.be.equal('undefined');
-    
     c2m('a').should.be.equal('[c2m][m]' + 'a');
 
     // inner
@@ -299,26 +295,47 @@ test('inner', function () {
   });
 });
 
-test('anonymous', function () {
+
+suite('anonymous');
+
+test('dependency paths must be root-relative', function () {
 
   (define)
-  ('./c2m')
+  ('../../test/mocha/fixture/c2m')
   (function() {
   
     c2m('a').should.be.equal('[c2m][m]' + 'a');
     
     // anonymous inner
+    
     (define)
+    ('../../test/mocha/fixture/m')
+    
     (function () {
       c2m('b').should.be.equal('[c2m][m]' + 'b');
+      m('bob').should.be.equal('[m]' + 'bob');
     });
   });
 });
 
+test('require node_modules', function () {
+  (define)
+  ('fs')
+  ('path')
+  (function () {
+    fs.should.be.ok;
+    path.should.be.ok;
+  });
+});
+
+
+
+suite('aliasing');
+
 test('nesting', function () {
   (define).assert(__filename)
-  ('./nested/c')
-  ('./nested/m')
+  ('../fixture/nested/c')
+  ('../fixture/nested/m')
   (function () {  
     c('test').should.be.equal('[nested c]' + 'test');
     m('test').should.be.equal('[nested m]' + 'test');
@@ -327,8 +344,8 @@ test('nesting', function () {
 
 test('colliding', function () {
   (define).assert(__filename)
-  ('./m')
-  ('./nested/m')
+  ('../fixture/m')
+  ('../fixture/nested/m')
   (function () {  
     m('test').should.be.equal('[nested m]' + 'test');
   });
@@ -336,8 +353,8 @@ test('colliding', function () {
 
 test('aliasing', function () {
   (define).assert(__filename)
-  ('./m')
-  ('m2:=./nested/m')
+  ('../fixture/m')
+  ('m2:=../fixture/nested/m')
   (function () {  
     m('test').should.be.equal('[m]' + 'test');
     m2('test').should.be.equal('[nested m]' + 'test');
@@ -345,11 +362,9 @@ test('aliasing', function () {
 });
 
 test('path aliasing', function () {
-  // (define).assert(__filename)
-  // ('./m')
-  // ('m2:=./nested/m')
-  // (function () {  
-    // m('test').should.be.equal('[m]' + 'test');
-    // m2('test').should.be.equal('[nested m]' + 'test');
-  // });
+  (define).assert(__filename)
+  ('../fixture/nested/m:=../fixture/nested/mock')
+  (function () {  
+    m('test').should.be.equal('[nested mock]' + 'test');
+  });
 });
