@@ -124,7 +124,7 @@ test('pass values by module properties', function() {
   (define)
   ('./abc')
   (function () {
-    //module.exports.should.not.be.equal(abc);
+    module.exports.should.not.be.equal(abc);
   
     abc.hello.should.be.equal('abc');    
   });
@@ -134,7 +134,7 @@ test('pass values by module properties', function() {
   (define)
   ('./nested/abc')
   (function () {
-    //module.exports.should.not.be.equal(abc);
+    module.exports.should.not.be.equal(abc);
   
     (typeof abc.hello).should.be.equal('undefined');    
   });  
