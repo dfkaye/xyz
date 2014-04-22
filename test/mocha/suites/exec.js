@@ -23,7 +23,7 @@ test('should not leak internal var refs', function () {
     (typeof exec).should.be.equal('undefined');
   };
   
-  exec(context, fn);
+  exec(fn, context);
 });
 
 test('module.exports should be exports', function () {
@@ -34,7 +34,7 @@ test('module.exports should be exports', function () {
     module.exports.should.be.equal(exports);
   };
 
-  exec(context, fn);
+  exec(fn, context);
 });
 
 test('exports should be this', function () {
@@ -45,7 +45,7 @@ test('exports should be this', function () {
     exports.should.be.equal(this);
   };
 
-  exec(context, fn);
+  exec(fn, context);
 });
 
 test('returns module.exports', function () {
@@ -56,7 +56,7 @@ test('returns module.exports', function () {
     module.exports = 'good morning';
   };
 
-  var r = exec(context, fn);
+  var r = exec(fn, context);
   
   r.should.be.equal('good morning');
 });
@@ -69,13 +69,13 @@ test('does not "return" a return value', function () {
     return 'hello';
   };
   
-  var h = exec(context, fn);
+  var h = exec(fn, context);
   
   h.should.not.be.equal('hello');
 });
 
 
-suite('exec.fn');
+suite('exec.make');
 
 test('returns a new function', function () {
 
@@ -85,7 +85,7 @@ test('returns a new function', function () {
     return 'hello';
   };
   
-  var f = exec.fn(context, fn);
+  var f = exec.make(fn, context);
   f.should.be.Function;
   
   var s = f.toString();
@@ -105,19 +105,41 @@ test('prints context.filename', function () {
     return 'hello';
   };
   
-  var f = exec.fn(context, fn);
+  var f = exec.make(fn, context);
   
   f.toString().should.containEql('/* this/is/my/file-name */');
 });
 
 
-suite('exec.error');
+suite('make errors');
+
+test('no args should throw', function () {
+  (function () {
+    exec.make();
+  }).should.throw('exec.make() requires function and context args.');
+});
 
 test('context missing should throw', function () {
+  var fn = function () {};
+  (function () {
+    exec.make(fn);
+  }).should.throw('exec.make() requires function and context args.');
+});
 
+
+suite('exec errors');
+
+test('no args should throw', function () {
   (function () {
     exec();
-  }).should.throw('context is not defined');
+  }).should.throw('exec() requires function and context args.');
+});
+
+test('context missing should throw', function () {
+  var fn = function () {};
+  (function () {
+    exec(fn);
+  }).should.throw('exec() requires function and context args.');
 });
 
 test('module missing should throw', function () {
@@ -126,7 +148,7 @@ test('module missing should throw', function () {
   var fn = function () {};
   
   (function () {
-    exec(context, fn);
+    exec(fn, context);
   }).should.throw('module is not defined');
 });
 
@@ -136,15 +158,15 @@ test('exports missing should throw', function () {
   var fn = function () {};
   
   (function () {  
-    exec(context, fn);
+    exec(fn, context);
   }).should.throw('module.exports is not defined');
 });
 
-test('function missing should throw', function () {
-
+test('bad function arg type should throw', function () {
+  var fn = {};
   var context = { module: { exports: {} } };
 
   (function () {
-    exec(context);
+    exec(fn, context);
   }).should.throw('fn is not defined');
 });
