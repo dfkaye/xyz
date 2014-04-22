@@ -347,7 +347,7 @@ test('require node_modules', function () {
 
 
 /*
- * make sure require still works
+ * var and path aliases - TODO: global alias
  */
 suite('aliasing');
 
