@@ -21,12 +21,12 @@ test('exists', function () {
 
 test('assert param is string or function', function () {
   (function() {
-    define({}).assert(__filename);
+    define({}).id(__filename);
   }).should.throw('param must be string or function');
 });
 
 test('globals', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   (function () {
     require.should.be.Function;
     module.should.be.ok;
@@ -38,7 +38,7 @@ test('globals', function () {
 });
 
 test('module', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   (function () {
     module.require.should.be.Function;
     
@@ -51,7 +51,7 @@ test('module', function () {
 });
 
 test('exports', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   (function () {
     module.exports.should.be.ok;
     exports.should.be.equal(module.exports);
@@ -60,7 +60,7 @@ test('exports', function () {
 });
 
 test('no context leaks', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   (function () {
     (typeof id).should.be.equal('undefined');
     (typeof context).should.be.equal('undefined');
@@ -69,7 +69,7 @@ test('no context leaks', function () {
 
 test('returns module.exports', function () {
 
-  var exported = (define).assert(__filename)
+  var exported = (define).id(__filename)
                   (function () {
                     'use strict';
                     module.exports = { id: 'exported' };
@@ -82,7 +82,7 @@ test('does not return a "return" value', function () {
   
   (f === undefined).should.be.true;
   
-  var f = (define).assert(__filename)
+  var f = (define).id(__filename)
             ('../fixture/c')
             (function () {
               'use strict';
@@ -93,16 +93,16 @@ test('does not return a "return" value', function () {
   f.should.not.be.Function;
 });
 
-test('define.assert filename not found', function () {
+test('define.id filename not found', function () {
 
   (function() {
-    (define).assert('&8*(D');
+    (define).id('&8*(D');
   }).should.throw(/Cannot find module/);
 });
 
-test('define.assert cannot be called more than once', function () {
+test('define.id cannot be called more than once', function () {
 
-  (typeof define.assert(__filename).assert).should.be.equal('undefined');
+  (typeof define.id(__filename).id).should.be.equal('undefined');
 });
 
 
@@ -113,7 +113,7 @@ suite('require');
 
 test('"global" require()', function () {
 
-  var c = (define).assert(__filename)
+  var c = (define).id(__filename)
               (function () {
                 'use strict';
                 module.exports = require('../fixture/c');
@@ -124,7 +124,7 @@ test('"global" require()', function () {
 
 test('module.require()', function () {
 
-  var c = (define).assert(__filename)
+  var c = (define).id(__filename)
               (function () {
                 'use strict';
                 module.exports = module.require('../fixture/c');
@@ -135,7 +135,7 @@ test('module.require()', function () {
 
 test('require.cache', function () {
 
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/c')
   (function () {
   
@@ -156,7 +156,7 @@ test('require.cache', function () {
 
 test('delete and re-require should.js', function() {
 
-  (define).assert(__filename)
+  (define).id(__filename)
   (function() {
     require.cache['should'].should.be.ok;
     module.constructor._cache['should'].should.be.ok;
@@ -184,7 +184,7 @@ test('delete and re-require should.js', function() {
 suite('import trees');
 
 test('node_modules', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('fs')
   ('path')
   (function () {
@@ -194,7 +194,7 @@ test('node_modules', function () {
 });
 
 test('monad requires common', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/c')
   (function() {
     c('test').should.be.equal('[c]' + 'test');
@@ -203,7 +203,7 @@ test('monad requires common', function () {
 
 test('use strict', function () {
 
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/c')
   (function () {
     'use strict';
@@ -213,7 +213,7 @@ test('use strict', function () {
 
 test('multiple dependencies', function() {
 
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/m')
   ('../fixture/c')
   (function () {  
@@ -227,25 +227,25 @@ test('multiple dependencies', function() {
 
 test('pass values by module properties', function() {
 
-  (define).assert(__filename)
+  (define).id(__filename)
   (function () {
     module.hello = 'hello';    
   });
   
-  (define).assert(__filename)
+  (define).id(__filename)
   (function () {
     module.hello.should.be.equal('hello');    
   });
 });
 
 test('pollute other modules by properties', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/c')
   (function () {
     c.hello = 'hello';    
   });
   
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/c')
   (function () {
     module.exports.should.not.be.equal(c);
@@ -254,7 +254,7 @@ test('pollute other modules by properties', function () {
 });
 
 test('monad requires monad', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/m')
   (function() {
     m('test').should.be.equal('[m]' + 'test');
@@ -262,7 +262,7 @@ test('monad requires monad', function () {
 });
 
 test('monad requires nested monad', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/m2m')
   (function() {
     m2m('test').should.be.equal('[m2m][m]' + 'test');
@@ -270,7 +270,7 @@ test('monad requires nested monad', function () {
 });
 
 test('common requires monad', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/c2m')
   (function() {
     c2m('test').should.be.equal('[c2m][m]' + 'test');
@@ -278,7 +278,7 @@ test('common requires monad', function () {
 });
 
 test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/hyphenated-test-module')
   (function () {
     hyphenatedTestModule().should.be.equal('hyphenated');
@@ -289,7 +289,7 @@ test('inner', function () {
 
   var a = 'a';
 
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/c2m')
   (function() {
   
@@ -300,7 +300,7 @@ test('inner', function () {
 
     // inner
     
-    (define).assert(__filename)
+    (define).id(__filename)
     (function() {
     
       (typeof a).should.be.equal('undefined');
@@ -352,7 +352,7 @@ test('require node_modules', function () {
 suite('aliasing');
 
 test('nesting', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/nested/c')
   ('../fixture/nested/m')
   (function () {  
@@ -362,7 +362,7 @@ test('nesting', function () {
 });
 
 test('colliding', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/m')
   ('../fixture/nested/m')
   (function () {  
@@ -371,7 +371,7 @@ test('colliding', function () {
 });
 
 test('aliasing', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/m')
   ('m2:=../fixture/nested/m')
   (function () {  
@@ -381,7 +381,7 @@ test('aliasing', function () {
 });
 
 test('path aliasing', function () {
-  (define).assert(__filename)
+  (define).id(__filename)
   ('../fixture/nested/m:=../fixture/nested/mock')
   (function () {  
     m('test').should.be.equal('[nested mock]' + 'test');

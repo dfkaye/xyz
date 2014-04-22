@@ -5,6 +5,8 @@ insane js module pattern (working name)
 
 ## in progress
 
++ [22 APR 2014] success! big rewrite using monadic pattern
+
 + [18 APR 2014] __STARTING OVER (sort of)__ ~ better component tests (already 
 found a bug in exec()), and better model of the loading sequence and 
 dependencies
@@ -150,9 +152,9 @@ then stack each call (node.js)
         // etc.
       });
 
-add a way to name modules by file (assert on node, assign + assert on browser)
+add a way to name modules by file (id on node, assign + id on browser)
     
-    (define.assert(__filename))
+    (define.id(__filename))
       ('a:path')
       ('b:path')
       (function callback() {
@@ -251,7 +253,8 @@ JSON (modified MIT)
 + <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
     right ~ this api is *different* so need to make the mapping/loading rules 
     more clear
-+ should nested `define()` see deps in outer scope? ~ *not yet ~ debating*
++ <del>should nested `define()` see deps in outer scope?</del> ~ deps and 
+    properties only, not vars
 + travis config
 + testem config
 + var alias ~ *debating*

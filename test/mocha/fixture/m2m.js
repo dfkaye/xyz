@@ -1,6 +1,6 @@
 // m2m
 
-(define).assert(__filename)
+(define).id(__filename)
 ('./m')
 (function() {
   module.exports = m2m;

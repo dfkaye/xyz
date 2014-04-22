@@ -1,5 +1,5 @@
 // m
-(define).assert(__filename)
+(define).id(__filename)
 (function() {
   module.exports = m;
   function m(msg) {
