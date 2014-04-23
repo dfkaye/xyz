@@ -273,20 +273,20 @@ JSON (modified MIT)
 
 + <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
     right ~ this api is *different* so need to make the mapping/loading rules 
-    more clear
+    more clear ~ *[22 APR 2014] fixed with monadic pattern*
 + <del>should nested `define()` see deps in outer scope?</del> ~ deps and 
     properties only, not vars
 + travis config
 + testem config
 + var alias ~ *debating*
-  - `'x := path/to/something'` ~ *[17 APR 2014] ~ USING X:=Y*
-  - `'{x} := path/to/something'`
-+ alias expected global (not a module.export) ~ *debating* 
-  - `'global.$ := path/to/jQuery'`
-  - `'{$} := path/to/jQuery'`  
+  - `'x := path/to/something'` ~ *[17 APR 2014]*
+  - <del>`'{x} := path/to/something'`</del>
++ alias expected global (not a module.export) ~ <del>*debating* </del>
+  - <del>`'global.$ := path/to/jQuery'`</del>
+  - `'{$} := path/to/jQuery'` ~ *[23 APR 2014]*
 + path alias ~ *debating*
-  - `'path/to/something := path/to/mock'`
-+ <del>pick an alias separator ~ *debating (excessively)*
+  - `'path/to/something := path/to/mock'` ~ *[22 APR 2014]*
++ <del>pick an alias separator ~ *debating (excessively)*</del>
   - ` : `   // this makes sense but harder to isolate in urls (scheme,port,etc)
   - ` :- `  // prolog, kinda different
   - ` := `  // this makes more sense esp on urls
@@ -297,10 +297,9 @@ JSON (modified MIT)
   - ` !! `  // could do that
   - ` % `   // mmmmmm, no
   - ` @ `   // mmmmmm, no
-  - ` & `   // mmmmmm, no</del>
-  
-+ <del>injection from outer to inner scope ~ mmmmm, maybe</del> - No. SRP.
-
+  - ` & `   // mmmmmm, no
++ handle over-the-wire requests based on protocol + scheme, etc.
++ dep inclusion from outer to inner scope ~ *[22 APR 2014 ~ yes. fixed]*
 + browser version of this ~ *once the node version is "locked" down enough*
 + content security policy ~ *workaround needed*
 + rawgithub page

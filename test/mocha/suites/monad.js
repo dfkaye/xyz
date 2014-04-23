@@ -397,8 +397,23 @@ test('path aliasing', function () {
   });
 });
 
-test('trim alias whitespace', function () {
+test('global with no alias accessed by "global.name"', function () {
+  (define).id(__filename)
+  ('../fixture/zuber')
+  (function () {  
+    global.zuber('test').should.be.equal('[global-zuber]' + 'test');
+  });
+});
 
+test('global alias with "{name} := path"', function () {
+  (define).id(__filename)
+  ('{zuber}:=../fixture/zuber')
+  (function () {  
+    zuber('test').should.be.equal('[global-zuber]' + 'test');
+  });
+});
+
+test('trim alias whitespace', function () {
   (define).id(__filename)
   ('  fm :=  ../fixture/m   ')
   ('  ../fixture/nested/m    :=    ../fixture/nested/mock    ')
