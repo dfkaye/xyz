@@ -181,7 +181,7 @@ test('delete and re-require should.js', function() {
 /*
  * various import and execution combinations
  */
-suite('import trees');
+suite('import paths');
 
 test('node_modules', function () {
   (define).id(__filename)
@@ -311,6 +311,15 @@ test('inner', function () {
   });
 });
 
+test('trim path whitespace', function () {
+  (define).id(__filename)
+  ('  ../fixture/m   ')
+  (function () {  
+    m('test').should.be.equal('[m]' + 'test');
+  });
+});
+
+
 /*
  * anonymous modules have quirks ~ make sure we ironed them out
  */
@@ -384,6 +393,17 @@ test('path aliasing', function () {
   (define).id(__filename)
   ('../fixture/nested/m:=../fixture/nested/mock')
   (function () {  
+    m('test').should.be.equal('[nested mock]' + 'test');
+  });
+});
+
+test('trim alias whitespace', function () {
+
+  (define).id(__filename)
+  ('  fm :=  ../fixture/m   ')
+  ('  ../fixture/nested/m    :=    ../fixture/nested/mock    ')
+  (function () {  
+    fm('test').should.be.equal('[m]' + 'test');
     m('test').should.be.equal('[nested mock]' + 'test');
   });
 });

@@ -1,51 +1,75 @@
 xyz
 ===
 
-insane js module pattern (working name)
+insane js module pattern (working name) so we can be productive again and 
+ignore the trendy-but-wrong transpile-everything crowd. 
 
 ## in progress
 
 + [22 APR 2014] success! big rewrite using monadic pattern
-
 + [18 APR 2014] __STARTING OVER (sort of)__ ~ better component tests (already 
 found a bug in exec()), and better model of the loading sequence and 
 dependencies
-
 + [17 APR 2014] - var alias supported with `'x:=path/to/x'` ~ horrible caching 
 issue resolved for alias case ~ demands a major refactoring to anticipate the 
 path_alias and global_alias cases
-
 + [9-10-11 APR 2104] node.js version "works" with mocha+should tests
-
 
 ## motivation
 
 exorcising code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
 
-es6 imports is a huge disaster ~ the only people who could possibly favor it are 
-unlikely to make their living working in __cross-browser__ JavaScript on a daily 
-basis.
+## dojo already did that 
 
-turns out the chaining pattern of jQuery is one way to do this ~ see 
-[Labjs](http://labjs.com/documentation.php), for example ~ but that kind of 
-chaining is more suited to BCE scripts ~ i.e., "before CommonJS era".
+this used to be simple. 
 
-## monadic chaining vs object chaining
+    dojo.provide("my.module");
 
-method chaining means returning the same *object* after each member method call 
-on the object.
+    dojo.require("dojo.io.script");
 
-monadic chaining means returning the same *function*, bound to the same object 
-internally.
+    // dojo.provide made sure that my.module was created as a JavaScript object,
+    // so properties can be assigned to it:
+    my.module.name = "my module";
+    
+but it was coupled to dojo itself.  then they ruined it
 
-a monadic api is more declarative.
+    define(['dojo/_base/kernel', 'dojo/io/script', 'dojo/_base/loader'], 
+      function(dojo, ioScript){
+        dojo.provide("my.module");
+
+        // dojo.provide made sure that my.module was created as a JavaScript object,
+        // so properties can be assigned to it:
+        my.module.name = "my module";
+      });
+    
+## es6 imports
+
+es6 `imports` is a huge disaster ~ 
+[https://gist.github.com/wycats/51c96e3adcdb3a68cbc3#comment-801392] ~ 
+the only people who could possibly favor it are unlikely to make their living 
+working in __cross-browser__ JavaScript on a daily basis.
+
+## js dependency loading api via chaining pattern
 
 the JavaScript dependency loading API should be more declarative, for better 
 readability, scoping, nesting, leak prevention, composability, blah blah.
 
+the chaining pattern of jQuery is one way to do this ~ see 
+[Labjs](http://labjs.com/documentation.php), for example.
+
+call that the `method chaining` pattern, which means returning the same *object* 
+after each member method call on the object.
+
+that kind of chaining is more suited to BCE scripts, i.e., "before CommonJS era"
+
+`monadic chaining` - which term I coin here for the nonce - means returning the 
+same *function*, bound to the same object internally.
+
+a monadic api is more declarative, and IMO more readable.
+
 ## what do you mean?
 
-some modules out there use this pattern
+some node.js modules out there use this pattern
 
     require('asyncModule')(arg1);
 
@@ -58,8 +82,11 @@ that could be turned into a lisp-y pattern or sequence as
     (require)
     ('asyncModule')(arg1)(arg2)(arg3);
 
+that's not too hard to read but it plays on our expectation of what `require` 
+is doing.
 
-With this library you'll be able to do it for the whole module using a callback
+I am advocating the monadic chaining pattern for describing the whole module, 
+not merely for loading,
 
     (define)
       ('asyncModule')
@@ -79,10 +106,8 @@ gives us
     var a = require('a/path');
     var b = require('b/path');
     
-    // now proceed with the rest of commonjs
-    module.exports = function () {
-    
-    }
+    // ...rest of commonjs, etc.
+    module.exports = ...
     
 should be
 
@@ -91,12 +116,8 @@ should be
       console.log('a : ' + (!!a));
       console.log('b : ' + (!!b));
       
-      // now proceed with the rest of commonjs
-      module.exports = function () {
-      
-      }
-      
-      // etc.
+      // ...rest of commonjs, etc.
+      module.exports = ...
     });
 
 That "could" work on the browser but `require` on node.js is pretty much locked 
@@ -105,20 +126,20 @@ name, such as `define` which is used in&hellip;
 
 ## AMD
 
-this is actually really really close (requirejs, seajs)
+__this is actually really really close__ (requirejs, seajs)
 
     define(function(module, require, exports) {
     
       var a = require('a/path');
       var b = require('b/path');
       
-      // now proceed with the rest of commonjs
-      module.exports = function () {
-      
-      }
-
-      // etc.
+      // ...rest of commonjs, etc.
+      module.exports = ...
     });
+
+that relies on the "magic" of `function.toString()` to parse out `require` 
+statements ~ which at first seems "cool" but turns out really to be more 
+wasteful indirection and fakery
 
 all we have to do is pull the dependency statements up, into a monadic pattern
 
@@ -127,47 +148,40 @@ all we have to do is pull the dependency statements up, into a monadic pattern
       console.log('a : ' + (!!a));
       console.log('b : ' + (!!b));
       
-      // now proceed with the rest of commonjs
-      module.exports = function () {
-      
-      }
-      
-      // etc.
+      // ...rest of commonjs, etc.
+      module.exports = ...
     });
 
-then stack each call (node.js)
+then stack each call (node.js), adding parentheses and whitespace for visual 
+grouping
 
     (define)
-      ('a:path')
-      ('b:path')
-      (function callback() {
-        console.log('a : ' + (!!a));
-        console.log('b : ' + (!!b));
-        
-        // now proceed with the rest of commonjs
-        module.exports = function () {
-        
-        }
-        
-        // etc.
-      });
+    
+    ('a:path')
+    ('b:path')
+    
+    (function callback() {
+      console.log('a : ' + (!!a));
+      console.log('b : ' + (!!b));
+      
+      // ...rest of commonjs, etc.
+      module.exports = ...
+    });
 
 add a way to name modules by file (id on node, assign + id on browser)
     
-    (define.id(__filename))
-      ('a:path')
-      ('b:path')
-      (function callback() {
-        console.log('a : ' + (!!a));
-        console.log('b : ' + (!!b));
-        
-        // now proceed with the rest of commonjs
-        module.exports = function () {
-        
-        }
-        
-        // etc.
-      });   
+    (define).id(__filename)
+    
+    ('a:path')
+    ('b:path')
+    
+    (function callback() {
+      console.log('a : ' + (!!a));
+      console.log('b : ' + (!!b));
+      
+      // ...rest of commonjs, etc.
+      module.exports = ...
+    });   
 
 ## what happened to callback param names?
 
@@ -179,16 +193,20 @@ an assignment like `var name = require('module-name');`  that api is, however,
 synchronous which means it doesn't play well in the asynchronous world of the 
 browser.
 
+## default aliases
+
 a required dependency that exports something is assigned to an alias derived 
 from the filename.  An export defined in a file referenced at 
 `'./path/to/cool-module.js'` will be assigned to a camelCased variable named 
 `coolModule`.
 
     (define)
-      ('./path/to/cool-module')
-      (function() {
-        coolModule
-      });
+  
+    ('./path/to/cool-module')
+    
+    (function() {
+      coolModule
+    });
     
 ## var aliases
 
@@ -196,13 +214,14 @@ if more than one file is named `'cool-module'`, we need a way to avoid the name
 clash on `coolModule` that would result.
 
     (define)
-      ('./path/to/cool-module')
-      ('alias := ./path/to/another/cool-module')  // := token denotes name alias
-      
-      (function() {
-        coolModule
-        alias
-      });
+    
+    ('./path/to/cool-module')
+    ('alias := ./path/to/another/cool-module')  // := token denotes name alias
+    
+    (function() {
+      coolModule
+      alias
+    });
 
 ## path aliases
 
@@ -213,20 +232,22 @@ configuration injection close to the actual use of the thing
 
 
     (define)
-      ('./path/to/cool-module')
-      ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
-      
-      (function() {
-        coolModule
-        dependency //=> mock
-      });
+    
+    ('./path/to/cool-module')
+    ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
+    
+    (function() {
+      coolModule
+      dependency //=> mock
+    });
 
 ## content security policy
 
 __still being worked out__
 
-CSP is an ES6 co-conspirator meant to make it all better but in fact raises the 
-barrier to understanding and expose developers to more footguns and pitfalls.
+CSP is the ES6 co-conspirator meant to make life better but which actually 
+raises the barrier to understanding and productivity by exposing developers to 
+more footguns and pitfalls.
 
 that said, CSP headers allow clients to disable script evaluation by default, 
 which means `Function()` can't be used.  
