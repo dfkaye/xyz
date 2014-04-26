@@ -25,7 +25,7 @@ test('assert param is string or function', function () {
   }).should.throw('param must be string or function');
 });
 
-test('retrieve defn namespace', function () {
+test('yes, you can retrieve the current namespace', function () {
   var defn = (define).id(__filename);
   defn.namespace.id.should.be.equal(__filename);
 });
