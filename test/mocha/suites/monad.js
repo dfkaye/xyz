@@ -25,9 +25,11 @@ test('assert param is string or function', function () {
   }).should.throw('param must be string or function');
 });
 
-test('yes, you can retrieve the current namespace', function () {
-  var defn = (define).id(__filename);
-  defn.namespace.id.should.be.equal(__filename);
+test('yes, you can retrieve the current monad and namespace', function () {
+  var monad = (define).id(__filename);
+  
+  monad.should.be.Function;
+  monad.namespace.id.should.be.equal(__filename);
 });
 
 test('globals', function () {
@@ -52,6 +54,9 @@ test('module', function () {
     module.filename.should.be.equal(module.id);
     module.loaded.should.be.true;    
     module.children.should.be.Array;
+    module.load.should.be.Function;
+    
+    (module.parent instanceof module.constructor).should.be.true;
   });
 });
 
