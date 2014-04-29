@@ -4,9 +4,10 @@
  * TEST #1 
  * BY REQUIRING IN THIS ORDER WE VERIFY THAT should() isn't broken by define().
  */
+if (typeof require == 'function') {
 require('../../../lib/node/monad');
 require('should');
-
+}
 /* TESTS START HERE */
 
 /*
