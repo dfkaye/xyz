@@ -74,6 +74,18 @@ test('does not "return" a return value', function () {
   h.should.not.be.equal('hello');
 });
 
+test('module.load() should be undefined', function () {
+
+  var context = { module: { exports: {}, load: function () {} } };
+  
+  var fn = function () {
+    module.exports = typeof module.load;
+  };
+  
+  var t = exec(fn, context);
+  
+  t.should.be.equal('undefined');
+});
 
 suite('exec.make');
 

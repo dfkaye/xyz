@@ -62,11 +62,14 @@ test('module', function () {
     // var path = require('path');
     // console.log(path.normalize('../../../lib/node/monad', module.id));
     
-    module.load.should.be.Function;
-    // console.log(module.load.toString());
-    // module.load(); // throws
-    
     (module.parent instanceof module.constructor).should.be.true;
+  });
+});
+
+test('module.load() should be undefined', function () {
+  (define).id(__filename)
+  (function () {
+    (typeof module.load).should.be.equal('undefined');
   });
 });
 
