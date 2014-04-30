@@ -55,7 +55,16 @@ test('module', function () {
     module.filename.should.be.equal(module.id);
     module.loaded.should.be.true;    
     module.children.should.be.Array;
+    
+    // testing on windows
+    module.children[0].id.replace(/\\/g, '/').should.containEql('/lib/node/monad');
+    
+    // var path = require('path');
+    // console.log(path.normalize('../../../lib/node/monad', module.id));
+    
     module.load.should.be.Function;
+    // console.log(module.load.toString());
+    // module.load(); // throws
     
     (module.parent instanceof module.constructor).should.be.true;
   });
