@@ -248,14 +248,14 @@ test('multiple dependencies', function() {
   (typeof c).should.be.equal('undefined');
 });
 
-// test.only('cycles handled', function() {
-  // (define).id(__filename)
-  // (__filename)
-  // (function () {
-  
-  // });
-// });
-
+test('cycles & windows separator handled', function() {
+  // monad.js file
+  (define).id(__filename)
+  (__filename)
+  (function () {
+    monad.should.be.ok;
+  });
+});
 
 test('pass values by module properties', function() {
 
