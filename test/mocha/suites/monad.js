@@ -248,6 +248,15 @@ test('multiple dependencies', function() {
   (typeof c).should.be.equal('undefined');
 });
 
+// test.only('cycles handled', function() {
+  // (define).id(__filename)
+  // (__filename)
+  // (function () {
+  
+  // });
+// });
+
+
 test('pass values by module properties', function() {
 
   (define).id(__filename)

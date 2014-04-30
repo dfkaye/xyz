@@ -33,6 +33,10 @@ test('path/to/ WHITE SPACE ', function () {
   camelize('path/to/ WHITE SPACE ').should.be.equal('WHITESPACE');
 });
 
+test('replace windows backslash with *nix forslash', function () {
+  camelize(__filename).should.be.equal('camelize');
+});
+
 
 suite('does not camelize');
 
