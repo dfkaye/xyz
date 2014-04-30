@@ -248,13 +248,48 @@ test('multiple dependencies', function() {
   (typeof c).should.be.equal('undefined');
 });
 
-test('cycles & windows separator handled', function() {
-  // monad.js file
+test('windows path separator handled', function() {
   (define).id(__filename)
-  (__filename)
+  ('..\\fixture\\m')
   (function () {
-    monad.should.be.ok;
+    m.should.be.Function;
   });
+});
+
+test('file cannot require itself', function() {
+
+  (function() {
+    (define).id(__filename)
+    (__filename)
+    (function () {
+      monad.should.not.be.ok;
+    });
+  }).should.throw('file cannot require itself');
+});
+
+test('self cycle throws', function() {
+
+  (function() {
+    (define).id(__filename)
+    ('../fixture/self-cycle')
+    (function () {
+      selfCycle.should.not.be.ok;
+    });
+  }).should.throw('file cannot require itself');
+});
+
+test('nested cycles handled', function() {
+
+  // THIS SHOULD FAIL BUT NODE.JS FIXES CYCLES WITH PROXY OBJECTS
+  // THAT IS REALLY BAD
+    (define).id(__filename)
+    ('../fixture/cycle')
+    (function () {
+      // cycle requires nested/cycle
+      // nested/cycle requires cycle, 
+      // and attaches 'nested' property to imported cycle
+      cycle.nested.should.be.true;
+    });
 });
 
 test('pass values by module properties', function() {
