@@ -1,23 +1,25 @@
 xyz
 ===
 
-insane js module pattern (working name) so we can be productive again and 
-ignore the trendy-but-wrong transpile-everything crowd. 
+insane js module pattern (working name) so we can be productive again on both 
+browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd. 
 
 ## in progress
 
-+ [22 APR 2014] success! big rewrite using monadic pattern
++ [1 MAY 2014] circular dependency detection added
++ [23 - 27 APR] VACATION :)
++ [22 APR 2014] SUCCESS! big rewrite using monadic pattern
 + [18 APR 2014] __STARTING OVER (sort of)__ ~ better component tests (already 
 found a bug in exec()), and better model of the loading sequence and 
 dependencies
 + [17 APR 2014] - var alias supported with `'x:=path/to/x'` ~ horrible caching 
 issue resolved for alias case ~ demands a major refactoring to anticipate the 
 path_alias and global_alias cases
-+ [9-10-11 APR 2104] node.js version "works" with mocha+should tests
++ [9-10-11 APR 2014] node.js version "works" with mocha+should tests
 
 ## motivation
 
-exorcising code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
+exorcise code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
 
 ## dojo already did that 
 
@@ -31,7 +33,10 @@ this used to be simple.
     // so properties can be assigned to it:
     my.module.name = "my module";
     
-but it was coupled to dojo itself.  then they ruined it
+but 
+
++ it was coupled to dojo itself (same with YUI, curl, google closure, et al).  
++ they ruined it with AMD
 
     define(['dojo/_base/kernel', 'dojo/io/script', 'dojo/_base/loader'], 
       function(dojo, ioScript){
@@ -44,7 +49,7 @@ but it was coupled to dojo itself.  then they ruined it
     
 ## es6 imports
 
-es6 `imports` is a huge disaster ~ 
+es6 `imports` means this ~ 
 [https://gist.github.com/wycats/51c96e3adcdb3a68cbc3#comment-801392] ~ 
 the only people who could possibly favor it are unlikely to make their living 
 working in __cross-browser__ JavaScript on a daily basis.
@@ -69,66 +74,20 @@ a monadic api is more declarative, and IMO more readable.
 
 ## what do you mean?
 
-some node.js modules out there use this pattern
+instead of commonjs `require`
 
-    require('asyncModule')(arg1);
+    var asyncModule = require('asyncModule')
+    var anotherModule = require('another-module')
+        
+    asyncModule(arg1)(arg2)(arg3);
+    anotherModule('hi, module');
 
-more rarely but still possible for a promise-like api
+or AMD __which is actually really really close__ (requirejs, seajs), 
+but relies on the "magic" of `function.toString()` to parse out `require` 
+statements ~ which at first seems "cool" but turns out really to be more 
+wasteful indirection and fakery
 
-    require('asyncModule')(arg1)(arg2)(arg3);
-
-that could be turned into a lisp-y pattern or sequence as
-
-    (require)
-    ('asyncModule')(arg1)(arg2)(arg3);
-
-that's not too hard to read but it plays on our expectation of what `require` 
-is doing.
-
-I am advocating the monadic chaining pattern for describing the whole module, 
-not merely for loading,
-
-    (define)
-      ('asyncModule')
-      ('another-module')
-      (function () {
-        asyncModule(arg1)(arg2)(arg3);
-        anotherModule('hi, module');
-      });
-
-which is how "common" js modules should have been done in the first place, but 
-never mind.
-
-## commonjs `require`
-
-gives us
-
-    var a = require('a/path');
-    var b = require('b/path');
-    
-    // ...rest of commonjs, etc.
-    module.exports = ...
-    
-should be
-
-    require('a/path')('b/path')(function () {
-    
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
-      
-      // ...rest of commonjs, etc.
-      module.exports = ...
-    });
-
-That "could" work on the browser but `require` on node.js is pretty much locked 
-down.  For node.js we'd have to wrap the module loading API with a different 
-name, such as `define` which is used in&hellip;
-
-## AMD
-
-__this is actually really really close__ (requirejs, seajs)
-
-    define(function(module, require, exports) {
+    define(__filename, function(module, require, exports) {
     
       var a = require('a/path');
       var b = require('b/path');
@@ -137,51 +96,21 @@ __this is actually really really close__ (requirejs, seajs)
       module.exports = ...
     });
 
-that relies on the "magic" of `function.toString()` to parse out `require` 
-statements ~ which at first seems "cool" but turns out really to be more 
-wasteful indirection and fakery
+I am advocating the monadic chaining pattern for describing the whole module, 
+not merely for loading, by pulling the dependency statements up and skipping the 
+extra `require` statement
 
-all we have to do is pull the dependency statements up, into a monadic pattern
-
-    define('a/path')('b/path')(function () {
-    
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
-      
-      // ...rest of commonjs, etc.
-      module.exports = ...
-    });
-
-then stack each call (node.js), adding parentheses and whitespace for visual 
-grouping
-
-    (define)
-    
-    ('a:path')
-    ('b:path')
-    
-    (function callback() {
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
-      
-      // ...rest of commonjs, etc.
-      module.exports = ...
-    });
-
-add a way to name modules by file (id on node, assign + id on browser)
-    
     (define).id(__filename)
     
-    ('a:path')
-    ('b:path')
+    ('asyncModule')
+    ('another-module')
     
-    (function callback() {
-      console.log('a : ' + (!!a));
-      console.log('b : ' + (!!b));
+    (function () {
+    
+      asyncModule(arg1)(arg2)(arg3);
+      anotherModule('hi, module');
       
-      // ...rest of commonjs, etc.
-      module.exports = ...
-    });   
+    });
 
 ## what happened to callback param names?
 
@@ -223,13 +152,31 @@ clash on `coolModule` that would result.
       alias
     });
 
-## path aliases
+## global aliases
 
-__still being worked out__
+__on the fence__
+
+if a file sets a global value rather than returning an export, you can detect it 
+from the `global` scope:
+
+    (define).id(__filename)
+    ('../fixture/zuber')
+    (function () {  
+      global.zuber('test').should.be.equal('[global-zuber]' + 'test');
+    });
+
+or use an alias to avoid clobbering, e.g., `'{alias} := path/name'`
+
+    (define).id(__filename)
+    ('{zuber}:=../fixture/zuber')
+    (function () {  
+      zuber('test').should.be.equal('[global-zuber]' + 'test');
+    });
+
+## path aliases
 
 for testing modules with mocks of their dependencies it makes sense to add 
 configuration injection close to the actual use of the thing
-
 
     (define)
     
@@ -240,6 +187,12 @@ configuration injection close to the actual use of the thing
       coolModule
       dependency //=> mock
     });
+
+## deep aliasing
+
+__still being worked out__
+
+this means force all downstream dependencies to load an aliased path.
 
 ## content security policy
 
@@ -252,7 +205,8 @@ more footguns and pitfalls.
 that said, CSP headers allow clients to disable script evaluation by default, 
 which means `Function()` can't be used.  
 
-this could be mitigated by a build process/nightmare
+this could be mitigated by a build process/nightmare and/or using `iframes` for 
+loading. maybe.
 
 ## it will just be better
 
@@ -271,13 +225,16 @@ JSON (modified MIT)
 
 ## TODO
 
++ travis config
++ testem config
++ <del>cycle detection</del> ~ node.js cycle handling keeps the server up but 
+    cycles left unattended mean bad habits ~ could put it in a build tool 
+    instead&hellip;
 + <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
     right ~ this api is *different* so need to make the mapping/loading rules 
     more clear ~ *[22 APR 2014] fixed with monadic pattern*
 + <del>should nested `define()` see deps in outer scope?</del> ~ deps and 
     properties only, not vars
-+ travis config
-+ testem config
 + var alias ~ *debating*
   - `'x := path/to/something'` ~ *[17 APR 2014]*
   - <del>`'{x} := path/to/something'`</del>
@@ -298,8 +255,8 @@ JSON (modified MIT)
   - ` % `   // mmmmmm, no
   - ` @ `   // mmmmmm, no
   - ` & `   // mmmmmm, no
-+ handle over-the-wire requests based on protocol + scheme, etc.
 + dep inclusion from outer to inner scope ~ *[22 APR 2014 ~ yes. fixed]*
++ handle over-the-wire requests based on protocol + scheme, etc.
 + browser version of this ~ *once the node version is "locked" down enough*
 + content security policy ~ *workaround needed*
 + rawgithub page
