@@ -201,6 +201,50 @@ test('delete and re-require should.js', function() {
   });
 });
 
+
+/* 
+ * CYCLES SHOULD ALWAYS FAIL, BUT NODE.JS "FIXES" CYCLES WITH PROXY OBJECTS 
+ * INSTEAD OF RETURNING THEIR EXPORTS. 
+ * THAT IS REALLY TERRIBLE.
+ */
+suite('import cycles should always throw');
+
+test('file cannot require itself', function() {
+
+  (function() {
+    (define).id(__filename)
+    (__filename)
+    (function () {
+      monad.should.not.be.ok;
+    });
+  }).should.throw('file cannot require itself');
+});
+
+test('self cycle throws', function() {
+
+  (function() {
+    (define).id(__filename)
+    ('../fixture/self-cycle')
+    (function () {
+      selfCycle.should.not.be.ok;
+    });
+  }).should.throw('file cannot require itself');
+});
+
+test('deep cycle throws', function() {
+
+  (function(){
+    (define).id(__filename)
+    ('../fixture/cycle')
+    (function () {
+      // cycle requires nested/cycle
+      // nested/cycle requires cycle, 
+      // and attaches 'nested' property to imported cycle
+      cycle.nested.should.not.be.ok;
+    });
+  }).should.throw();
+});
+
 /*
  * various import and execution combinations
  */
@@ -254,42 +298,6 @@ test('windows path separator handled', function() {
   (function () {
     m.should.be.Function;
   });
-});
-
-test('file cannot require itself', function() {
-
-  (function() {
-    (define).id(__filename)
-    (__filename)
-    (function () {
-      monad.should.not.be.ok;
-    });
-  }).should.throw('file cannot require itself');
-});
-
-test('self cycle throws', function() {
-
-  (function() {
-    (define).id(__filename)
-    ('../fixture/self-cycle')
-    (function () {
-      selfCycle.should.not.be.ok;
-    });
-  }).should.throw('file cannot require itself');
-});
-
-test('nested cycles handled', function() {
-
-  // THIS SHOULD FAIL BUT NODE.JS FIXES CYCLES WITH PROXY OBJECTS
-  // THAT IS REALLY BAD
-    (define).id(__filename)
-    ('../fixture/cycle')
-    (function () {
-      // cycle requires nested/cycle
-      // nested/cycle requires cycle, 
-      // and attaches 'nested' property to imported cycle
-      cycle.nested.should.be.true;
-    });
 });
 
 test('pass values by module properties', function() {
