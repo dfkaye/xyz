@@ -33,15 +33,13 @@ this used to be simple.
     // so properties can be assigned to it:
     my.module.name = "my module";
     
-but 
-
-+ it was coupled to dojo itself (same with YUI, curl, google closure, et al).  
-+ they ruined it with AMD
+but 1) it was coupled to dojo itself (same with YUI, curl, google closure, et al), 
+and 2) they ruined it with AMD
 
       define(['dojo/_base/kernel', 'dojo/io/script', 'dojo/_base/loader'], 
         function(dojo, ioScript){
           dojo.provide("my.module");
-
+        
           // dojo.provide made sure that my.module was created as a JavaScript object,
           // so properties can be assigned to it:
           my.module.name = "my module";
