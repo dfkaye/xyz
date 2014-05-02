@@ -360,10 +360,11 @@ test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
   });
 });
 
-test('inner', function () {
+test('inner context shares outer context vars', function () {
 
   var a = 'a';
 
+  // outer named context
   (define).id(__filename)
   ('../fixture/c2m')
   (function() {
@@ -373,9 +374,8 @@ test('inner', function () {
     (typeof a).should.be.equal('undefined');
     c2m('a').should.be.equal('[c2m][m]' + 'a');
 
-    // inner
-    
-    (define).id(__filename)
+    // inner define call on same context
+    (define)
     (function() {
     
       (typeof a).should.be.equal('undefined');
@@ -384,6 +384,19 @@ test('inner', function () {
       c2m('b').should.be.equal('[c2m][m]' + 'b');
     });
   });
+});
+
+test('inner define must be anonymous - has no method \'id\'', function () {
+
+  (function(){
+    (define).id(__filename)
+    (function() {
+      
+      // inner define has no method 'id'
+      (define).id(__filename)
+
+    });
+  }).should.throw();
 });
 
 test('trim path whitespace', function () {
@@ -398,20 +411,19 @@ test('trim path whitespace', function () {
 /*
  * anonymous modules have quirks ~ make sure we ironed them out
  */
-suite('anonymous modules');
+suite('anonymous outer modules');
 
 test('dependency paths must be root-relative', function () {
-  (define)
+
+  (define) // no id call
   ('../../test/mocha/fixture/c2m')
   (function() {
   
     c2m('a').should.be.equal('[c2m][m]' + 'a');
     
-    // anonymous inner
-    
+    // inner
     (define)
     ('../../test/mocha/fixture/m')
-    
     (function () {
       c2m('b').should.be.equal('[c2m][m]' + 'b');
       m('bob').should.be.equal('[m]' + 'bob');
