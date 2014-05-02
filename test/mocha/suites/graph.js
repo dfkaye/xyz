@@ -13,31 +13,31 @@ var dep2 = './some/dep2.js';
 suite('graph');
 
 test('add id', function () {
-  graph.add(id).should.be.Array;
+  graph(id).should.be.equal(graph);
 });
 
 test('add dep', function () {
   (typeof graph.items[id][dep]).should.equal('undefined');
-  graph.add(id, dep).length.should.equal(1);
-  graph.items[id][dep].should.equal(dep);
   
+  graph(id, dep).items[id].length.should.equal(1);
+  graph.items[id][dep].should.equal(dep);
 });
 
 test('add dep2 to dep', function () {
-  graph.add(dep, dep2).length.should.equal(1);
+  graph(dep, dep2).items[dep].length.should.equal(1);
 });
 
 test('resolve deps', function () {
-  (function () {
-    graph.resolve(id);
-  }).should.not.throw();
+  var msg = graph.resolve(id);
+  
+  (typeof msg).should.be.equal('undefined');
 });
 
 test('detect cycle', function () {
+    
+  graph(dep2, id).items[dep2].length.should.equal(1);
 
-  graph.add(dep2, id).length.should.equal(1);
-
-  (function () {
-    graph.resolve(id);
-  }).should.throw();
+  var msg = graph.resolve(id);
+  
+  (typeof msg).should.be.equal('string');
 });

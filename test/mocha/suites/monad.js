@@ -398,7 +398,7 @@ test('trim path whitespace', function () {
 /*
  * anonymous modules have quirks ~ make sure we ironed them out
  */
-suite('anonymous');
+suite('anonymous modules');
 
 test('dependency paths must be root-relative', function () {
   (define)
