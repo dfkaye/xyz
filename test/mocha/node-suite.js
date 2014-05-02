@@ -12,9 +12,12 @@ var Mocha = require("mocha");
 var mocha = new Mocha({ui:"qunit", reporter:"spec"});
 
 //Add your test files
+
 mocha.addFile("./test/mocha/suites/camelize.js");
 mocha.addFile("./test/mocha/suites/exec.js");
 mocha.addFile("./test/mocha/suites/graph.js");
+mocha.addFile("./test/mocha/suites/graph-alias.js");
+
 mocha.addFile("./test/mocha/suites/monad.js");
 //Run your tests
 mocha.run(function(failures){
