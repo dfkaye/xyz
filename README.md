@@ -6,6 +6,7 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
++ [5 MAY 2014] require.resolve and self.module.require update
 + [1 MAY 2014] circular dependency detection added
 + [23 - 27 APR] VACATION :)
 + [22 APR 2014] SUCCESS! big rewrite using monadic pattern
@@ -21,7 +22,10 @@ path_alias and global_alias cases
 
 exorcise code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
 
-## dojo already did that 
+## tl;dr 
+
+it's all about the syntax, and 
+__[dojo already did that](http://www.youtube.com/watch?v=BY0-AI1Sxy0)__
 
 this used to be simple. 
 
