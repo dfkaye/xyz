@@ -2,7 +2,7 @@
 var graph;
 
 if (typeof require == 'function') {
-  graph = require('../../../lib/node/graph');
+  graph = require('../../../lib/node/graph')();  // tricky init
   require('should');
 }
 

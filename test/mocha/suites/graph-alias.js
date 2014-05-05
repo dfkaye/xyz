@@ -2,8 +2,8 @@
 var graph, as;
 
 if (typeof require == 'function') {
-  graph = require('../../../lib/node/graph');
-  as = graph().as; // tricky init
+  graph = require('../../../lib/node/graph')();  // tricky init
+  as = graph.as;
   require('should');
 }
 

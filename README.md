@@ -54,9 +54,6 @@ working in __cross-browser__ JavaScript on a daily basis.
 
 ## js dependency loading api via chaining pattern
 
-the JavaScript dependency loading API should be more declarative, for better 
-readability, scoping, nesting, leak prevention, composability, blah blah.
-
 the chaining pattern of jQuery is one way to do this ~ see 
 [Labjs](http://labjs.com/documentation.php), for example.
 
@@ -66,9 +63,12 @@ after each member method call on the object.
 that kind of chaining is more suited to BCE scripts, i.e., "before CommonJS era"
 
 `monadic chaining` - which term I coin here for the nonce - means returning the 
-same *function*, bound to the same object internally.
+same *function*, bound to the same object internally. that's not really a monad, 
+but it's not quite currying either as it memoizes search/load results, and it's 
+not purely declarative (there's work behind the scenes and the order matters), 
+which means it looks like a stream but isn't really that either.
 
-a monadic api is more declarative, and IMO more readable.
+it is, however, more readable, IMO.
 
 ## what do you mean?
 
@@ -94,9 +94,9 @@ wasteful indirection and fakery
       module.exports = ...
     });
 
-I am advocating the monadic chaining pattern for describing the whole module, 
-not merely for loading, by pulling the dependency statements up and skipping the 
-extra `require` statement
+I am advocating a chaining pattern for describing the whole module, not merely 
+for loading, by pulling the dependency statements up and skipping the extra 
+`require` statement
 
     (define).id(__filename)
     
@@ -190,15 +190,15 @@ configuration injection close to the actual use of the thing
 
 __still being worked out__
 
-this means force all downstream dependencies to load an aliased path.
+this means we force all downstream dependencies to load an aliased path.
 
 ## content security policy
 
 __still being worked out__
 
-CSP is the ES6 co-conspirator meant to make life better but which actually 
-raises the barrier to understanding and productivity by exposing developers to 
-more footguns and pitfalls.
+CSP is a ES6 co-conspirator meant to make life better but actually raises one 
+more barrier to understanding and productivity by exposing developers to more 
+footguns and pitfalls.
 
 that said, CSP headers allow clients to disable script evaluation by default, 
 which means `Function()` can't be used.  

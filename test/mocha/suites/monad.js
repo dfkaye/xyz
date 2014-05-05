@@ -26,13 +26,6 @@ test('assert param is string or function', function () {
   }).should.throw('param must be string or function');
 });
 
-test('yes, you can retrieve the current monad and namespace', function () {
-  var monad = (define).id(__filename);
-  
-  monad.should.be.Function;
-  monad.namespace.id.should.be.equal(__filename);
-});
-
 test('globals', function () {
   (define).id(__filename)
   (function () {
@@ -56,11 +49,8 @@ test('module', function () {
     module.loaded.should.be.true;    
     module.children.should.be.Array;
     
-    // testing on windows
+    // tested on windows
     module.children[0].id.replace(/\\/g, '/').should.containEql('/lib/node/monad');
-    
-    // var path = require('path');
-    // console.log(path.normalize('../../../lib/node/monad', module.id));
     
     (module.parent instanceof module.constructor).should.be.true;
   });
@@ -116,6 +106,24 @@ test('does not return a "return" value', function () {
   f.should.not.be.Function;
 });
 
+
+test('intercept namespace define, then continue', function () {
+  
+  // intercept it from the initial statement
+  var monad = (define).id(__filename);
+  
+  monad.should.be.Function;
+  monad.namespace.id.should.be.equal(__filename);
+  
+  // continue using it
+  var exports = (monad)
+  (function() {
+    exports.current = true;
+  });
+  
+  exports.current.should.be.true;
+});
+
 test('define.id filename not found', function () {
 
   (function() {
@@ -156,6 +164,17 @@ test('module.require()', function () {
   c('exported').should.be.equal('[c]' + 'exported');
 });
 
+test('require.resolve', function () {
+  var c = (define).id(__filename)
+              (function () {
+                'use strict';
+                module.exports = require.resolve('../fixture/c');
+              });
+  
+  // tested on windows
+  c.replace(/\\/g, '/').should.containEql('/fixture/c');
+});
+
 test('require.cache', function () {
 
   (define).id(__filename)
@@ -189,13 +208,14 @@ test('delete and re-require should.js', function() {
     (typeof module.constructor._cache['should']).should.be.Null;
     should.should.be.ok;
 
-    // don't do this - it breaks all existing objects and tests with should
-    // which defines with ES5 Object.defineProperty
+    /*
+     * Don't do this with should.js - it breaks all existing objects and tests 
+     * with should which defines with ES5 Object.defineProperty
+     */
     //delete Object.prototype.should;
 
-    // instead nullify should.should, then verify that require restores it
+    // instead, nullify should.should, then verify that require() restores it
     should.should = undefined;
-
     require('should');
     should.should.be.ok;
   });
@@ -217,10 +237,10 @@ test('file cannot require itself', function() {
     (function () {
       monad.should.not.be.ok;
     });
-  }).should.throw('file cannot require itself');
+  }).should.throw();
 });
 
-test('self cycle throws', function() {
+test('dependency cannot require itself', function() {
 
   (function() {
     (define).id(__filename)
@@ -228,7 +248,7 @@ test('self cycle throws', function() {
     (function () {
       selfCycle.should.not.be.ok;
     });
-  }).should.throw('file cannot require itself');
+  }).should.throw();
 });
 
 test('deep cycle throws', function() {
@@ -244,6 +264,7 @@ test('deep cycle throws', function() {
     });
   }).should.throw();
 });
+
 
 /*
  * various import and execution combinations
@@ -360,6 +381,35 @@ test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
   });
 });
 
+test('trim path whitespace', function () {
+  (define).id(__filename)
+  ('  ../fixture/m   ')
+  (function () {  
+    m('test').should.be.equal('[m]' + 'test');
+  });
+});
+
+test('support very relative pathnames', function () {
+
+  (define).id(__filename)
+  ('../../../test/mocha/fixture/c2m')
+  (function() {
+  
+    c2m('a').should.be.equal('[c2m][m]' + 'a');
+    
+    // inner
+    (define)
+    ('../fixture/m')
+    (function () {
+      c2m('b').should.be.equal('[c2m][m]' + 'b');
+      m('bob').should.be.equal('[m]' + 'bob');
+    });
+  });
+});
+
+
+suite('inner modules');
+
 test('inner context shares outer context vars', function () {
 
   var a = 'a';
@@ -399,51 +449,25 @@ test('inner define must be anonymous - has no method \'id\'', function () {
   }).should.throw();
 });
 
-test('trim path whitespace', function () {
+test('inner context can require node_modules', function () {
+
   (define).id(__filename)
-  ('  ../fixture/m   ')
-  (function () {  
-    m('test').should.be.equal('[m]' + 'test');
-  });
-});
-
-
-/*
- * anonymous modules have quirks ~ make sure we ironed them out
- */
-suite('anonymous outer modules');
-
-test('dependency paths must be root-relative', function () {
-
-  (define) // no id call
-  ('../../test/mocha/fixture/c2m')
   (function() {
   
-    c2m('a').should.be.equal('[c2m][m]' + 'a');
-    
-    // inner
     (define)
-    ('../../test/mocha/fixture/m')
+    ('fs')
+    ('path')
     (function () {
-      c2m('b').should.be.equal('[c2m][m]' + 'b');
-      m('bob').should.be.equal('[m]' + 'bob');
+      fs.should.be.ok;
+      path.should.be.ok;
     });
   });
 });
 
-test('require node_modules', function () {
-  (define)
-  ('fs')
-  ('path')
-  (function () {
-    fs.should.be.ok;
-    path.should.be.ok;
-  });
-});
 
 
 /*
- * var and path aliases - TODO: global alias
+ * varname, pathname and global aliases
  */
 suite('aliasing');
 
