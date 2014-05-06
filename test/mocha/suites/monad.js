@@ -113,7 +113,7 @@ test('intercept namespace define, then continue', function () {
   var monad = (define).id(__filename);
   
   monad.should.be.Function;
-  monad.namespace.id.should.be.equal(__filename);
+  monad.id.should.be.equal(__filename);
   
   // continue using it
   var exports = (monad)
@@ -133,7 +133,7 @@ test('define.id filename not found', function () {
 
 test('define.id cannot be called more than once', function () {
 
-  (typeof define.id(__filename).id).should.be.equal('undefined');
+  (define.id(__filename).id).should.not.be.Function;
 });
 
 
