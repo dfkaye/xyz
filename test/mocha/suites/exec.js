@@ -87,6 +87,7 @@ test('module.load() should be undefined', function () {
   t.should.be.equal('undefined');
 });
 
+
 suite('exec.make');
 
 test('returns a new function', function () {
@@ -128,14 +129,14 @@ suite('make errors');
 test('no args should throw', function () {
   (function () {
     exec.make();
-  }).should.throw('exec.make() requires function and context args.');
+  }).should.throw('make: requires fn and context arguments.');
 });
 
 test('context missing should throw', function () {
   var fn = function () {};
   (function () {
     exec.make(fn);
-  }).should.throw('exec.make() requires function and context args.');
+  }).should.throw('make: requires fn and context arguments.');
 });
 
 
@@ -144,14 +145,14 @@ suite('exec errors');
 test('no args should throw', function () {
   (function () {
     exec();
-  }).should.throw('exec() requires function and context args.');
+  }).should.throw('exec: requires fn and context arguments.');
 });
 
 test('context missing should throw', function () {
   var fn = function () {};
   (function () {
     exec(fn);
-  }).should.throw('exec() requires function and context args.');
+  }).should.throw('exec: requires fn and context arguments.');
 });
 
 test('module missing should throw', function () {
@@ -161,7 +162,7 @@ test('module missing should throw', function () {
   
   (function () {
     exec(fn, context);
-  }).should.throw('module is not defined');
+  }).should.throw('exec: module is not defined.');
 });
 
 test('exports missing should throw', function () {
@@ -171,7 +172,7 @@ test('exports missing should throw', function () {
   
   (function () {  
     exec(fn, context);
-  }).should.throw('module.exports is not defined');
+  }).should.throw('exec: module.exports is not defined.');
 });
 
 test('bad function arg type should throw', function () {
@@ -180,5 +181,5 @@ test('bad function arg type should throw', function () {
 
   (function () {
     exec(fn, context);
-  }).should.throw('fn is not defined');
+  }).should.throw('exec: fn should be a function.');
 });
