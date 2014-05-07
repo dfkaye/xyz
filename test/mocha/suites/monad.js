@@ -464,7 +464,39 @@ test('inner context can require node_modules', function () {
   });
 });
 
+test('pass values to nested modules', function() {
 
+  (define).id(__filename)
+  
+  (function () {
+    module.outer = 'hello';
+
+    (define)
+    (function () {
+      module.outer.should.be.equal('hello');    
+    });
+    
+  });
+
+});
+
+test('inner exports --- FIX ME', function() {
+
+  var exported = (define).id(__filename)
+  
+  (function () {
+    module.exports = 'hello';
+
+    (define)
+    (function () {
+      module.exports = 'whatever';    
+    });
+    
+  });
+  
+  exported.should.not.be.equal('whatever');
+  
+});
 
 /*
  * varname, pathname and global aliases
