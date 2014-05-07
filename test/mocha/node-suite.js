@@ -13,14 +13,17 @@ var mocha = new Mocha({ui:"qunit", reporter:"spec"});
 
 //Add your test files
 
-// mocha.addFile("./test/mocha/suites/camelize.js");
-// mocha.addFile("./test/mocha/suites/exec.js");
-// mocha.addFile("./test/mocha/suites/graph.js");
-// mocha.addFile("./test/mocha/suites/monad.js");
-
+// LEARNING TESTS
+mocha.addFile("./test/mocha/learning/should.js");
+mocha.addFile("./test/mocha/learning/alias.js");
 mocha.addFile("./test/mocha/learning/sandbox.js");
-mocha.addFile("./test/mocha/learning/should-learning-test.js");
-mocha.addFile("./test/mocha/learning/graph-alias.js");
+
+// SUITES
+mocha.addFile("./test/mocha/suites/camelize.js");
+mocha.addFile("./test/mocha/suites/exec.js");
+mocha.addFile("./test/mocha/suites/graph.js");
+mocha.addFile("./test/mocha/suites/monad.js");
+
 
 //Run your tests
 mocha.run(function(failures){
