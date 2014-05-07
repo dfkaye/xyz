@@ -4,6 +4,7 @@ xyz
 insane js module pattern (working name) so we can be productive again on both 
 browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd. 
 
+
 ## in progress
 
 + 6 MAY 2104 ! collapse namespace into monad !
@@ -19,9 +20,11 @@ issue resolved for alias case ~ demands a major refactoring to anticipate the
 path_alias and global_alias cases
 + [9-10-11 APR 2014] node.js version "works" with mocha+should tests
 
+
 ## motivation
 
 exorcise code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
+
 
 ## tl;dr 
 
@@ -50,6 +53,7 @@ and 2) they ruined it with AMD
           my.module.name = "my module";
         });
     
+    
 ## es6 imports
 
 es6 `imports` means this ~ 
@@ -74,6 +78,7 @@ not purely declarative (there's work behind the scenes and the order matters),
 which means it looks like a stream but isn't really that either.
 
 it is, however, more readable, IMO.
+
 
 ## what do you mean?
 
@@ -115,6 +120,9 @@ for loading, by pulling the dependency statements up and skipping the extra
       
     });
 
+Think of it as *"configuration injection"* at the module level that avoids the
+global config file anti-pattern.
+
 ## what happened to callback param names?
 
 they're "injected" as variables in the callback indirectly via a `Function()` 
@@ -124,6 +132,7 @@ as commonjs modules return an export rather than a name we have to alias them in
 an assignment like `var name = require('module-name');`  that api is, however, 
 synchronous which means it doesn't play well in the asynchronous world of the 
 browser.
+
 
 ## default aliases
 
@@ -140,6 +149,7 @@ from the filename.  An export defined in a file referenced at
       coolModule
     });
     
+    
 ## var aliases
 
 if more than one file is named `'cool-module'`, we need a way to avoid the name 
@@ -155,6 +165,7 @@ clash on `coolModule` that would result.
       alias
     });
 
+    
 ## global aliases
 
 __on the fence__
@@ -170,11 +181,14 @@ from the `global` scope:
 
 or use an alias to avoid clobbering, e.g., `'{alias} := path/name'`
 
+__that works but seems unnecessary__
+
     (define).id(__filename)
     ('{zuber}:=../fixture/zuber')
     (function () {  
       zuber('test').should.be.equal('[global-zuber]' + 'test');
     });
+
 
 ## path aliases
 
@@ -191,11 +205,16 @@ configuration injection close to the actual use of the thing
       dependency //=> mock
     });
 
+    
 ## deep aliasing
 
 __still being worked out__
 
 this means we force all downstream dependencies to load an aliased path.
+
+I am not sure that's wise (though helpful for testing/mocking) as it moves the 
+configuration out of local modules back to more global modules.
+
 
 ## content security policy
 
@@ -211,6 +230,7 @@ which means `Function()` can't be used.
 this could be mitigated by a build process/nightmare and/or using `iframes` for 
 loading. maybe.
 
+
 ## it will just be better
 
 we'd be able to run a concat of scripts written in this way without having to 
@@ -220,10 +240,10 @@ might-as-well-be-coffeescript transpoilers&trade;.
 
 then we could get back to work solving our real issues.
 
+
 ## License
 
 JSON (modified MIT)
-
 
 
 ## TODO
