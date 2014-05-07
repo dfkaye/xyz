@@ -250,9 +250,7 @@ JSON (modified MIT)
 
 + travis config
 + testem config
-+ <del>cycle detection</del> ~ node.js cycle handling keeps the server up but 
-    cycles left unattended mean bad habits ~ could put it in a build tool 
-    instead&hellip;
++ <del>cycle detection</del> ~ cycles are forbidden. period.
 + <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
     right ~ this api is *different* so need to make the mapping/loading rules 
     more clear ~ *[22 APR 2014] fixed with monadic pattern*
@@ -261,7 +259,7 @@ JSON (modified MIT)
 + var alias ~ *debating*
   - `'x := path/to/something'` ~ *[17 APR 2014]*
   - <del>`'{x} := path/to/something'`</del>
-+ alias expected global (not a module.export) ~ <del>*debating* </del>
++ alias expected global (not a module.export) ~ *done but may pull this out*
   - <del>`'global.$ := path/to/jQuery'`</del>
   - `'{$} := path/to/jQuery'` ~ *[23 APR 2014]*
 + path alias ~ *debating*
