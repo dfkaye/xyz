@@ -6,8 +6,9 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
++ 6 MAY 2104 ! collapse namespace into monad !
 + [5 MAY 2014] require.resolve and self.module.require update
-+ [1 MAY 2014] circular dependency detection added
++ [1 MAY 2014] super simple circular dependency detection added
 + [23 - 27 APR] VACATION :)
 + [22 APR 2014] SUCCESS! big rewrite using monadic pattern
 + [18 APR 2014] __STARTING OVER (sort of)__ ~ better component tests (already 
