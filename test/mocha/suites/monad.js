@@ -533,3 +533,34 @@ test('trim alias whitespace', function () {
     m('test').should.be.equal('[nested mock]' + 'test');
   });
 });
+
+// wrap suite - hence aliases - inside def
+(define).id(__filename)
+('m := ../fixture/m')
+(function () {
+
+  suite('wrapped suite');
+  
+  test('first', function () {
+    m.should.be.ok;
+  });
+  
+  test('second', function () {
+    m.should.be.ok;
+  });
+  
+  (define)
+  (function () {
+  
+    suite('wrapped and nested suite');
+    
+    test('first', function () {
+      m.should.be.ok;
+    });
+    
+    test('second', function () {
+      m.should.be.ok;
+    });
+  });
+  
+});
