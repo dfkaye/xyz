@@ -38,8 +38,8 @@ test('before each', function() {
 });
 
 test('nested suite', function () {
-  suite('heart');
-  test('inside', function () {
+  suite('nested suite');
+  test('inside nested suite', function () {
     test.should.be.Function;
   });
 });

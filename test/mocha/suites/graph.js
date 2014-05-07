@@ -39,7 +39,5 @@ test('detect cycle', function () {
 
   var msg = graph.resolve(id);
   
-  (typeof msg).should.be.equal('string');
-  
-  console.log(msg)
+  msg.should.be.equal('cycle: ' + id + ' > ' + dep + ' > ' + dep2 + ' > ' + id);
 });
