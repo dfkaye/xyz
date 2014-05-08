@@ -480,22 +480,22 @@ test('pass values to nested modules', function() {
 
 });
 
-test('inner exports --- FIX ME', function() {
+test('inner exports should not clobber outer exports', function() {
 
   var exported = (define).id(__filename)
   
   (function () {
     module.exports = 'hello';
 
-    (define)
+    var inner = (define)
     (function () {
       module.exports = 'whatever';    
     });
     
+    inner.should.be.equal('whatever');
   });
   
-  exported.should.not.be.equal('whatever');
-  
+  exported.should.be.equal('hello');
 });
 
 /*
