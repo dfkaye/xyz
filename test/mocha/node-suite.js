@@ -20,10 +20,9 @@ mocha.addFile("./test/mocha/learning/sandbox.js");
 
 // SUITES
 mocha.addFile("./test/mocha/suites/camelize.js");
-mocha.addFile("./test/mocha/suites/exec.js");
+mocha.addFile("./test/mocha/suites/make.js");
 mocha.addFile("./test/mocha/suites/graph.js");
 mocha.addFile("./test/mocha/suites/monad.js");
-
 
 //Run your tests
 mocha.run(function(failures){
