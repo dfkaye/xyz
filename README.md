@@ -7,7 +7,9 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
-+ 6 MAY 2104 ! collapse namespace into monad !
++ [9 MAY 2104] ! remove define.id(filename), just use define(filename) !
++ [8 MAY 2104] make exec() local, make make() its own module
++ [6 MAY 2104] ! collapse namespace into monad !
 + [5 MAY 2014] require.resolve and self.module.require update
 + [1 MAY 2014] super simple circular dependency detection added
 + [23 - 27 APR] VACATION :)
