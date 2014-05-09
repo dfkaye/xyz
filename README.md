@@ -4,6 +4,7 @@ xyz
 insane js module pattern (working name) so we can be productive again on both 
 browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd. 
 
+[![Build Status](https://travis-ci.org/dfkaye/xyz.png)](https://travis-ci.org/dfkaye/xyz)
 
 ## in progress
 
