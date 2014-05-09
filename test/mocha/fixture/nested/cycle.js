@@ -1,5 +1,5 @@
 // nested/cycle
-(define).id(__filename)
+(define)(__filename)
 ('../cycle')
 (function() {
 

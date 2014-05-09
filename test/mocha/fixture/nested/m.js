@@ -1,5 +1,5 @@
 // nested/m
-(define).id(__filename)
+(define)(__filename)
 (function() {
   module.exports = m;
   function m(msg) {

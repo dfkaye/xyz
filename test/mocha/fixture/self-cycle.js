@@ -1,5 +1,5 @@
 // self-cycle
-(define).id(__filename)
+(define)(__filename)
 (__filename)
 (function() {
   module.exports = 'should fail';
