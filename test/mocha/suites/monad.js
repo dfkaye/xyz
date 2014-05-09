@@ -53,6 +53,8 @@ test('module', function () {
     module.children[0].id.replace(/\\/g, '/').should.containEql('/lib/node/monad');
     
     (module.parent instanceof module.constructor).should.be.true;
+    module.parent.constructor.should.be.equal(module.constructor);
+
   });
 });
 
