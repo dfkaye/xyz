@@ -207,7 +207,7 @@ test('delete and re-require should.js', function() {
     module.constructor._cache['should'].should.be.ok;
     
     delete require.cache['should'];
-    (typeof require.cache['should']).should.be.Null;
+    (require.cache['should']).should.be.Null;
     (typeof module.constructor._cache['should']).should.be.Null;
     should.should.be.ok;
 
