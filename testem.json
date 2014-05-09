@@ -1,0 +1,11 @@
+{
+  "watch_files": [
+    "./test/**/*.js",
+    "./lib/**/*.js"
+  ],
+  "launchers": {
+    "mocha" : {
+      "command": "node ./test/mocha/node-suite.js"
+    }
+  }
+}

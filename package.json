@@ -8,7 +8,8 @@
     "should": ">= 3.0.1"
   },
   "scripts": {
-    "test": "node ./test/mocha/node-suite.js"
+    "test": "node ./test/mocha/node-suite.js",
+    "testem": "testem -l mocha -t ./test/mocha/browser-suite.html"
   },
   "repository": {
     "type": "git",

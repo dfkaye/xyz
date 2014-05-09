@@ -255,8 +255,8 @@ JSON (modified MIT)
 
 ## TODO
 
-+ travis config
-+ testem config
++ <del>travis config</del>
++ <del>testem config</del>
 + <del>cycle detection</del> ~ cycles are forbidden. period.
 + <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
     right ~ this api is *different* so need to make the mapping/loading rules 
