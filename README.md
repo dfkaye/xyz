@@ -110,7 +110,7 @@ I am advocating a chaining pattern for describing the whole module, not merely
 for loading, by pulling the dependency statements up and skipping the extra 
 `require` statement
 
-    (define).id(__filename)
+    (define)(__filename)
     
     ('asyncModule')
     ('another-module')
@@ -143,7 +143,7 @@ from the filename.  An export defined in a file referenced at
 `'./path/to/cool-module.js'` will be assigned to a camelCased variable named 
 `coolModule`.
 
-    (define)
+    (define)(__filename)
   
     ('./path/to/cool-module')
     
@@ -157,7 +157,7 @@ from the filename.  An export defined in a file referenced at
 if more than one file is named `'cool-module'`, we need a way to avoid the name 
 clash on `coolModule` that would result.
 
-    (define)
+    (define)(__filename)
     
     ('./path/to/cool-module')
     ('alias := ./path/to/another/cool-module')  // := token denotes name alias
@@ -175,8 +175,10 @@ __on the fence__
 if a file sets a global value rather than returning an export, you can detect it 
 from the `global` scope:
 
-    (define).id(__filename)
+    (define)(__filename)
+    
     ('../fixture/zuber')
+    
     (function () {  
       global.zuber('test').should.be.equal('[global-zuber]' + 'test');
     });
@@ -185,8 +187,10 @@ or use an alias to avoid clobbering, e.g., `'{alias} := path/name'`
 
 __that works but seems unnecessary__
 
-    (define).id(__filename)
+    (define)(__filename)
+    
     ('{zuber}:=../fixture/zuber')
+    
     (function () {  
       zuber('test').should.be.equal('[global-zuber]' + 'test');
     });
@@ -197,7 +201,7 @@ __that works but seems unnecessary__
 for testing modules with mocks of their dependencies it makes sense to add 
 configuration injection close to the actual use of the thing
 
-    (define)
+    (define)(__filename)
     
     ('./path/to/cool-module')
     ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
