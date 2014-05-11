@@ -14,8 +14,8 @@ test('__filename', function () {
 });
 
 test('normalize', function () {
-  // normalize(host + '/lib/browser/monad.js').should.be.equal(__filename);
-  // normalize(BASEPATH + '../../lib/browser/monad.js').should.be.equal(__filename);
+  normalize(host + '/lib/browser/monad.js').should.be.equal(__filename);
+  normalize(BASEPATH + '../../lib/browser/monad.js').should.be.equal(__filename);
 });
       
 test('__dirname', function () {
