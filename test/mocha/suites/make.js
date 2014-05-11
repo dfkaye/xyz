@@ -1,7 +1,8 @@
 // suites/make
 
-require('should');
 var make = require('../../../lib/node/make');
+require('should');
+
 
 /* TESTS START HERE */
 

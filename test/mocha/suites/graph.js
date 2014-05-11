@@ -1,10 +1,8 @@
 // graph test
-var graph;
 
-if (typeof require == 'function') {
-  graph = require('../../../lib/node/graph')();  // tricky init
-  require('should');
-}
+require('should');
+
+var graph = require('../../../lib/node/graph')();  // tricky init
 
 var id = __filename.replace(/\\/g, '/');
 var dep = './some/dep.js';

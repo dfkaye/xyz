@@ -7,15 +7,26 @@
   </head>
   <body>
     <div id="mocha"></div>
-    <script src="../../lib/node/camelize.js"></script>
-    <script src="../../lib/node/exec.js"></script>
-    <script src="../../lib/browser/monad.js"></script>
-    
-    <script src="../../vendor/assert.js"></script>
-    <script src="../../vendor/should.js"></script>
 
+    <script src="../../lib/browser/monad.js" data-monad></script>
+    
+    <!--<script>
+      require('../../lib/node/camelize.js');
+      require('./suites/camelize.js');
+      
+    </script>-->
+    
+    <!--
+    <script src="../../lib/node/camelize.js"></script>
+    <script src="../../lib/node/graph.js"></script>
+    <script src="../../lib/node/make.js"></script>  
+    <script src="../../lib/node/monad.js"></script>
+    -->
+    
+    <!--script src="../../vendor/assert.js"></script-->
+    <script src="../../vendor/should.js"></script>
     <script src="../../vendor/mocha/mocha.js"></script>
-    <script>mocha.setup('qunit')</script>
+    <script>mocha.setup({ui:"qunit"})</script>
     
     <script>
       if (location.href.indexOf('://localhost:7357') != -1) {
@@ -25,9 +36,14 @@
     </script>
     
     <!-- get tests and start -->
+    <script src="./suites/browser.js"></script>
+    
+    <!--
     <script src="./suites/camelize.js"></script>
-    <script src="./suites/exec.js"></script>
+    <script src="./suites/graph.js"></script>    
+    <script src="./suites/make.js"></script>
     <script src="./suites/monad.js"></script>
+    -->
     <script>
       mocha.checkLeaks();
       mocha.globals(['boilerplate']); // this is our global boilerplate function

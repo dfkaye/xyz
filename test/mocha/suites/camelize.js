@@ -1,8 +1,8 @@
 // suites/camelize
 
 require('should');
-var camelize = require('../../../lib/node/camelize');
 
+var camelize = require('../../../lib/node/camelize');
 
 /* TESTS START HERE */
 
