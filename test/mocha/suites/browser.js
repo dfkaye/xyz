@@ -53,7 +53,6 @@ test('define __filename', function () {
 
 test('define with builtin pathnames', function () {
   (define)(__filename)('assert').should.be.Function;
-
 });
 
 test('define callback', function () {
@@ -96,4 +95,61 @@ test('normalize', function () {
   });
 });
 
+test('cycle __filename', function () {
+  (function () {
+    
+    (define)(__filename)
+    (__filename)
+    (function () {
+      
+    })
+  
+  }).should.throw();
+});
 
+test('cycle self', function () {
+  (function () {
+    
+    (define)('self')
+    ('self')
+    (function () {
+      
+    })
+  
+  }).should.throw();
+});
+
+test('cycle deep', function () {
+  (function () {
+
+    (define)('a')
+    ('b')
+    (function () {
+      
+    });
+    
+    (define)('b')
+    ('c')
+    (function () {
+      
+    });
+    
+    (define)('c')
+    ('a')
+    (function () {
+      
+    });
+    
+  }).should.throw('cycle: a > b > c > a');
+});
+
+test('works inline', function() {
+  var exported = (define)('works')
+  (function () {
+    module.exports = function (arg) {
+      return 'works: ' + arg;
+    };
+  });
+  var arg = 'yes';
+  exported(arg).should.be.equal('works: ' + arg);
+});
