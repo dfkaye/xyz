@@ -6,6 +6,19 @@
     <link rel="stylesheet" href="../../vendor/mocha/mocha.css" />
   </head>
   <body>
+  
+    <code>
+      (define)(__filename)
+      ('some-dependency')
+      (function() {
+      
+        module.exports = function (str) {
+          return someDependency('should work: ') + str;
+        };
+        
+      });
+    </code>
+    
     <div id="mocha"></div>
 
     <script src="../../lib/browser/monad.js" data-monad></script>
