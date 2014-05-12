@@ -290,7 +290,9 @@ JSON (modified MIT)
   - ` & `   // mmmmmm, no
 + dep inclusion from outer to inner scope ~ *[22 APR 2014 ~ yes. fixed]*
 + handle over-the-wire requests based on protocol + scheme, etc.
-+ browser version of this ~ *once the node version is "locked" down enough*
++ <del>
+  browser version of this ~ *once the node version is "locked" down enough*
+  </del> ~ __in progress__
 + content security policy ~ *workaround needed*
 + <del>rawgithub page</del>
 + happy build/concat tool with tests  (use `task()` pattern)
