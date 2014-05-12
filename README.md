@@ -8,6 +8,11 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
++ [12 MAY 2014] ! browser version underway ! more to iron out ! see 
+    <a href='https://rawgit.com/dfkaye/xyz/master/test/mocha/browser-suite.html' 
+       target='_blank'>
+      rawgithub browser-suite
+    </a>
 + [9 MAY 2104] ! remove define.id(filename), just use define(filename) !
 + [8 MAY 2104] make exec() local, make make() its own module
 + [6 MAY 2104] ! collapse namespace into monad !
@@ -287,7 +292,7 @@ JSON (modified MIT)
 + handle over-the-wire requests based on protocol + scheme, etc.
 + browser version of this ~ *once the node version is "locked" down enough*
 + content security policy ~ *workaround needed*
-+ rawgithub page
++ <del>rawgithub page</del>
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
 + rename it
