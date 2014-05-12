@@ -9,18 +9,17 @@ test('global', function () {
   global.__dirname.should.be.equal(__dirname);
 });
 
-test('__filename', function () {
-  __filename.should.be.equal(host + '/lib/browser/monad.js');
-});
+// test('__filename', function () {
+  // __filename.should.be.equal(host + '/lib/browser/monad.js');
+// });
 
 test('normalize', function () {
-  normalize(host + '/lib/browser/monad.js').should.be.equal(__filename);
   normalize(BASEPATH + '../../lib/browser/monad.js').should.be.equal(__filename);
 });
       
-test('__dirname', function () {
-  __dirname.should.be.equal(host + '/lib/browser');
-});
+// test('__dirname', function () {
+  // __dirname.should.be.equal(host + '/lib/browser');
+// });
 
 test('BASEPATH is document.location.href', function () {
   var pathname = document.location.pathname;
