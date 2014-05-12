@@ -6,21 +6,21 @@
     <link rel="stylesheet" href="../../vendor/mocha/mocha.css" />
   </head>
   <body>
-  
-    <code>
-      (define)(__filename)
-      ('some-dependency')
-      (function() {
+    <pre>
+    (define)(__filename)
+    
+    ('asyncModule')
+    ('another-module')
+    
+    (function () {
+    
+      asyncModule(arg1)(arg2)(arg3);
+      anotherModule('hi, module');
       
-        module.exports = function (str) {
-          return someDependency('should work: ') + str;
-        };
-        
-      });
-    </code>
+    });
+    </pre>
     
     <div id="mocha"></div>
-
     <script src="../../lib/browser/monad.js" data-monad></script>
     
     <!--<script>
