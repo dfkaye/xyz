@@ -8,10 +8,16 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
-+ [12 MAY 2014] ! browser version underway ! more to iron out ! see 
++ [12 MAY 2014] ! browser version underway ! __more to iron out__ 
+  + see 
     <a href='https://rawgit.com/dfkaye/xyz/master/test/mocha/browser-suite.html' 
        target='_blank'>
       rawgithub browser-suite
+    </a>
+  + and 
+    <a href='http://www.webpagetest.org/result/140512_5T_WX3/'
+       target='_blank'>
+      webpagetest browser-suite
     </a>
 + [9 MAY 2104] ! remove define.id(filename), just use define(filename) !
 + [8 MAY 2104] make exec() local, make make() its own module
@@ -295,6 +301,7 @@ JSON (modified MIT)
   </del> ~ __in progress__
 + content security policy ~ *workaround needed*
 + <del>rawgithub page</del>
++ <del>webpagetest</del>
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
 + rename it
