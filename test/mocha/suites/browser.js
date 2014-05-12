@@ -51,18 +51,49 @@ test('define __filename', function () {
   (define)(__filename).id.should.be.equal(__filename);
 });
 
-test('define pathnames', function () {
+test('define with builtin pathnames', function () {
   (define)(__filename)('assert').should.be.Function;
 
 });
 
 test('define callback', function () {
-  (define)(__filename)('assert')(function () {
-    assert(module.id == 'should fail' /*global.__filename*/);
+  (define)(__filename)
+  ('assert')
+  (function () {
+    assert(module.id == __filename /*global.__filename*/);
   }).should.be.Object;
 });
 
+test('camelize', function () {
+  (define)(__filename)
+  ('camelize')
+  (function () {
+    camelize('kenneth/rex-read.js').should.be.equal('rexRead');
+  });
+});
 
+test('make', function () {
+  (define)(__filename)
+  ('make')
+  (function () {
+    make.should.be.Function;
+  });
+});
 
+test('Module, using alias', function () {
+  (define)(__filename)
+  ('Module := module')
+  (function () {
+    Module.should.be.Function;
+  });
+});
+
+test('normalize', function () {
+  (define)(__filename)
+  ('normalize')
+  (function () {
+    normalize.should.be.Function;
+  });
+});
 
 
