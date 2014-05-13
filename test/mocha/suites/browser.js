@@ -45,6 +45,34 @@ test('module', function () {
 
 });
 
+/*--------------------------------------*/
+
+test('loader - async', function (done) {
+
+  var callback = function (src) {
+    console.warn(arguments);
+    done();
+  };
+  
+  var id = './fixture/browser-module';
+  
+  var src = normalize(BASEPATH + id);
+  var script = document.createElement('script');
+  
+  script.src = src;
+
+  script.onload = function (e) {
+    callback(src, {});
+  };
+  
+  var head = document.getElementsByTagName('head')[0];
+  head.appendChild(script);
+  
+  
+});
+
+/*--------------------------------------*/
+
 test('define __filename', function () {
   (define)(__filename).should.be.Function;
   (define)(__filename).id.should.be.equal(__filename);
