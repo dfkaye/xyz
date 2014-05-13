@@ -1,6 +1,6 @@
 // browser-module
 
-(define)(__filename)
+(define)('./browser-module')
 (function() {
   module.exports = mod;
   function mod(msg) {

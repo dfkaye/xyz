@@ -56,17 +56,7 @@ test('loader - async', function (done) {
   
   var id = './fixture/browser-module';
   
-  var src = normalize(BASEPATH + id);
-  var script = document.createElement('script');
-  
-  script.src = src;
-
-  script.onload = function (e) {
-    callback(src, {});
-  };
-  
-  var head = document.getElementsByTagName('head')[0];
-  head.appendChild(script);
+  document.load(id, callback);
   
   
 });
@@ -86,7 +76,8 @@ test('define callback', function () {
   (define)(__filename)
   ('assert')
   (function () {
-    assert(module.id == __filename /*global.__filename*/);
+    console.warn(module.exports)
+    assert(module.id === __filename /*global.__filename*/, 'id: ' + module.id);
   }).should.be.Object;
 });
 
