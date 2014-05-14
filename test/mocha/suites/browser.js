@@ -26,7 +26,8 @@ test('BASEPATH', function () {
 
 test('_resolveFilename', function () {
   var id = 'fake/path';
-  Module._resolveFilename(id, { id: __filename }).should.be.equal(__dirname + '/' + id + '.js');
+  Module._resolveFilename('./' + id, { id: __filename }).should.be.equal(__dirname + '/' + id + '.js');
+  Module._resolveFilename('./' + id, { id: BASEPATH + '/test.js' }).should.be.equal(BASEPATH + id + '.js');
 });
 
 
@@ -49,28 +50,38 @@ test("(define)(__filename)('./fake/path')(function() {});", function () {
 });
 
 test("exec", function () {
-  var exported = (define)(__filename)
+  var exported = (define)(BASEPATH + 'fake/path.js')
   (function() {
     module.exports = "OK";
+    
+    module.id.should.be.equal(global.BASEPATH + 'fake/path.js');
   });
   
   exported.should.be.equal("OK");
 });
 
 test("exec __dirname is localized", function () {
-  (define)('./fake/path')
+  (define)(BASEPATH + 'fake/path.js')
   (function () {
     // remember, this __dirname is local to this module !!!
     module.id.should.be.equal(__dirname + '/path' + '.js');
-    module.exports = 'fakery';
+    
+    // assert previous export value
+    module.exports.should.be.equal("OK");
+    
+    // set new value
+    module.exports = 'faked-path';
   });
-
+  
   (define)(__filename)
-  ('./fake/path')
+  ('../../test/mocha/fake/path')
   (function() {
-    console.log(path);
-    //(typeof path).should.be.false
+  
+    // assert new value
+    assert(path == 'faked-path', 'path should be faked-path');
   });
+  
+  //console.log(registry);
 });
 
 
@@ -84,9 +95,13 @@ test('loadcache', function () {
 });
 
 test('load', function () {
-  var monad = { module: new Module(__filename) };
-  var path = '../../test/mocha/fixture/m';
-  load(path, monad);
+
+  var monad = { module: new Module(BASEPATH + 'base.js') };
+  var path = '../../test/mocha/fixture/dependent-browser-module';
+
+  var filename = Module._resolveFilename(path, monad.module);
+
+  load(filename, monad)
   
   assert(false);
 });
