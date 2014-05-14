@@ -1,7 +1,7 @@
 {
   "watch_files": [
-    "./test/**/*.js",
-    "./lib/**/*.js"
+    "test/mocha/suites/browser.js",
+    "lib/browser/monad.js"
   ],
   "launchers": {
     "mocha" : {

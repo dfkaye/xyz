@@ -1,173 +1,93 @@
 // mocha/suites/browser
-suite('browser');
+suite('browser globals');
 
-var host = document.location.protocol + '//' + document.location.host;
+test('assert', function () {
+  assert('assert');
+});
 
 test('global', function () {
-  global.should.be.equal(window);
-  global.__filename.should.be.equal(__filename);
-  global.__dirname.should.be.equal(__dirname);
+  assert(global === window);
 });
 
-// test('__filename', function () {
-  // __filename.should.be.equal(host + '/lib/browser/monad.js');
-// });
-
-test('normalize', function () {
-  normalize(BASEPATH + '../../lib/browser/monad.js').should.be.equal(__filename);
-});
-      
-// test('__dirname', function () {
-  // __dirname.should.be.equal(host + '/lib/browser');
-// });
-
-test('BASEPATH is document.location.href', function () {
-  var pathname = document.location.pathname;
-  BASEPATH.should.be.equal(host + pathname.substring(0, pathname.lastIndexOf('/') + 1));
+test('__filename', function () {
+  assert(__filename === 'http://localhost:7357/lib/browser/monad.js');
 });
 
-test('require', function () {
-  require(__filename).should.be.Function;
+test('__dirname', function () {
+  assert(__dirname === 'http://localhost:7357/lib/browser');
 });
 
-test('module', function () {
-  var name = normalize(__filename);
-  delete require._cache[name];
-  
-  Module._load(__filename, { id: __filename });
-  
-  require._cache[name].id.should.be.equal(name);
-  require._cache[name].filename.should.be.equal(name);
-  require._cache[name].exports.should.be.equal(require(name));
-  require._cache[name].children.should.be.Array;
-  require._cache[name].parent.should.be.Object;
-  require._cache[name].require.should.be.Function;
 
+suite('normalize');
+
+test('BASEPATH', function () {
+  assert(BASEPATH === 'http://localhost:7357/test/mocha/');
 });
 
-/*--------------------------------------*/
-
-test('loader - async', function (done) {
-
-  var callback = function (src) {
-    console.warn(arguments);
-    done();
-  };
-  
-  var id = './fixture/browser-module';
-  
-  document.load(id, callback);
-  
-  
+test('_resolveFilename', function () {
+  var id = 'fake/path';
+  Module._resolveFilename(id, { id: __filename }).should.be.equal(__dirname + '/' + id + '.js');
 });
 
-/*--------------------------------------*/
 
-test('define __filename', function () {
+suite('define');
+
+test('define', function () {
+  assert(typeof define === 'function');
+});
+
+test('(define)(__filename)', function () {
   (define)(__filename).should.be.Function;
-  (define)(__filename).id.should.be.equal(__filename);
 });
 
-test('define with builtin pathnames', function () {
-  (define)(__filename)('assert').should.be.Function;
+test("(define)(__filename)('./fake/path')", function () {
+  (define)(__filename)('./fake/path').should.be.Function;
 });
 
-test('define callback', function () {
-  (define)(__filename)
-  ('assert')
-  (function () {
-    console.warn(module.exports)
-    assert(module.id === __filename /*global.__filename*/, 'id: ' + module.id);
-  }).should.be.Object;
+test("(define)(__filename)('./fake/path')(function() {});", function () {
+  (define)(__filename)('./fake/path')(function() {}).should.be.ok;
 });
 
-test('camelize', function () {
-  (define)(__filename)
-  ('camelize')
-  (function () {
-    camelize('kenneth/rex-read.js').should.be.equal('rexRead');
+test("exec", function () {
+  var exported = (define)(__filename)
+  (function() {
+    module.exports = "OK";
   });
-});
-
-test('make', function () {
-  (define)(__filename)
-  ('make')
-  (function () {
-    make.should.be.Function;
-  });
-});
-
-test('Module, using alias', function () {
-  (define)(__filename)
-  ('Module := module')
-  (function () {
-    Module.should.be.Function;
-  });
-});
-
-test('normalize', function () {
-  (define)(__filename)
-  ('normalize')
-  (function () {
-    normalize.should.be.Function;
-  });
-});
-
-test('cycle __filename', function () {
-  (function () {
-    
-    (define)(__filename)
-    (__filename)
-    (function () {
-      
-    })
   
-  }).should.throw();
+  exported.should.be.equal("OK");
 });
 
-test('cycle self', function () {
+test("exec __dirname is localized", function () {
+  (define)('./fake/path')
   (function () {
-    
-    (define)('self')
-    ('self')
-    (function () {
-      
-    })
-  
-  }).should.throw();
-});
-
-test('cycle deep', function () {
-  (function () {
-
-    (define)('a')
-    ('b')
-    (function () {
-      
-    });
-    
-    (define)('b')
-    ('c')
-    (function () {
-      
-    });
-    
-    (define)('c')
-    ('a')
-    (function () {
-      
-    });
-    
-  }).should.throw('cycle: a > b > c > a');
-});
-
-test('works inline', function() {
-  var exported = (define)('works')
-  (function () {
-    module.exports = function (arg) {
-      return 'works: ' + arg;
-    };
+    // remember, this __dirname is local to this module !!!
+    module.id.should.be.equal(__dirname + '/path' + '.js');
+    module.exports = 'fakery';
   });
-  var arg = 'yes';
-  exported(arg).should.be.equal('works: ' + arg);
+
+  (define)(__filename)
+  ('./fake/path')
+  (function() {
+    console.log(path);
+    //(typeof path).should.be.false
+  });
 });
+
+
+
+suite.only('script load cache');
+
+test('loadcache', function () {
+  var cache = loadcache();
+  var scripts = document.scripts || document.getElementsByTagName('script');
+  assert(cache.length === scripts.length);
+});
+
+test('load', function () {
+  var monad = { module: new Module(__filename) };
+  var path = '../../test/mocha/fixture/m';
+  load(path, monad);
+  
+  assert(false);
+});
+

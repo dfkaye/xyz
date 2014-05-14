@@ -599,3 +599,4 @@ test('trim alias whitespace', function () {
   });
   
 });
+
