@@ -8,7 +8,7 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
-+ [12 MAY 2014] ! browser version underway ! __more to iron out__ 
+Code is getting a little messy but working under tests
   + see 
     <a href='https://rawgit.com/dfkaye/xyz/master/test/mocha/browser-suite.html' 
        target='_blank'>
@@ -19,6 +19,9 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
        target='_blank'>
       webpagetest browser-suite
     </a>
+    
++ [15 MAY 2014] browser loadscript finally working ~ lots of normalize/resolve problems.
++ [12 MAY 2014] ! browser version underway ! __more to iron out__ 
 + [9 MAY 2104] ! remove define.id(filename), just use define(filename) !
 + [8 MAY 2104] make exec() local, make make() its own module
 + [6 MAY 2104] ! collapse namespace into monad !
