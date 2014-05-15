@@ -46,7 +46,9 @@ test("(define)(__filename)('./fake/path')", function () {
 });
 
 test("(define)(__filename)('./fake/path')(function() {});", function () {
-  (define)(__filename)('./fake/path')(function() {}).should.be.ok;
+
+  // this should return nothing because fake/path is never loaded
+  (define)(__filename)('./fake/path')(function() {}).should.be.false;
 });
 
 test("exec", function () {
@@ -84,9 +86,7 @@ test("exec __dirname is localized", function () {
   //console.log(registry);
 });
 
-
-
-suite.only('script load cache');
+suite('script load cache');
 
 test('loadcache', function () {
   var cache = loadcache();
@@ -96,13 +96,12 @@ test('loadcache', function () {
 
 test('load', function () {
 
-  var monad = { module: new Module(BASEPATH + 'base.js') };
-  var path = '../../test/mocha/fixture/dependent-browser-module';
-
-  var filename = Module._resolveFilename(path, monad.module);
-
-  load(filename, monad)
+  (define)('./test/mocha/suites/base.js')
+  ('a := ../../../test/mocha/fixture/browser-module')
+  ('b := ../../../test/mocha/fixture/dependent-browser-module')
+  (function () {
+    b('success').should.be.equal('[dependent-browser-module]' + a('success'));
+  });
   
-  assert(false);
 });
 

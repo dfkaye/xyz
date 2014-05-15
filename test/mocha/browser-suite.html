@@ -8,15 +8,20 @@
   <body>
     <pre>
     (define)(__filename)
-    
-    ('asyncModule')
     ('another-module')
-    
     (function () {
-    
-      asyncModule(arg1)(arg2)(arg3);
       anotherModule('hi, module');
-      
+    });
+    
+    (define)(BASEPATH + 'page.js')
+    (function () {
+        module.exports = 'this is my page';
+    });
+
+    (define)(BASEPATH + 'page-test.js')
+    (BASEPATH + 'page.js')
+    (function () {
+        console.log(page);
     });
     </pre>
     

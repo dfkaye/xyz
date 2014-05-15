@@ -21,7 +21,7 @@ var mocha = new Mocha({ui:"qunit", reporter:"spec"});
 // SUITES
 // mocha.addFile("./test/mocha/suites/camelize.js");
 // mocha.addFile("./test/mocha/suites/make.js");
-// mocha.addFile("./test/mocha/suites/graph.js");
+//mocha.addFile("./test/mocha/suites/graph.js");
 mocha.addFile("./test/mocha/suites/monad.js");
 
 //Run your tests
