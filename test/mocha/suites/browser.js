@@ -9,20 +9,20 @@ test('global', function () {
   assert(global === window);
 });
 
-test('__filename', function () {
-  assert(__filename === 'http://localhost:7357/lib/browser/monad.js');
-});
+// test('__filename', function () {
+  // assert(__filename === 'http://localhost:7357/lib/browser/monad.js');
+// });
 
-test('__dirname', function () {
-  assert(__dirname === 'http://localhost:7357/lib/browser');
-});
+// test('__dirname', function () {
+  // assert(__dirname === 'http://localhost:7357/lib/browser');
+// });
 
 
 suite('normalize');
 
-test('BASEPATH', function () {
-  assert(BASEPATH === 'http://localhost:7357/test/mocha/');
-});
+// test('BASEPATH', function () {
+  // assert(BASEPATH === 'http://localhost:7357/test/mocha/');
+// });
 
 test('_resolveFilename', function () {
   var id = 'fake/path';
@@ -85,6 +85,7 @@ test("exec __dirname is localized", function () {
   
   //console.log(registry);
 });
+
 
 suite('script load cache');
 
