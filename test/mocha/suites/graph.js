@@ -43,17 +43,3 @@ test('detect cycle', function () {
   delete graph.items[dep2];
   graph(dep2);
 });
-
-test('resolve with callback', function () {
-
-  var ordered = [];
-  
-  var msg = graph.resolve(id, function (id) {
-    ordered.push(id);
-  });
-  
-  ordered.toString().should.be.equal([dep2, dep, id].toString());
-  
-  (typeof msg).should.be.equal('undefined');
-
-});
