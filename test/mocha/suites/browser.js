@@ -146,12 +146,6 @@ test("nested define", function () {
 
 suite('script');
 
-test('cache', function () {
-  var cache = loadcache();
-  var scripts = document.scripts || document.getElementsByTagName('script');
-  assert(cache.length === scripts.length);
-});
-
 test('load', function () {
 
   (define)('./test/mocha/suites/base.js')
@@ -165,8 +159,6 @@ test('load', function () {
 });
 
 test('load again', function () {
-
-  var cache = loadcache();
 
   (define)('./test/mocha/suites/again.js')
   ('a := ../../../test/mocha/fixture/browser-module')
