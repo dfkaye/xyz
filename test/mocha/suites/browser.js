@@ -158,7 +158,24 @@ test('load', function () {
   ('a := ../../../test/mocha/fixture/browser-module')
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
   (function () {
+    console.log('should see this');
     b('success').should.be.equal('[dependent-browser-module]' + a('success'));
+  });
+  
+});
+
+test('load again', function () {
+
+  var cache = loadcache();
+
+  (define)('./test/mocha/suites/again.js')
+  ('a := ../../../test/mocha/fixture/browser-module')
+  ('b := ../../../test/mocha/fixture/dependent-browser-module')
+  (function () {
+    console.log('SHOULD SEE THIS');
+    //var scripts = document.scripts || document.getElementsByTagName('script');
+    //assert(cache.length === scripts.length);  
+    b('success again').should.be.equal('[dependent-browser-module]' + a('success again'));
   });
   
 });
