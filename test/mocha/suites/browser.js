@@ -9,29 +9,52 @@ test('global', function () {
   assert(global === window);
 });
 
-// test('__filename', function () {
-  // assert(__filename === 'http://localhost:7357/lib/browser/monad.js');
-// });
+test('__filename', function () {
+  var name = '/lib/browser/monad.js';
+  var length = name.length;
+  
+  assert(__filename.indexOf(name) === __filename.length - name.length);
+});
 
-// test('__dirname', function () {
-  // assert(__dirname === 'http://localhost:7357/lib/browser');
-// });
+test('__dirname', function () {
+  var name = '/lib/browser';
+  var length = name.length;
+  
+  assert(__dirname.indexOf(name) === __dirname.length - name.length);
+});
 
 
-suite('normalize');
+suite('_resolveFilename');
 
-// test('BASEPATH', function () {
-  // assert(BASEPATH === 'http://localhost:7357/test/mocha/');
-// });
+test('BASEPATH', function () {
+  var name = '/test/mocha/';
+  var length = name.length;
+  
+  assert(BASEPATH.indexOf(name) === BASEPATH.length - name.length);
+});
 
-test('_resolveFilename', function () {
+test('with __filename', function () {
   var id = 'fake/path';
-  Module._resolveFilename('./' + id, { id: __filename }).should.be.equal(__dirname + '/' + id + '.js');
-  Module._resolveFilename('./' + id, { id: BASEPATH + '/test.js' }).should.be.equal(BASEPATH + id + '.js');
+  var path = __dirname + '/' + id + '.js';
+
+  Module._resolveFilename('./' + id, { id: __filename }).should.be.equal(path);
+});
+
+test('with BASEPATH', function () {
+  var id = 'fake/path';
+
+  var testId = BASEPATH + '/test.js';
+  var testpath = BASEPATH + id + '.js';
+
+  Module._resolveFilename('./' + id, { id: testId }).should.be.equal(testpath);
 });
 
 
 suite('define');
+
+beforeEach(function () {
+  this.pathId = Module._resolveFilename('./fake/path', { id: __filename});
+});
 
 test('define', function () {
   assert(typeof define === 'function');
@@ -42,17 +65,37 @@ test('(define)(__filename)', function () {
 });
 
 test("(define)(__filename)('./fake/path')", function () {
+  var pathId = this.pathId;
+  
+  define(pathId)
+  (function () {
+    module.exports = 'testing fake';
+  });
+  
   (define)(__filename)('./fake/path').should.be.Function;
 });
 
 test("(define)(__filename)('./fake/path')(function() {});", function () {
+  var pathId = this.pathId;
+  
+  var exported = (define)(__filename)('./fake/path')(function() {
 
-  // this should return nothing because fake/path is never loaded
-  (define)(__filename)('./fake/path')(function() {}).should.be.false;
+    module.id.should.be.equal(__filename);
+    
+    module.exports = path; 
+  });
+  
+  assert(exported === 'testing fake', 'should export pathId');
 });
 
+
+
+suite('exec with BASEPATH');
+
 test("exec", function () {
-  var exported = (define)(BASEPATH + 'fake/path.js')
+  var pathId = BASEPATH + 'fake/path.js';
+
+  var exported = (define)(pathId)
   (function() {
     module.exports = "OK";
     
@@ -63,11 +106,14 @@ test("exec", function () {
 });
 
 test("exec __dirname is localized", function () {
-  (define)(BASEPATH + 'fake/path.js')
+
+  var pathId = BASEPATH + 'fake/path.js';
+  
+  (define)(pathId)
   (function () {
     // remember, this __dirname is local to this module !!!
     module.id.should.be.equal(__dirname + '/path' + '.js');
-    
+
     // assert previous export value
     module.exports.should.be.equal("OK");
     
@@ -75,21 +121,32 @@ test("exec __dirname is localized", function () {
     module.exports = 'faked-path';
   });
   
-  (define)(__filename)
-  ('../../test/mocha/fake/path')
+});
+
+test("nested define", function () {
+
+  var pathId = BASEPATH + 'fake/path.js';
+
+  (define)('anon')
+  (pathId)
   (function() {
   
-    // assert new value
+    //assert new value
     assert(path == 'faked-path', 'path should be faked-path');
+    
+    (define)
+    (function() {
+    
+      assert(path === 'faked-path', 'should still be faked-path');
+    });
   });
   
-  //console.log(registry);
 });
 
 
-suite('script load cache');
+suite('script');
 
-test('loadcache', function () {
+test('cache', function () {
   var cache = loadcache();
   var scripts = document.scripts || document.getElementsByTagName('script');
   assert(cache.length === scripts.length);
