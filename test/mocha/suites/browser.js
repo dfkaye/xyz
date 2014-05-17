@@ -168,7 +168,7 @@ test('load', function (done) {
     assert(1);
     done();
   });
-  
+
 });
 
 test('load again', function (done) {
@@ -200,7 +200,7 @@ test('load in reverse', function (done) {
 
     done();
   });
-  
+
 });
 
 test('load nested', function (done) {
