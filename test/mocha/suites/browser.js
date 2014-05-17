@@ -24,6 +24,11 @@ test('__dirname', function () {
 });
 
 
+
+global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
+
+
+
 suite('_resolveFilename');
 
 test('BASEPATH', function () {
@@ -146,29 +151,76 @@ test("nested define", function () {
 
 suite('script');
 
-test('load', function () {
+afterEach(function () {
+  delete global.done;
+});
+
+test('load', function (done) {
+
+  global.done = done;
 
   (define)('./test/mocha/suites/base.js')
   ('a := ../../../test/mocha/fixture/browser-module')
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
   (function () {
-    console.log('should see this');
     b('success').should.be.equal('[dependent-browser-module]' + a('success'));
+    assert(1);
+    done();
   });
   
 });
 
-test('load again', function () {
+test('load again', function (done) {
 
-  (define)('./test/mocha/suites/again.js')
+  global.done = done;
+
+  (define)('./test/mocha/suites/base.js')
   ('a := ../../../test/mocha/fixture/browser-module')
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
   (function () {
-    console.log('SHOULD SEE THIS');
-    //var scripts = document.scripts || document.getElementsByTagName('script');
-    //assert(cache.length === scripts.length);  
     b('success again').should.be.equal('[dependent-browser-module]' + a('success again'));
+    assert(1);
+
+    done();
   });
   
 });
 
+test('load in reverse', function (done) {
+
+  global.done = done;
+
+  (define)('./test/mocha/suites/base.js')
+  ('hey := ../../../test/mocha/fixture/dependent-browser-module')
+  ('there := ../../../test/mocha/fixture/browser-module')
+  (function () {
+    hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
+    assert(1);
+
+    done();
+  });
+  
+});
+
+test('load nested', function (done) {
+
+  global.done = done;
+
+  (define)('./test/mocha/suites/base.js')
+  ('there := ../../../test/mocha/fixture/browser-module')
+  (function () {
+    assert(1);
+
+    (define)
+    ('hey := ../../../test/mocha/fixture/dependent-browser-module')
+    (function () {
+      assert(1);
+      hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
+    });
+    
+    there('there').should.be.equal('[browser-module]' + 'there');
+  
+    done();
+  });
+  
+});
