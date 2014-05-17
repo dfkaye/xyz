@@ -1,4 +1,5 @@
 // mocha/suites/browser
+
 suite('browser globals');
 
 test('assert', function () {
