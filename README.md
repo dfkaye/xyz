@@ -8,7 +8,7 @@ browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
-Code is getting a little messy but working under tests
+Code is still a little messy but working under tests
   + see 
     <a href='https://rawgit.com/dfkaye/xyz/master/test/mocha/browser-suite.html' 
        target='_blank'>
@@ -19,7 +19,11 @@ Code is getting a little messy but working under tests
        target='_blank'>
       webpagetest browser-suite
     </a>
+
+Probably some race conditions or long-delayed load events causing the occasional
+hiccough in browser remote script requests.
     
++ [17 MAY 2014] fix normalize/resolve to support file:// protocol and rawgithub. 
 + [15 MAY 2014] browser loadscript finally working ~ lots of normalize/resolve problems.
 + [12 MAY 2014] ! browser version underway ! __more to iron out__ 
 + [9 MAY 2104] ! remove define.id(filename), just use define(filename) !
@@ -297,13 +301,17 @@ JSON (modified MIT)
   - ` % `   // mmmmmm, no
   - ` @ `   // mmmmmm, no
   - ` & `   // mmmmmm, no
-+ dep inclusion from outer to inner scope ~ *[22 APR 2014 ~ yes. fixed]*
-+ handle over-the-wire requests based on protocol + scheme, etc.
++ <del>
+  dep inclusion from outer to inner scope
+  </del> ~ *[22 APR 2014 ~ yes. fixed]*
++ <del>
+  handle over-the-wire requests based on protocol + scheme, etc.
+  </del> ~ browser only, __in progress__
 + <del>
   browser version of this ~ *once the node version is "locked" down enough*
   </del> ~ __in progress__
 + content security policy ~ *workaround needed*
-+ <del>rawgithub page</del>
++ <del>rawgithub page</del> ~ __great example of loading with latency__
 + <del>webpagetest</del>
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
