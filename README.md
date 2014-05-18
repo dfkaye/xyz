@@ -310,6 +310,7 @@ JSON (modified MIT)
   - ` % `   // mmmmmm, no
   - ` @ `   // mmmmmm, no
   - ` & `   // mmmmmm, no
+  - ` => `  // scala style: ~ `import java.io.{ File => JFile }` *seems* better
 + <del>
   dep inclusion from outer to inner scope
   </del> ~ *[22 APR 2014 ~ yes. fixed]*
