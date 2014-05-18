@@ -148,6 +148,9 @@ for loading, by pulling the dependency statements up and skipping the extra
       
     });
 
+Each dependency is declared in a single statement, removing the need for commas 
+in a list.
+
 Think of it as *"configuration injection"* at the module level that avoids the
 global config file anti-pattern.
 
