@@ -323,6 +323,7 @@ JSON (modified MIT)
 + <del>
   browser version of this ~ *once the node version is "locked" down enough*
   </del> ~ __in progress__
++ __HANDLE BAD URL ERRORS__
 + content security policy ~ *workaround needed*
 + <del>rawgithub page</del> ~ __great example of loading with latency__
 + <del>webpagetest</del>

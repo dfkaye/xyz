@@ -225,3 +225,18 @@ test('load nested', function (done) {
   });
   
 });
+
+test('bad path', function (done) {
+
+  global.done = done;
+
+  (define)(BASEPATH + './suites/base.js')
+  ('/bad/path')
+  (function () {
+    //hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
+    //assert(1);
+
+    done();
+  });
+  
+});
