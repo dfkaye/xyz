@@ -1,8 +1,10 @@
 xyz
 ===
 
-insane js module pattern (working name) so we can be productive again on both 
-browser and node.js, and ignore the trendy-but-wrong transpile-everything crowd. 
+"(insane)(parenthetical)(module)(pattern); // working name" 
+
+so we can be productive again on both browser and node.js, and ignore the 
+trendy-but-wrong transpile-everything crowd. 
 
 [![Build Status](https://travis-ci.org/dfkaye/xyz.png)](https://travis-ci.org/dfkaye/xyz)
 
@@ -62,8 +64,11 @@ this used to be simple.
     // so properties can be assigned to it:
     my.module.name = "my module";
     
-but 1) it was coupled to dojo itself (same with YUI, curl, google closure, et al), 
-and 2) they ruined it with AMD
+however:
+
+1) it was coupled to dojo itself (same with YUI, curl, google closure, et al), 
+
+2) they ruined it with AMD
 
       define(['dojo/_base/kernel', 'dojo/io/script', 'dojo/_base/loader'], 
         function(dojo, ioScript){
@@ -77,7 +82,7 @@ and 2) they ruined it with AMD
     
 ## es6 imports
 
-es6 `imports` means this ~ 
+es6 `imports` means this =>  
 [https://gist.github.com/wycats/51c96e3adcdb3a68cbc3#comment-801392] ~ 
 the only people who could possibly favor it are unlikely to make their living 
 working in __cross-browser__ JavaScript on a daily basis.
@@ -93,10 +98,10 @@ after each member method call on the object.
 that kind of chaining is more suited to BCE scripts, i.e., "before CommonJS era"
 
 `monadic chaining` - which term I coin here for the nonce - means returning the 
-same *function*, bound to the same object internally. that's not really a monad, 
-but it's not quite currying either as it memoizes search/load results, and it's 
-not purely declarative (there's work behind the scenes and the order matters), 
-which means it looks like a stream but isn't really that either.
+same *function*, which manages some other object internally. that's not really a 
+monad, but it's not quite currying either as it memoizes search/load results, 
+and it's not purely declarative (there's work behind the scenes and the order 
+matters), which means it looks like a stream but isn't really that either.
 
 it is, however, more readable, IMO.
 
@@ -111,10 +116,10 @@ instead of commonjs `require`
     asyncModule(arg1)(arg2)(arg3);
     anotherModule('hi, module');
 
-or AMD __which is actually really really close__ (requirejs, seajs), 
-but relies on the "magic" of `function.toString()` to parse out `require` 
-statements ~ which at first seems "cool" but turns out really to be more 
-wasteful indirection and fakery
+or AMD of the function parsing type ~ __which is actually really really close__ 
+(see requirejs, seajs), but relies on the "magic" of `function.toString()` to 
+parse out `require` statements ~ which at first seems "cool" but turns out 
+really to be more wasteful indirection and fakery
 
     define(__filename, function(module, require, exports) {
     
@@ -124,6 +129,8 @@ wasteful indirection and fakery
       // ...rest of commonjs, etc.
       module.exports = ...
     });
+
+# instead of all that
 
 I am advocating a chaining pattern for describing the whole module, not merely 
 for loading, by pulling the dependency statements up and skipping the extra 
@@ -189,7 +196,7 @@ clash on `coolModule` that would result.
     
 ## global aliases
 
-__on the fence__
+__*re-thinking this one*__
 
 if a file sets a global value rather than returning an export, you can detect it 
 from the `global` scope:
@@ -217,6 +224,8 @@ __that works but seems unnecessary__
 
 ## path aliases
 
+__*re-thinking this one*__: *order may be confusing*
+
 for testing modules with mocks of their dependencies it makes sense to add 
 configuration injection close to the actual use of the thing
 
@@ -233,17 +242,17 @@ configuration injection close to the actual use of the thing
     
 ## deep aliasing
 
-__still being worked out__
+__*still being worked out*__
 
 this means we force all downstream dependencies to load an aliased path.
 
-I am not sure that's wise (though helpful for testing/mocking) as it moves the 
-configuration out of local modules back to more global modules.
+__*I am not sure that's wise*__ (though helpful for testing/mocking) as it moves 
+the configuration out of local modules back to more global modules.
 
 
 ## content security policy
 
-__still being worked out__
+__*still being worked out*__
 
 CSP is a ES6 co-conspirator meant to make life better but actually raises one 
 more barrier to understanding and productivity by exposing developers to more 
