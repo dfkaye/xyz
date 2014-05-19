@@ -1,7 +1,5 @@
 // test/mocha/node-suite.js
 
-// require('../../lib/node/xyz');
-
 // This runs with mocha programmatically rather than from the command line.
 // how-to-with-comments taken from https://github.com/itaylor/qunit-mocha-ui
 
@@ -23,6 +21,7 @@ mocha.addFile("./test/mocha/suites/camelize.js");
 mocha.addFile("./test/mocha/suites/make.js");
 mocha.addFile("./test/mocha/suites/graph.js");
 mocha.addFile("./test/mocha/suites/monad.js");
+//mocha.addFile("./test/mocha/suites/currier.js");
 
 //Run your tests
 mocha.run(function(failures){

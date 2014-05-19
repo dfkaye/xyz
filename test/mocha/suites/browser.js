@@ -152,9 +152,11 @@ test("nested define", function () {
 
 suite('script');
 
-afterEach(function () {
+beforeEach(function () {
   delete global.done;
 });
+
+
 
 test('load', function (done) {
 
@@ -226,17 +228,70 @@ test('load nested', function (done) {
   
 });
 
-test('bad path', function (done) {
+test('require previously defined path', function () {
+  (define)(BASEPATH + './suites/base.js')
+  (function () {
+    var b = require('../../../test/mocha/fixture/dependent-browser-module');
+    assert(b, 'b not found');
+    var m = module.require('../../../test/mocha/fixture/dependent-browser-module');
+    assert(m === b, 'should get same path');
+  });
+});
 
+test('require previously defined alias', function () {
+  (define)(BASEPATH + './suites/base.js')
+  (function () {
+    var h = require('hey');
+    assert(h, 'alias h not found');
+    var m = module.require('hey');
+    assert(m === h, 'should get same alias');
+  });
+});
+
+test('require(bad path)', function (done) {
+  global.done = done;
+
+  (define)(BASEPATH + './suites/base.js')
+  (function () {
+    var o = require('/bad/path');
+    assert(o, 'should return the bare exports object');
+    done();
+  });
+  
+});
+
+test('no global require() outside of define()', function () {
+  assert(typeof require == 'undefined', 'require should not be defined'); 
+});
+
+test('import bad path', function (done) {
   global.done = done;
 
   (define)(BASEPATH + './suites/base.js')
   ('/bad/path')
   (function () {
-    //hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
-    //assert(1);
-
-    done();
+    assert(false, 'should not execute');
+    //done();
   });
+
+  (define)(BASEPATH + './suites/base.js')
+  (function () {
+    assert(true, 'should execute');
+    console.log('I ASSERT THIS IS TRUE');
+    done();
+  });  
   
 });
+
+// test('after bad import path', function (done) {
+  // global.done = done;
+
+  // (define)(BASEPATH + './suites/base.js')
+  // (function () {
+    // assert(1, 'should execute');
+    // console.log('I ASSERT THIS IS TRUE');
+    // done();
+  // });
+  
+// });
+

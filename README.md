@@ -24,7 +24,10 @@ Code is still a little messy but working under tests
 
 Probably some race conditions or long-delayed load events causing the occasional
 hiccough in browser remote script requests.
-    
+
++ [19 MAY 2014] More internal refactoring to do as I've finally realized this is
+  more properly a `curry`, not a `monad`
++ [19 MAY 2014] start adding proper error handling for browser requests
 + [17 MAY 2014] fix normalize/resolve to support file:// protocol and rawgithub. 
 + [15 MAY 2014] browser loadscript finally working ~ lots of normalize/resolve problems.
 + [12 MAY 2014] ! browser version underway ! __more to iron out__ 
@@ -49,10 +52,9 @@ path_alias and global_alias cases
 exorcise code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
 
 
-## tl;dr 
+## it's all about the syntax
 
-it's all about the syntax, and 
-__[dojo already did that](http://www.youtube.com/watch?v=BY0-AI1Sxy0)__
+&hellip;and __[dojo already did that](http://www.youtube.com/watch?v=BY0-AI1Sxy0)__
 
 this used to be simple. 
 
@@ -97,14 +99,11 @@ after each member method call on the object.
 
 that kind of chaining is more suited to BCE scripts, i.e., "before CommonJS era"
 
-`monadic chaining` - which term I coin here for the nonce - means returning the 
-same *function*, which manages some other object internally. that's not really a 
-monad, but it's not quite currying either as it memoizes search/load results, 
-and it's not purely declarative (there's work behind the scenes and the order 
-matters), which means it looks like a stream but isn't really that either.
-
-it is, however, more readable, IMO.
-
+I'm advocating something more *monadic* where the `define()` function returns 
+*itself* or another function which manages some other object internally. That's 
+not really a *monad* - more like *currying* - and *memoizing* of search/load 
+results.  It's a bit more declarative (though there's work behind the scenes and 
+the order matters), making it more readable, IMO.
 
 ## what do you mean?
 
@@ -130,6 +129,8 @@ really to be more wasteful indirection and fakery
       module.exports = ...
     });
 
+&hellip;
+    
 # instead of all that
 
 I am advocating a chaining pattern for describing the whole module, not merely 
@@ -152,7 +153,8 @@ Each dependency is declared in a single statement, removing the need for commas
 in a list.
 
 Think of it as *"configuration injection"* at the module level that avoids the
-global config file anti-pattern.
+global config file business.
+
 
 ## what happened to callback param names?
 
@@ -329,5 +331,5 @@ JSON (modified MIT)
 + <del>webpagetest</del>
 + happy build/concat tool with tests  (use `task()` pattern)
 + acknowledgements & support
-+ rename it
-+ push to npm
++ rename it ("currier") 
++ push to npm (squatting as "currier" at the moment)
