@@ -56,6 +56,40 @@ test('with BASEPATH', function () {
 });
 
 
+
+test('require cached module', function () {
+
+// normalize first
+  var id = normalize(BASEPATH + '/require-test');
+  
+  Module._load(id); 
+  Module._cache[id].exports = 'fake exports';
+  assert(require(id) === 'fake exports', 'exports should be faked');
+});
+
+test('module api', function () {
+
+// normalize first
+  var id = normalize(BASEPATH + '/module-test.js');
+  
+  delete require.cache[id];
+  
+  var parent = { id: 'fake parent' };
+  var exports = Module._load(id, parent);
+  var module = require.cache[id];
+
+  module.id.should.be.equal(id);
+  module.filename.should.be.equal(id);
+  module.exports.should.be.equal(exports);
+  module.exports.should.be.equal(require(id));
+  
+  module.children.should.be.Array;
+  module.parent.should.be.equal(parent);
+  module.require.should.be.Function;
+
+});
+
+
 suite('define');
 
 beforeEach(function () {
@@ -276,10 +310,6 @@ test('require(bad path)', function (done) {
     done();
   });
   
-});
-
-test('no global require() outside of define()', function () {
-  assert(typeof require == 'undefined', 'require should not be defined'); 
 });
 
 test('bad import path should execute', function (done) {
