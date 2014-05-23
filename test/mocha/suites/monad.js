@@ -121,7 +121,7 @@ test('intercept namespace define, then continue', function () {
   var monad = (define)(__filename);
   
   monad.should.be.Function;
-  monad.id.should.be.equal(__filename);
+  monad.context.id.should.be.equal(__filename);
   
   // continue using it
   var exports = (monad)

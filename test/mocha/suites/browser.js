@@ -106,7 +106,7 @@ test('(define)(__filename)', function () {
 
 test("(define)(__filename)('./fake/path')", function () {
   var pathId = this.pathId;
-  
+  console.warn(define.cache);
   define(pathId)
   (function () {
     module.exports = 'testing fake';
@@ -202,7 +202,7 @@ test('load', function (done) {
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
   
   (function () {
-  
+    console.log(context);
     b('success').should.be.equal('[dependent-browser-module]' + a('success'));
     assert(1);
     done();
