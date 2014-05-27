@@ -106,7 +106,7 @@ test('(define)(__filename)', function () {
 
 test("(define)(__filename)('./fake/path')", function () {
   var pathId = this.pathId;
-  console.warn(define.cache);
+  
   define(pathId)
   (function () {
     module.exports = 'testing fake';
