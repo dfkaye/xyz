@@ -1,0 +1,44 @@
+/////////////////////////////////////////////////////////////////
+//
+// TO DO as of 23 MAY --21, 16 MAY 2014--
+//
+//  - fix basepath on file:// protocol
+//
+//  - init module.exports cross-platform so we can re-use files
+//    + Module._cache, Module._load, maybe in namespace.retrieve()
+//
+//  - encapsulate related methods into units, THEN expose the units
+//  - string constants for normalize()
+//  - move normalize into Module._resolveFilename???
+//
+//  - rename "monad" to "loader"
+//
+//  - rename exec to "load", put it on namespace.load
+//  - rename string to "include", put it on namespace.include
+//  - rename make to "sandbox", put it on namespace.sandbox
+//  - enable var namespace = require('namespace');
+//    + expose ns.load, ns.include, ns.alias??
+//
+//  - enable require('namespace')(__filename)(dependencyId)(function () {});
+//    + sugar it as define(__filename)(dependencyId)(function () {});
+//
+//  - legacy browser support (trim, get rid of should.js for IE8, etc.)
+//
+//  - DONE put camelize on namespace.camelize
+//  - DONE put graph on namespace.graph
+//  - DONE expose namespace as define.namespace??
+//  - DONE get rid of global state vars (main, scripts, script, etc.)
+//  - DONE strategy pattern for implementations of needed methods
+//  - DONE de-couple script.request from exec, use request.onload(err, done)
+//  - DONE browser global.require - BUT MODULE MUST BE CACHEd, no remote request
+//  - DONE add context member to monad (move keys from monad to context)
+//  - DONE get rid of state vars (registry, stack)
+//  - DONE move stack to exec.stack
+//  - DONE move registry to define.cache
+//  - DONE require() & module.require() (with tests)
+//  - DONE normalize() on file:// protocol
+//  - DONE zero in on the failed to load async deps properly (clobbering?)
+//    + localhost + testem
+//    + rawgithub
+//
+/////////////////////////////////////////////////////////////////

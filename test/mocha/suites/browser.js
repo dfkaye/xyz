@@ -1,6 +1,13 @@
 // mocha/suites/browser
 
+global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
+
 suite('browser globals');
+
+before(function () {
+  global.assert = require('assert');
+  console.log(require.cache);
+});
 
 test('assert', function () {
   assert('assert');
@@ -10,67 +17,62 @@ test('global', function () {
   assert(global === window);
 });
 
-test('__filename', function () {
-  var name = '/lib/browser/monad.js';
-  var length = name.length;
-  
-  assert(__filename.indexOf(name) === __filename.length - name.length);
+test('require', function () { 
+  assert(typeof require == 'function', 'require should be a function');
 });
 
-test('__dirname', function () {
-  var name = '/lib/browser';
-  var length = name.length;
+test('require.resolve', function () { 
+  var path = require.resolve('module');
   
-  assert(__dirname.indexOf(name) === __dirname.length - name.length);
+  assert(path === document.location.href + '/module.js');
 });
-
-
-
-global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
-
-
 
 suite('_resolveFilename');
 
-test('BASEPATH', function () {
-  var name = '/test/mocha/';
-  var length = name.length;
-  
-  assert(BASEPATH.indexOf(name) === BASEPATH.length - name.length);
+test('require("module")', function () {
+  var Module = require('module');
+  var cache = require.cache[require.resolve('module')];
+    
+  assert(Module, 'Module not loaded');
+  assert(typeof Module == 'function', 'Module should be function');
+  assert(cache.exports === Module, 'bad cache');  
 });
 
 test('with __filename', function () {
   var id = 'fake/path';
   var path = __dirname + '/' + id + '.js';
-
+  var Module = require('module');
+  
   Module._resolveFilename('./' + id, { id: __filename }).should.be.equal(path);
 });
 
 test('with BASEPATH', function () {
   var id = 'fake/path';
-
   var testId = BASEPATH + '/test.js';
   var testpath = BASEPATH + id + '.js';
+  var Module = require('module');
 
   Module._resolveFilename('./' + id, { id: testId }).should.be.equal(testpath);
 });
 
-
-
 test('require cached module', function () {
+  var Module = require('module');
 
-// normalize first
-  var id = normalize(BASEPATH + '/require-test');
-  
+  // normalize first
+  var id = Module._resolveFilename(BASEPATH + '/require-test');
+
   Module._load(id); 
   Module._cache[id].exports = 'fake exports';
+  
   assert(require(id) === 'fake exports', 'exports should be faked');
 });
 
 test('module api', function () {
 
-// normalize first
-  var id = normalize(BASEPATH + '/module-test.js');
+  var Module = require('module');
+
+  // normalize first
+  var id = Module._resolveFilename(BASEPATH + '/module-test.js');
   
   delete require.cache[id];
   
@@ -93,6 +95,8 @@ test('module api', function () {
 suite('define');
 
 beforeEach(function () {
+  var Module = require('module');
+
   this.pathId = Module._resolveFilename('./fake/path', { id: __filename});
 });
 
@@ -101,18 +105,20 @@ test('define', function () {
 });
 
 test('(define)(__filename)', function () {
-  (define)(__filename).should.be.Function;
+  var pathId = this.pathId;
+  
+  (define)(pathId).should.be.Function;
 });
 
 test("(define)(__filename)('./fake/path')", function () {
   var pathId = this.pathId;
   
-  define(pathId)
+  (define)(pathId)
   (function () {
     module.exports = 'testing fake';
   });
   
-  (define)(__filename)('./fake/path').should.be.Function;
+  (define)(pathId)('./fake/path').should.be.Function;
 });
 
 test("(define)(__filename)('./fake/path')(function() {});", function () {
@@ -129,11 +135,15 @@ test("(define)(__filename)('./fake/path')(function() {});", function () {
 });
 
 
-
 suite('exec with BASEPATH');
 
+before(function () {
+  this.pathId = BASEPATH + 'fake/path.js';
+});
+
 test("exec", function () {
-  var pathId = BASEPATH + 'fake/path.js';
+
+  var pathId = this.pathId;
 
   var exported = (define)(pathId)
   (function() {
@@ -147,7 +157,7 @@ test("exec", function () {
 
 test("exec __dirname is localized", function () {
 
-  var pathId = BASEPATH + 'fake/path.js';
+  var pathId = this.pathId;
   
   (define)(pathId)
   (function () {
@@ -165,7 +175,7 @@ test("exec __dirname is localized", function () {
 
 test("nested define", function () {
 
-  var pathId = BASEPATH + 'fake/path.js';
+  var pathId = this.pathId;
 
   (define)('anon')
   
@@ -188,13 +198,14 @@ test("nested define", function () {
 
 suite('script');
 
-beforeEach(function () {
-  delete global.done;
+test('require("script")', function () {
+  var script = require('script');
+  assert(typeof script.load == 'function', 'script api not right');
 });
 
 test('load', function (done) {
 
-  global.done = done;
+  global.doneLoad = done;
 
   (define)(BASEPATH + './suites/base.js')
   
@@ -202,17 +213,17 @@ test('load', function (done) {
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
   
   (function () {
-    console.log(context);
     b('success').should.be.equal('[dependent-browser-module]' + a('success'));
     assert(1);
-    done();
+    global.doneLoad();
+    delete global.doneLoad;
   });
 
 });
 
 test('load again', function (done) {
 
-  global.done = done;
+  global.doneAgain = done;
 
   (define)(BASEPATH + './suites/base.js')
   
@@ -223,14 +234,15 @@ test('load again', function (done) {
 
     b('success again').should.be.equal('[dependent-browser-module]' + a('success again'));
     assert(1);
-    done();
+    global.doneAgain();
+    delete global.doneAgain;
   });
   
 });
 
 test('load in reverse', function (done) {
 
-  global.done = done;
+  global.doneReverse = done;
 
   (define)(BASEPATH + './suites/base.js')
   
@@ -241,14 +253,15 @@ test('load in reverse', function (done) {
     hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
     assert(1);
 
-    done();
+    global.doneReverse();
+    delete global.doneReverse;
   });
 
 });
 
 test('load nested', function (done) {
 
-  global.done = done;
+  global.doneNested = done;
 
   (define)(BASEPATH + './suites/base.js')
   
@@ -268,7 +281,8 @@ test('load nested', function (done) {
     });
     
     there('there').should.be.equal('[browser-module]' + 'there');
-    done();
+    global.doneNested();
+    delete global.doneNested;
   });
   
 });
@@ -301,40 +315,40 @@ test('require previously defined alias', function () {
 });
 
 test('require(bad path)', function (done) {
-  global.done = done;
+
+  global.doneRequireBadPath = done;
 
   (define)(BASEPATH + './suites/base.js')
   (function () {
     var o = require('/bad/path');
     assert(o, 'should return the bare exports object');
-    done();
+    global.doneRequireBadPath();
+    delete global.doneRequireBadPath;
   });
   
 });
 
 test('bad import path should execute', function (done) {
-  global.done = done;
+
+  global.doneBadPath = done;
 
   (define)(BASEPATH + './suites/base.js')
-  
   ('/bad/path')
-  
   (function () {
     assert(typeof path == 'undefined', 'should run if bad path not referenced');
-    done();
-  }); 
-  
+    global.doneBadPath();
+    delete global.doneBadPath;
+  });
 });
 
 test('verify same namespace runs after bad import path', function (done) {
-  global.done = done;
+
+  global.doneSame = done;
 
   (define)(BASEPATH + './suites/base.js')
-  
   (function () {
     assert(1, 'should execute');
-    done();
+    global.doneSame();
+    delete global.doneSame;
   });
-  
 });
-

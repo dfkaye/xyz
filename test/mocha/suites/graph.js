@@ -2,7 +2,9 @@
 
 require('should');
 
-var graph = require('../../../lib/node/graph')();  // tricky init
+require('../../../lib/node/monad');
+
+var graph = define.namespace.graph;
 
 var id = __filename.replace(/\\/g, '/');
 var dep = './some/dep.js';

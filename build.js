@@ -11,21 +11,8 @@ function build(path) {
 
 var text = [];
 
-text.push(build('./lib/node/assert.js'));
-text.push(build('./lib/node/module.js'));
-text.push(build('./lib/node/script.js'));
-text.push(build('./lib/node/camelize.js'));
-text.push(build('./lib/node/make.js'));
-text.push(build('./lib/node/graph.js'));
-// namespace
+text.push(build('./lib/node/browser.js'));
 text.push(build('./lib/node/monad.js'));
-// exec
-// string
-
-// console.log(text.length);
-// console.log(text);
-
-console.log(__dirname);
 
 // http://www.geedew.com/2012/10/24/remove-a-directory-that-is-not-empty-in-nodejs/
 function deleteFolderRecursive(path) {

@@ -1,8 +1,9 @@
 // suites/make
 
-var make = require('../../../lib/node/make');
+require('../../../lib/node/monad');
 require('should');
 
+var make = define.namespace.make;
 
 /* TESTS START HERE */
 
