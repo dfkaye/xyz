@@ -26,7 +26,7 @@ test('__dirname', function () {
 
 
 
-// global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
+global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
 
 
 
