@@ -13,11 +13,17 @@ require('should');
 /*
  * make sure require still works
  */
-suite('monad');
+suite('define');
 
-test('exists', function () {
+test('define should be global', function () {
   should.should.be.ok
-  define.should.be.Function
+  global.define.should.be.Function
+});
+
+test('these should not be global', function () {
+  //('assert' in global).should.be.false;
+  ('namespace' in global).should.be.false;
+  ('Module' in global).should.be.false;
 });
 
 test('assert id is string', function () {
@@ -33,7 +39,7 @@ test('assert param is string or function', function () {
   }).should.throw('param must be string or function');
 });
 
-test('globals', function () {
+test('scope globals', function () {
   (define)(__filename)
   (function () {
     require.should.be.Function;
