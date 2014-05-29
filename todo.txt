@@ -2,6 +2,8 @@
 //
 // TO DO as of 25 MAY --23,21,16 MAY 2014--
 //
+//  - add warning re double include paths; or just ignore??
+//
 //  - revisit alias separator ("name := path/name" vs "path/name => name")
 //  - revisit global alias ({name} := path/name vs not supporting it)
 //  - revisit or punt on deep aliasing for mocks (like rewire)
