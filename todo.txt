@@ -2,10 +2,14 @@
 //
 // TO DO as of 25 MAY --23,21,16 MAY 2014--
 //
+//  - revisit alias separator ("name := path/name" vs "path/name => name")
+//  - revisit global alias ({name} := path/name vs not supporting it)
+//  - revisit or punt on deep aliasing for mocks (like rewire)
+//
 //  - better declaration and handle for main and parentNode
 //    e.g.,  main.parentNode.appendChild(s);
 //
-//  - add namespace.error(fn(err){ show error and shut down})
+//  - add namespace.error(fn(err){ show error and shut down});
 //
 //  - string constants for normalize()
 //  - move normalize into Module._resolveFilename???
