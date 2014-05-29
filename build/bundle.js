@@ -34,9 +34,7 @@ global = (typeof global != 'undefined' && global) || window;
   var SLASH = '/';
   var DOT = '.';
   var DOTS = DOT.concat(DOT);
-  var fp = __dirname.match(/file\:[\/]{3,3}[a-zA-Z][\:]/);
-  var http = __dirname.match(/http[s]?\:[\/]{2,2}/);
-  var PREFIX = (fp && fp[0] || http && http[0]) + document.location.host;
+  var PREFIX = document.location.protocol + '//' + document.location.host;
 
   function normalize(path) {
 
@@ -81,7 +79,7 @@ global = (typeof global != 'undefined' && global) || window;
    * VERY REDUCED VERSION of node.js Module api and require() binding
    * see https://github.com/joyent/node/blob/master/lib/module.js
    *
-   * requires:  assert, normalize, document.location.host, document.location.href
+   * requires:  assert, normalize, PREFIX, document.location.href
    */
   function Module(id, parent) {
     this.id = id;
@@ -136,13 +134,11 @@ global = (typeof global != 'undefined' && global) || window;
   // BROWSER VERSION
   Module._resolveFilename = function(request, parent) {
 
-  console.log(document.location);
-  
-   /* if (request.indexOf(document.location.host) > 0) {
+    if (request.indexOf(PREFIX) == 0) {
       // absolute path needs no parent resolution
       return normalize(request);
     }
-    */
+    
     // href as dirname corrects relative ../../../pathnames
     var parentId = (!!parent ? parent.id : document.location.href + '/');
     var sepIndex = parentId.lastIndexOf('/');
@@ -165,7 +161,7 @@ global = (typeof global != 'undefined' && global) || window;
 
     global.require = function require(request) {
       var id = require.resolve(request);
-            console.warn('id: ' + id);
+            
       return require.cache[id] && require.cache[id].exports;
     };
     
@@ -307,7 +303,6 @@ global = (typeof global != 'undefined' && global) || window;
     
   // initialize assert
   var assertID = Module._resolveFilename('assert');
-  console.warn(assertID);
   Module._load(assertID);
   Module._cache[assertID].exports = assert;
   
