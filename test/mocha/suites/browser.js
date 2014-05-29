@@ -6,7 +6,6 @@ suite('browser globals');
 
 before(function () {
   global.assert = require('assert');
-  console.log(require.cache);
 });
 
 test('assert', function () {
