@@ -21,7 +21,6 @@ mocha.addFile("./test/mocha/suites/camelize.js");
 mocha.addFile("./test/mocha/suites/make.js");
 mocha.addFile("./test/mocha/suites/graph.js");
 mocha.addFile("./test/mocha/suites/monad.js");
-//mocha.addFile("./test/mocha/suites/currier.js");
 
 //Run your tests
 mocha.run(function(failures){
