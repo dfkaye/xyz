@@ -52,7 +52,7 @@
 
     <script>
       mocha.checkLeaks();
-      mocha.globals(['boilerplate']); // this is our global boilerplate function
+      mocha.globals(['global, assert, require, define']);
       mocha.run();
     </script>        
   </body>

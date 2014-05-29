@@ -1,29 +1,48 @@
 /////////////////////////////////////////////////////////////////
 //
-// TO DO as of 23 MAY --21, 16 MAY 2014--
+// TO DO as of 25 MAY --23,21,16 MAY 2014--
 //
-//  - fix basepath on file:// protocol
+//  - better declaration and handle for main and parentNode
+//    e.g.,  main.parentNode.appendChild(s);
 //
-//  - init module.exports cross-platform so we can re-use files
-//    + Module._cache, Module._load, maybe in namespace.retrieve()
+//  - add namespace.error(fn(err){ show error and shut down})
 //
-//  - encapsulate related methods into units, THEN expose the units
 //  - string constants for normalize()
 //  - move normalize into Module._resolveFilename???
 //
 //  - rename "monad" to "loader"
+//  - rename exec to "load"
+//  - rename string to "include"
+//  - rename make to "sandbox"
 //
-//  - rename exec to "load", put it on namespace.load
-//  - rename string to "include", put it on namespace.include
-//  - rename make to "sandbox", put it on namespace.sandbox
+//  - content-security-policy no-eval version of exec/make/sandbox
+//  - three-star comments for function body (won't work with csp no-eval)
+//  - better build.js for the above
+//  - webpagetest for the above
+//
+//  - gulp build with jshint, concat, uglify
+//  - gulp-convert-common-to-xyz
+//
+//  - revisit nested defs - anon vs named
+//  - revisit top-level unqualified names ("module" vs "./module")
+//  - revisit extensibility or reuse of given name vs draconian no-ext option
+//
 //  - enable var namespace = require('namespace');
 //    + expose ns.load, ns.include, ns.alias??
 //
+//  - slightly more capable global.require() ???
 //  - enable require('namespace')(__filename)(dependencyId)(function () {});
 //    + sugar it as define(__filename)(dependencyId)(function () {});
 //
-//  - legacy browser support (trim, get rid of should.js for IE8, etc.)
+//  - support script-reload (or get rid of img cache)
 //
+//  - verify legacy browser support (trim, get rid of should.js for IE8, etc.)
+//
+//  - DONE (via namespace() member methods) 
+//          encapsulate related methods into units, then expose the units
+//  - DONE move exec, string, and make to namespace.exec, namespace.string, 
+            namespace.make
+//  - DONE fix basepath on file:// protocol
 //  - DONE put camelize on namespace.camelize
 //  - DONE put graph on namespace.graph
 //  - DONE expose namespace as define.namespace??
