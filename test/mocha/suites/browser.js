@@ -20,13 +20,6 @@ test('require', function () {
   assert(typeof require == 'function', 'require should be a function');
 });
 
-test('require.resolve', function () {  
-  assert(require.resolve('module') === document.location.href + '/module.js');
-});
-
-
-suite('_resolveFilename');
-
 test('require("module")', function () {
   var Module = require('module');
   var cache = require.cache[require.resolve('module')];
@@ -36,35 +29,20 @@ test('require("module")', function () {
   assert(cache.exports === Module, 'bad cache');  
 });
 
-test('with __filename', function () {
-  var id = 'fake/path';
-  var path = __dirname + '/' + id + '.js';
-  var Module = require('module');
-  var filename = Module._resolveFilename('./' + id, { id: __filename });
-  
-  assert(filename === path, 'should equal ' + path);
+test('require.resolve', function () {  
+  assert(require.resolve('module') === document.location.href + '/module.js');
 });
 
-test('with BASEPATH', function () {
-  var id = 'fake/path';
-  var testId = BASEPATH + '/test.js';
-  var testpath = BASEPATH + id + '.js';
-  var Module = require('module');
-  var filename = Module._resolveFilename('./' + id, { id: testId });
+test('Module cache and resolve', function () {
+  function fake(s) { return 'fake ' + s; }
   
-  assert(filename === testpath, 'should equal ' + testpath);
-});
-
-test('require cached module', function () {
   var Module = require('module');
+  var fakeID = Module._resolveFilename('fake');
 
-  // normalize first
-  var id = Module._resolveFilename(BASEPATH + '/require-test');
-
-  Module._load(id); 
-  Module._cache[id].exports = 'fake exports';
+  Module._load(fakeID);
+  Module._cache[fakeID].exports = fake;
   
-  assert(require(id) === 'fake exports', 'exports should be faked');
+  assert(require('fake')('test') === 'fake test', 'should return fake test');
 });
 
 test('module api', function () {
@@ -90,9 +68,7 @@ test('module api', function () {
 suite('define');
 
 beforeEach(function () {
-  var Module = require('module');
-
-  this.pathId = Module._resolveFilename('./fake/path', { id: __filename});
+  this.pathId = require.resolve('./fake/path', { id: __filename});
 });
 
 test('define', function () {
