@@ -20,11 +20,10 @@ test('require', function () {
   assert(typeof require == 'function', 'require should be a function');
 });
 
-test('require.resolve', function () { 
-  var path = require.resolve('module');
-  
-  assert(path === document.location.href + '/module.js');
+test('require.resolve', function () {  
+  assert(require.resolve('module') === document.location.href + '/module.js');
 });
+
 
 suite('_resolveFilename');
 
@@ -41,8 +40,9 @@ test('with __filename', function () {
   var id = 'fake/path';
   var path = __dirname + '/' + id + '.js';
   var Module = require('module');
+  var filename = Module._resolveFilename('./' + id, { id: __filename });
   
-  Module._resolveFilename('./' + id, { id: __filename }).should.be.equal(path);
+  assert(filename === path, 'should equal ' + path);
 });
 
 test('with BASEPATH', function () {
@@ -50,8 +50,9 @@ test('with BASEPATH', function () {
   var testId = BASEPATH + '/test.js';
   var testpath = BASEPATH + id + '.js';
   var Module = require('module');
-
-  Module._resolveFilename('./' + id, { id: testId }).should.be.equal(testpath);
+  var filename = Module._resolveFilename('./' + id, { id: testId });
+  
+  assert(filename === testpath, 'should equal ' + testpath);
 });
 
 test('require cached module', function () {
@@ -68,10 +69,7 @@ test('require cached module', function () {
 
 test('module api', function () {
 
-  var Module = require('module');
-
-  // normalize first
-  var id = Module._resolveFilename(BASEPATH + '/module-test.js');
+  var id = require.resolve(BASEPATH + '/module-test.js');
   
   delete require.cache[id];
   
@@ -79,15 +77,13 @@ test('module api', function () {
   var exports = Module._load(id, parent);
   var module = require.cache[id];
 
-  module.id.should.be.equal(id);
-  module.filename.should.be.equal(id);
-  module.exports.should.be.equal(exports);
-  module.exports.should.be.equal(require(id));
-  
-  module.children.should.be.Array;
-  module.parent.should.be.equal(parent);
-  module.require.should.be.Function;
-
+  assert(module.id === id, 'module.id should equal id');
+  assert(module.filename === id, 'module.filename should equal id');
+  assert(module.exports === exports, 'module.exports should equal exports');
+  assert(exports === require(id), 'exports should equal require(id)');
+  assert('length' in module.children, 'module.children should be Array');
+  assert(module.parent === parent, 'module.parent should equal parent');
+  assert(typeof module.require === 'function', 'module.require should be function');
 });
 
 
@@ -123,10 +119,8 @@ test("(define)(__filename)('./fake/path')", function () {
 test("(define)(__filename)('./fake/path')(function() {});", function () {
   var pathId = this.pathId;
   
-  var exported = (define)(__filename)('./fake/path')(function() {
-
-    module.id.should.be.equal(__filename);
-    
+  var exported = (define)(__filename)(pathId)(function() {
+    assert(module.id === __filename, 'module.id should be ' + __filename);
     module.exports = path; 
   });
   
@@ -141,57 +135,50 @@ before(function () {
 });
 
 test("exec", function () {
-
   var pathId = this.pathId;
 
-  var exported = (define)(pathId)
-  (function() {
+  var exported = (define)(pathId)(function() {
+    assert(module.id == global.BASEPATH + 'fake/path.js', 'id incorrect');
     module.exports = "OK";
-    
-    module.id.should.be.equal(global.BASEPATH + 'fake/path.js');
   });
   
   exported.should.be.equal("OK");
 });
 
 test("exec __dirname is localized", function () {
-
   var pathId = this.pathId;
   
-  (define)(pathId)
-  (function () {
-    // remember, this __dirname is local to this module !!!
-    module.id.should.be.equal(__dirname + '/path' + '.js');
+  (define)(pathId)(function () {
+    assert(module.id == __dirname + '/path' + '.js', '__dirname incorrect');
+  });
+});
 
+test("exec new exports", function () {
+  var pathId = this.pathId;
+  
+  var exported = (define)(pathId)(function () {
     // assert previous export value
     module.exports.should.be.equal("OK");
-    
     // set new value
     module.exports = 'faked-path';
   });
   
+  assert(exported == 'faked-path', 'should set new exports value');
 });
 
 test("nested define", function () {
-
-  var pathId = this.pathId;
+  var imports = this.pathId;
 
   (define)('anon')
-  
-  (pathId)
-  
+  (imports)
   (function() {
-  
-    //assert new value
     assert(path == 'faked-path', 'path should be faked-path');
     
     (define)
     (function() {
-    
       assert(path === 'faked-path', 'should still be faked-path');
     });
   });
-  
 });
 
 
@@ -199,83 +186,99 @@ suite('script');
 
 test('require("script")', function () {
   var script = require('script');
-  assert(typeof script.load == 'function', 'script api not right');
+  
+  assert(typeof script == 'function', 'script api not right');
 });
 
-test('load', function (done) {
+test('error', function () {
+  var filename = 'bad file name';
+  var script = require('script');
+  
+  script({ filename: filename, forId: 'anything', onload: function(err, done) {
+    assert(err.message == 'file not found: ' + filename, 'script err message');
+  }});
+});
 
+test('ok', function () {
+  var filename = require.resolve('../../../test/mocha/fixture/browser-module');
+  var forId = BASEPATH + './suites/base.js';  
+  var script = require('script');
+  
+  script({ filename: filename, forId: forId, onload: function(err, done) {
+    assert(!err, filename + 'should load browser module');
+  }});
+});
+
+test('script.cache', function () {
+  var filename = require.resolve('../../../test/mocha/fixture/browser-module');
+  var script = require('script');
+  
+  assert(script.cache[filename] instanceof Image, 'no img at: ' + filename);
+});
+
+
+test('load', function (done) {
   global.doneLoad = done;
 
   (define)(BASEPATH + './suites/base.js')
-  
   ('a := ../../../test/mocha/fixture/browser-module')
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
-  
   (function () {
-    b('success').should.be.equal('[dependent-browser-module]' + a('success'));
     assert(1);
+
+    b('success').should.be.equal('[dependent-browser-module]' + a('success'));
+
     global.doneLoad();
     delete global.doneLoad;
   });
-
 });
 
 test('load again', function (done) {
-
   global.doneAgain = done;
 
   (define)(BASEPATH + './suites/base.js')
-  
   ('a := ../../../test/mocha/fixture/browser-module')
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
-  
   (function () {
-
-    b('success again').should.be.equal('[dependent-browser-module]' + a('success again'));
     assert(1);
+
+    b('success again').should.be.equal('[dependent-browser-module]' + 
+                                       a('success again'));
     global.doneAgain();
     delete global.doneAgain;
   });
-  
 });
 
 test('load in reverse', function (done) {
-
   global.doneReverse = done;
 
   (define)(BASEPATH + './suites/base.js')
-  
   ('hey := ../../../test/mocha/fixture/dependent-browser-module')
   ('there := ../../../test/mocha/fixture/browser-module')
-  
   (function () {
-    hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
     assert(1);
+    
+    hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
 
     global.doneReverse();
     delete global.doneReverse;
   });
-
 });
 
 test('load nested', function (done) {
-
   global.doneNested = done;
 
   (define)(BASEPATH + './suites/base.js')
-  
   ('there := ../../../test/mocha/fixture/browser-module')
-  
   (function () {
     assert(1);
 
     // nested calls are anonymous
     (define)
-    
     ('hey := ../../../test/mocha/fixture/dependent-browser-module')
-    
     (function () {
       assert(1);
+      
       hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
     });
     
@@ -283,13 +286,11 @@ test('load nested', function (done) {
     global.doneNested();
     delete global.doneNested;
   });
-  
 });
 
 test('require previously defined path', function () {
 
   (define)(BASEPATH + './suites/base.js')
-  
   (function () {
   
     var b = require('../../../test/mocha/fixture/dependent-browser-module');
@@ -314,39 +315,40 @@ test('require previously defined alias', function () {
 });
 
 test('require(bad path)', function (done) {
-
   global.doneRequireBadPath = done;
 
   (define)(BASEPATH + './suites/base.js')
   (function () {
+  
     var o = require('/bad/path');
+    
     assert(o, 'should return the bare exports object');
+    
     global.doneRequireBadPath();
     delete global.doneRequireBadPath;
   });
-  
 });
 
 test('bad import path should execute', function (done) {
-
   global.doneBadPath = done;
 
   (define)(BASEPATH + './suites/base.js')
   ('/bad/path')
   (function () {
     assert(typeof path == 'undefined', 'should run if bad path not referenced');
+    
     global.doneBadPath();
     delete global.doneBadPath;
   });
 });
 
 test('verify same namespace runs after bad import path', function (done) {
-
   global.doneSame = done;
 
   (define)(BASEPATH + './suites/base.js')
   (function () {
     assert(1, 'should execute');
+    
     global.doneSame();
     delete global.doneSame;
   });

@@ -1,15 +1,12 @@
-// monad.js for the browser
-// will be replaced by build/concat
-// currently in place for testing
-
+/*
+ * browser-side polyfill for assert, Module, require, and a script loader for
+ * asynchronous requests.  'assert', 'module' and 'script' are registered into 
+ * the module system polyfill at bottom of this file.
+ */
 global = (typeof global != 'undefined' && global) || window;
 
 !global.document || (function () {
 
-  /*
-   * browser-side polyfill for assert, Module, require, and a script loader for
-   * asynchronous requests
-   */
   function assert(ok, message) {
     ok || (function (msg) {
       throw new Error(msg);
@@ -17,6 +14,13 @@ global = (typeof global != 'undefined' && global) || window;
   }
 
   assert(global, 'global not defined');
+
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  //  TODO - better var management of scripts, main, parentNode,
+  //         __filename, __dirname, __BASEPATH
+  //
+  //////////////////////////////////////////////////////////////////////////////
 
   // find self
   var scripts = document.scripts || document.getElementsByTagName('script');
@@ -28,8 +32,12 @@ global = (typeof global != 'undefined' && global) || window;
   global.__dirname = __filename.substring(0, __filename.lastIndexOf('/'));
   global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
 
-  //////////////////////////////////////////////////////
-
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  //  TODO - better var management of normalize() string constants
+  //
+  //////////////////////////////////////////////////////////////////////////////
+  
   var BLANK = '';
   var SLASH = '/';
   var DOT = '.';
@@ -77,7 +85,7 @@ global = (typeof global != 'undefined' && global) || window;
   
   /*
    * VERY REDUCED VERSION of node.js Module api and require() binding
-   * see https://github.com/joyent/node/blob/master/lib/module.js
+   * https://github.com/joyent/node/blob/f1dc55d7018e2669550a8be2c5b6c091da616483/lib/module.js
    *
    * requires:  assert, normalize, PREFIX, document.location.href
    */
@@ -150,6 +158,8 @@ global = (typeof global != 'undefined' && global) || window;
     return normalize(parentId + request);
   };
 
+  //////////////////////////////////////////////////////
+  
   /*
    * GLOBAL REQUIRE
    * defines a global.require function if not already defined.
@@ -174,6 +184,14 @@ global = (typeof global != 'undefined' && global) || window;
   }());
   
   //////////////////////////////////////////////////////
+  
+  // string#trim polyfill
+  typeof String.prototype.trim == 'function' || 
+  (String.prototype.trim = function trim() {
+    return this.replace(/^\s+|\s+$/gm, '');
+  });
+
+  //////////////////////////////////////////////////////
 
   /*
    * api for dom script element requests 
@@ -182,64 +200,59 @@ global = (typeof global != 'undefined' && global) || window;
    *
    * requires: main.parentNode, assert
    */
-  var script = {};
-
-  /*
-   * are all deferred dependencies available?
-   */
-  script.ready = function ready(fn, monad) {
-
-    var p = script.pending && script.pending[monad.context.module.id];
-    
-    if (p && p.length > 0) {
-    
-      // memoize the fn so that exec() can get to it
-      monad.fn || (monad.fn = fn);
-      
-    } else {
-    
-      // don't expose fn as a symbol to make()
-      delete monad.fn;
-    }
-    
-    return !monad.fn;
-  };
-
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // TODO - remake script into function script(request) with ready, attach, and 
+  //        load methods, plus the memoizing cache
+  //
+  //////////////////////////////////////////////////////////////////////////////   
   /*
    * fetch dependencies via htmlscriptelement
-   * 
    */
-  script.request  = function require(request) {
-
-    //console.log('---------------script.request-----------------------');
+  function script(request) {
 
     assert(request.filename, 'script.request: missing request.filename property');
     assert(request.forId, 'script.request: missing request.forId property');
     assert(request.onload, 'script.request: missing onload callback');
-    
+
     var filename = request.filename;
     var id = request.forId;
-
+    
     // script.pending is created only if script.request is called
     var pending = script.pending || (script.pending = []);
     
     pending[id] || (pending[id] = []);
     pending[id].push(request);
     
-    script.load(request.filename, function callback(err) {
+    script.load(filename, function callback(err) {
       script.pending[id].pop();
       request.onload(err, pending[id].length < 1);
     });
   };
-
+  
+  /*
+   * are all deferred dependencies available?
+   */
+  script.ready = function ready(fn, monad) {
+  
+    var p = script.pending && script.pending[monad.context.module.id];
+    
+    if (p && p.length > 0) {
+      // memoize fn so that namespace.string() request callback can check it
+      monad.fn || (monad.fn = fn);
+    } else {
+      // don't expose fn as a symbol to make()
+      delete monad.fn;
+    }
+    
+    return !monad.fn;
+  };
+  
   /*
    * new HTMLScriptElement
    */
   script.attach = function attach(src, callback) {
-
-    //console.log('---------------script.attach-----------------------');
     
-    // callback required - 
     assert(typeof callback == 'function', 'attach callback required');
     
     var s = document.createElement('script');
@@ -257,17 +270,18 @@ global = (typeof global != 'undefined' && global) || window;
      * http://www.quirksmode.org/dom/events/error.html
      */
     s.onerror = function (e) {
-      callback({ type: 'error', message: 'file not found:' + src });
+      callback({ type: 'error', message: 'file not found: ' + src });
     };
 
     s.src = src;
     
-    //////////////////////////////////////////////
-    // 
+    ////////////////////////////////////////////////////////////////////////////
+    //
     // TODO: better declaration and handle for main and parentNode
     //
-    //////////////////////////////////////////////
-    main.parentNode.appendChild(s);  
+    ////////////////////////////////////////////////////////////////////////////
+    main.parentNode.appendChild(s);
+    
     return s;
   };
 
@@ -276,9 +290,6 @@ global = (typeof global != 'undefined' && global) || window;
    */
   script.load = function load(src, callback) {
 
-    //console.log('---------------script.load-----------------------');
-
-    // callback required - 
     assert(typeof callback == 'function', 'script callback required');
 
     script.cache || (script.cache = {});
@@ -288,8 +299,8 @@ global = (typeof global != 'undefined' && global) || window;
       
       /*
        * onerror is always executed by browsers that receive js text instead of 
-       * the expected img type, so ignore that and delegate to attach() which will 
-       * handle bad url errors.
+       * the expected img type, so ignore that and delegate to attach() which 
+       * will handle bad url errors.
        */
       img.onerror = img.onload = function (e) {
         script.attach(src, callback); 
@@ -301,17 +312,17 @@ global = (typeof global != 'undefined' && global) || window;
   };
 
     
-  // initialize assert
+  // publish assert
   var assertID = Module._resolveFilename('assert');
   Module._load(assertID);
   Module._cache[assertID].exports = assert;
   
-  // initialize Module
+  // publish Module
   var moduleID = Module._resolveFilename('module');
   Module._load(moduleID);
   Module._cache[moduleID].exports = Module;
   
-  // initialize script
+  // publish script
   var scriptID = Module._resolveFilename('script');
   Module._load(scriptID);
   Module._cache[scriptID].exports = script;
@@ -595,13 +606,11 @@ namespace.exec = function exec(fn, monad) {
  * is detected.
  *
  * requires:  camelize, Module, graph, define.cache, assert, script if document
+ *            and string#trim if older browser
  */
 namespace.string = function string(id, monad) {
 
-  // SHOULD WE DO THIS?
-  // id = id.replace(/^\s+|\s+$/gm, ''); // for browser, maybe
   id = id.replace(/\\/g, '/').trim();
-  // OR FORCE USERS TO FORMAT CORRECTLY???
 
   var pair = id.split(':=');
   var context = monad.context;
@@ -646,7 +655,7 @@ namespace.string = function string(id, monad) {
     // HEART OF THE MATTER ~ BROWSER SCRIPT ELEMENT REQUEST    
     if (global.document) {
     
-      require('script').request({
+      require('script')({
       
         filename: filename, 
         forId: context.module.id,
@@ -657,7 +666,7 @@ namespace.string = function string(id, monad) {
            */
            
           if (!err) {
-            console.log('---------------register-----------------------');
+            //console.log('---------------register-----------------------');
             var exports = define.cache[filename].context.module.exports;
             context[alias] = (globalName && global[alias]) || exports;
           }
