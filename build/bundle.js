@@ -194,31 +194,24 @@ global = (typeof global != 'undefined' && global) || window;
   //////////////////////////////////////////////////////
 
   /*
-   * api for dom script element requests 
-   *
-   *  ready, request, load, attach, & callback to request
+   * script api for dom script element requests:
+   * script(request), ready, load, attach, & callback to request
+   * script.pending is created only if script(request) is called
    *
    * requires: main.parentNode, assert
    */
-  //////////////////////////////////////////////////////////////////////////////
-  //
-  // TODO - remake script into function script(request) with ready, attach, and 
-  //        load methods, plus the memoizing cache
-  //
-  //////////////////////////////////////////////////////////////////////////////   
+
   /*
    * fetch dependencies via htmlscriptelement
    */
   function script(request) {
 
-    assert(request.filename, 'script.request: missing request.filename property');
-    assert(request.forId, 'script.request: missing request.forId property');
+    assert(request.filename, 'script.request: missing filename property');
+    assert(request.parent, 'script.request: missing parent property');
     assert(request.onload, 'script.request: missing onload callback');
 
     var filename = request.filename;
-    var id = request.forId;
-    
-    // script.pending is created only if script.request is called
+    var id = request.parent.id;
     var pending = script.pending || (script.pending = []);
     
     pending[id] || (pending[id] = []);
@@ -311,7 +304,12 @@ global = (typeof global != 'undefined' && global) || window;
     }());
   };
 
-    
+  ////////////////////////////////////////////////////////////////////////////
+  //
+  // TODO: better pre-registering modularize pattern
+  //
+  ////////////////////////////////////////////////////////////////////////////
+  
   // publish assert
   var assertID = Module._resolveFilename('assert');
   Module._load(assertID);
@@ -331,14 +329,6 @@ global = (typeof global != 'undefined' && global) || window;
 
 //////////////////////////////////////////////////////
 // lib/node/monad
-// 20-22 APRIL 2014 ! monadic version ! replaces lib/node/define spritzer
-// 1 MAY 2014 ! graph !
-// 5 MAY 2014 ! get rid of parent references !
-// 6 MAY 2104 ! collapse namespace into monad !
-// 8 MAY 2104 ! make exec local, make make() its own module !
-// 9 MAY 2104 ! remove define.id, just use define(id) !
-
-//////////////////////////////////////////////////////
 
 var assert = require('assert');
 var Module = require('module');
@@ -346,19 +336,40 @@ var Module = require('module');
 /*---------------------------------*/
 
 /*
- * registers the filename to monadic collector function which acts as a 
- * namespace that holds set of 'own' names to be written into scope as globals 
- * by the exec() function.  holds on to a real module.  though laborious, this 
- * solution repeats work done by environment in order to bind module.require() 
- * to the encapsulated module, and map the require.cache{} and require.resolve() 
- * api to the Module api.
+ * entry point for defining a namespace and returning a collector function (or 
+ * monad). resolves the id pathname with respect to THIS module and returns the 
+ * monad.
  *
- * requires:  Module, assert, exec, string
+ * requires:  assert, Module, graph, namespace
  */
-function namespace(filename) {
+global.define = function define(id) {
+  assert(typeof id == 'string', 'id must be string');
+  
+  var filename = Module._resolveFilename(id);
+
+  // track requests for cycle checking later
+  define.graph(filename);
+  
+  var cache = define.cache || (define.cache = {});
+  
+  return cache[filename] || (cache[filename] = define.namespace(filename));
+};
+
+/*
+ * registers the filename to monadic collector function which acts as a 
+ * namespace that holds set of names in a context to be written into scope as 
+ * pseudo-globals by the exec() function.  holds on to a real module.  
+ 
+ * though laborious, this solution repeats work done by environment in order to 
+ * bind module.require() to the encapsulated module, and map the require.cache{} 
+ * and require.resolve() methods to the Module api.
+ *
+ * requires:  Module
+ */
+define.namespace = function namespace(filename) {
 
   // namespace is a loader; monad is a collector.
-  var monad = namespace.monad();
+  var monad = define.monad();
 
   /*
    * memoize pseudo-global key-value pairs to the monad as 'own' properties to 
@@ -369,12 +380,12 @@ function namespace(filename) {
   
   context.id = filename;
   context.__filename = filename;
-  context.__dirname = namespace.dirname(filename);
+  context.__dirname = define.dirname(filename);
 
-  // load real module from cache
-  context.module = namespace.retrieve(filename); 
+  // get real module from cache. load it if it's not there.  
+  Module._cache[filename] || Module._load(filename) && Module._cache[filename];
+  context.module = Module._cache[filename]; 
   
-  // 5 MAY 2014 - 'reimplement' require locally to get out of relying on parent
   context.require = function require(id) {
     return context.module.require(id);
   };
@@ -391,7 +402,10 @@ function namespace(filename) {
   return monad;
 };
 
-namespace.camelize = function camelize(name) {
+/*
+ *  convert pathnames to a camelCase alias
+ */
+define.camelize = function camelize(name) {
 
   var RE_SEP = /\-|\./;
   var RE_SEP_AZ = /(\-|\.)[a-z]/;
@@ -426,8 +440,9 @@ namespace.camelize = function camelize(name) {
  * maps dep string if not mapped
  * adds dep string to id map
  */
-namespace.graph = function graph(id, dep) {
+define.graph = function graph(id, dep) {
 
+  graph.resolve || (graph.resolve = define.resolve);
   graph.items || (graph.items = {});
   
   var item;
@@ -442,7 +457,7 @@ namespace.graph = function graph(id, dep) {
  * recursively visits id string map items, depth first.
  * returns message string if a cycle is detected
  */
-namespace.graph.resolve = function resolve(id, visited) {
+define.resolve = function resolve(id, visited) {
 
   visited || (visited = []);
 
@@ -452,7 +467,7 @@ namespace.graph.resolve = function resolve(id, visited) {
   
   visited[id] = visited[visited.push(id) - 1];
 
-  for (var i = 0, deps = namespace.graph.items[id], msg; deps && i < deps.length; ++i) {
+  for (var i = 0, deps = define.graph.items[id], msg; deps && i < deps.length; ++i) {
     msg = resolve(deps[i], visited);
     if (msg) {
       return msg;
@@ -464,7 +479,7 @@ namespace.graph.resolve = function resolve(id, visited) {
  * make a new Function converting context properties to local varnames, and 
  * embed the given fn as an IIFE bound to context.module.exports.
  */
-namespace.make = function make(fn, context) {
+define.make = function make(fn, context) {
   assert(arguments.length === 2, 'make: requires fn and context arguments.');
   assert(typeof fn == 'function', 'make: fn should be a function.');
   assert(context, 'make: context is not defined.');
@@ -497,21 +512,10 @@ namespace.make = function make(fn, context) {
 };
 
 /*
- * get the module out of the cache. load it if it's not there.
- *
- * requires:  Module
- */
-namespace.retrieve = function retrieve(filename) {
-  Module._cache[filename] || Module._load(filename);
-  
-  return Module._cache[filename];
-};
-
-/*
  * utility method returns the directory name for the given filename,
  * normalizing separator character to unix (forward slash).
  */
-namespace.dirname = function dirname(filename) {
+define.dirname = function dirname(filename) {
   var w = filename.lastIndexOf('\\'); // windows
   var u = filename.lastIndexOf('/'); // unix
 
@@ -519,57 +523,37 @@ namespace.dirname = function dirname(filename) {
 };
 
 /*
- * entry point for defining a namespace and returning a collector function (or 
- * monad). resolves the id pathname with respect to THIS module and returns the 
- * monad.
- *
- * requires:  assert, Module, graph, namespace
- */
-namespace.define = function define(id) {
-  assert(typeof id == 'string', 'id must be string');
-  
-  var filename = Module._resolveFilename(id);
-
-  // track requests for cycle checking later
-  namespace.graph(filename);
-  
-  var cache = define.cache || (define.cache = {});
-  
-  return cache[filename] || (cache[filename] = namespace(filename));
-};
-
-/*
  * factory method that returns a collector function for module definition data,
  * (i.e., dependency paths, aliases, and the scope function).  collector keeps 
  * returning itself until the scope function argument is passed.
- *
- * requires:  assert, namespace
  */
-namespace.monad = function monad() {
+define.monad = function monad() {
+
   /*
    * 6 MAY 2014 - moved monad() here so as not to create if already registered.
    * return this collector function to process parameters on successive calls.
    *
    * requires:  assert, exec, string
    */
+   
   return function monad(param) {
+  
     var type = typeof param;
     var value;
     
-    // handle invalid types...?
     assert(type.match(/string|function/), 'param must be string or function');
     
-    value = type == 'function' && namespace.exec(param, monad);
-    return value || (type == 'string' && namespace.string(param, monad));
+    value = type == 'function' && define.exec(param, monad);
+    return value || (type == 'string' && define.string(param, monad));
   };
 };
 
 /*
  * make a new function from fn, passing keys in monad context as symbols.
  *
- * requires:  make, script if document
+ * requires:  make
  */
-namespace.exec = function exec(fn, monad) {
+define.exec = function exec(fn, monad) {
 
   //15 MAY 2014 ASYNC PENDING STRATEGY ADDED FOR BROWSER CASE
   if (global.document && !require('script').ready(fn, monad)) {
@@ -586,7 +570,7 @@ namespace.exec = function exec(fn, monad) {
   !nested || ((exports = module.exports) && (module.exports = {}));
     
   stack.push(context.id);
-  result = namespace.make(fn, context)(context);
+  result = define.make(fn, context)(context);
   stack.pop(context.id);
 
   !nested || (module.exports = exports);
@@ -606,9 +590,9 @@ namespace.exec = function exec(fn, monad) {
  * is detected.
  *
  * requires:  camelize, Module, graph, define.cache, assert, script if document
- *            and string#trim if older browser
+ *            and string#trim polyfill if older browser
  */
-namespace.string = function string(id, monad) {
+define.string = function string(id, monad) {
 
   id = id.replace(/\\/g, '/').trim();
 
@@ -627,17 +611,17 @@ namespace.string = function string(id, monad) {
     globalName && (alias = globalName[0].replace(/\{|\}/g, ''));
     
     // id alias
-    alias.indexOf('/') === -1 || (alias = namespace.camelize(alias));
+    alias.indexOf('/') === -1 || (alias = define.camelize(alias));
     
   } else {
-    alias = namespace.camelize(id);
+    alias = define.camelize(id);
   }
 
   // handle required pathnames relative to the module, not monad file
   filename = Module._resolveFilename(id, context.module);
   
   // cycles are forbidden, no matter what
-  if (cycle = namespace.graph(context.module.id, filename).resolve(filename) ) {
+  if (cycle = define.graph(context.module.id, filename).resolve(filename) ) {
     assert(!cycle, cycle);  
   }
   
@@ -647,18 +631,23 @@ namespace.string = function string(id, monad) {
   
   if (module && ('exports' in module)) {
   
-    //console.log('registered: ' + filename);    
     exports = module.exports;
     
   } else {
-
-    // HEART OF THE MATTER ~ BROWSER SCRIPT ELEMENT REQUEST    
+  
+    ////////////////////////////////////////////////////////////////////////////
+    //
+    // TODO: externalize to a shorter block
+    //
+    ////////////////////////////////////////////////////////////////////////////
+    
+    // BROWSER SCRIPT ELEMENT REQUEST    
     if (global.document) {
     
       require('script')({
       
         filename: filename, 
-        forId: context.module.id,
+        parent: context.module,
         onload: function (err, done) {
         
           /*
@@ -666,14 +655,19 @@ namespace.string = function string(id, monad) {
            */
            
           if (!err) {
-            //console.log('---------------register-----------------------');
             var exports = define.cache[filename].context.module.exports;
             context[alias] = (globalName && global[alias]) || exports;
           }
-           
+          
+          //////////////////////////////////////////////////////////////////////
+          //
+          // TODO: better error handler
+          //
+          //////////////////////////////////////////////////////////////////////
+          
           // monad.fn is here only if exec ran once before deps loaded
           if (done && monad.fn) {
-            namespace.exec(monad.fn, monad);
+            define.exec(monad.fn, monad);
           }
         }
       });
@@ -688,7 +682,6 @@ namespace.string = function string(id, monad) {
      *    not use define(), so it has to be require()'d, and therefore...
      * 3. ...it hasn't been loaded & registered at least once yet
      */
-    //console.log('using require: ' + filename);    
     exports = context.module.require(filename);
   }
   
@@ -701,10 +694,3 @@ namespace.string = function string(id, monad) {
   
   return monad;
 };
-
-//////////////////////////////////////////////////////
-
-global.define = namespace.define;
-global.define.namespace = namespace;
-
-//////////////////////////////////////////////////////
