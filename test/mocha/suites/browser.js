@@ -78,7 +78,9 @@ test('define', function () {
 test('(define)(__filename)', function () {
   var pathId = this.pathId;
   
-  (define)(pathId).should.be.Function;
+  var m = (define)(pathId);
+  
+  assert(typeof m == 'function', 'should return function');
 });
 
 test("(define)(__filename)('./fake/path')", function () {
@@ -89,7 +91,9 @@ test("(define)(__filename)('./fake/path')", function () {
     module.exports = 'testing fake';
   });
   
-  (define)(pathId)('./fake/path').should.be.Function;
+  var m = (define)(pathId)('./fake/path');
+  
+  assert(typeof m == 'function', 'should return function');
 });
 
 test("(define)(__filename)('./fake/path')(function() {});", function () {
@@ -118,7 +122,7 @@ test("exec", function () {
     module.exports = "OK";
   });
   
-  exported.should.be.equal("OK");
+  assert(exported == 'OK', 'should return OK');
 });
 
 test("exec __dirname is localized", function () {
@@ -133,8 +137,8 @@ test("exec new exports", function () {
   var pathId = this.pathId;
   
   var exported = (define)(pathId)(function () {
-    // assert previous export value
-    module.exports.should.be.equal("OK");
+    assert(module.exports == 'OK', 'should return previous export value');
+    
     // set new value
     module.exports = 'faked-path';
   });
@@ -200,9 +204,9 @@ test('load', function (done) {
   ('a := ../../../test/mocha/fixture/browser-module')
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
   (function () {
-    assert(1);
-
-    b('success').should.be.equal('[dependent-browser-module]' + a('success'));
+  
+    var s = '[dependent-browser-module]' + a('success');
+    assert(b('success') === s, 'should be dep + mod success');
 
     global.doneLoad();
     delete global.doneLoad;
@@ -216,10 +220,10 @@ test('load again', function (done) {
   ('a := ../../../test/mocha/fixture/browser-module')
   ('b := ../../../test/mocha/fixture/dependent-browser-module')
   (function () {
-    assert(1);
 
-    b('success again').should.be.equal('[dependent-browser-module]' + 
-                                       a('success again'));
+    var s = '[dependent-browser-module]' + a('success again');
+    assert(b('success again') === s, 'should be dep + mod success again');
+
     global.doneAgain();
     delete global.doneAgain;
   });
@@ -232,9 +236,9 @@ test('load in reverse', function (done) {
   ('hey := ../../../test/mocha/fixture/dependent-browser-module')
   ('there := ../../../test/mocha/fixture/browser-module')
   (function () {
-    assert(1);
-    
-    hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
+  
+    var s = '[dependent-browser-module]' + there('there');
+    assert(hey('there') === s, 'should be hey there');
 
     global.doneReverse();
     delete global.doneReverse;
@@ -247,18 +251,19 @@ test('load nested', function (done) {
   (define)(BASEPATH + './suites/base.js')
   ('there := ../../../test/mocha/fixture/browser-module')
   (function () {
-    assert(1);
+    assert(there, 'there not defined');
 
     // nested calls are anonymous
     (define)
     ('hey := ../../../test/mocha/fixture/dependent-browser-module')
     (function () {
-      assert(1);
-      
-      hey('there').should.be.equal('[dependent-browser-module]' + there('there'));
+    
+      var s = '[dependent-browser-module]' + there('there');
+      assert(hey('there') === s, 'should be hey there');
     });
     
-    there('there').should.be.equal('[browser-module]' + 'there');
+    assert(there('there') === '[browser-module]' + 'there', 'should be there');
+
     global.doneNested();
     delete global.doneNested;
   });
