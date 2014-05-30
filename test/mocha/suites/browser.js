@@ -172,19 +172,20 @@ test('require("script")', function () {
 
 test('error', function () {
   var filename = 'bad file name';
+  var parent = { id: 'anything' };
   var script = require('script');
   
-  script({ filename: filename, forId: 'anything', onload: function(err, done) {
+  script({ filename: filename, parent: parent, onload: function(err, done) {
     assert(err.message == 'file not found: ' + filename, 'script err message');
   }});
 });
 
 test('ok', function () {
   var filename = require.resolve('../../../test/mocha/fixture/browser-module');
-  var forId = BASEPATH + './suites/base.js';  
+  var parent = { id: BASEPATH + './suites/base.js' };  
   var script = require('script');
   
-  script({ filename: filename, forId: forId, onload: function(err, done) {
+  script({ filename: filename, parent: parent, onload: function(err, done) {
     assert(!err, filename + 'should load browser module');
   }});
 });

@@ -4,7 +4,7 @@ require('should');
 
 require('../../../lib/node/monad');
 
-var camelize = define.namespace.camelize;
+var camelize = define.camelize;
 
 /* TESTS START HERE */
 

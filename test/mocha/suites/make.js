@@ -3,7 +3,7 @@
 require('../../../lib/node/monad');
 require('should');
 
-var make = define.namespace.make;
+var make = define.make;
 
 /* TESTS START HERE */
 

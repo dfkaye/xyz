@@ -4,7 +4,7 @@ require('should');
 
 require('../../../lib/node/monad');
 
-var graph = define.namespace.graph;
+var graph = define.graph;
 
 var id = __filename.replace(/\\/g, '/');
 var dep = './some/dep.js';
