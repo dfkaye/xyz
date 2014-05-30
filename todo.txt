@@ -1,17 +1,16 @@
 /////////////////////////////////////////////////////////////////
 //
-// TO DO as of 25 MAY --23,21,16 MAY 2014--
+// TO DO as of 30 MAY --29,25,23,21,16 MAY 2014--
 //
+//  - add namespace.error(fn(err){ show error and shut down});
 //  - add warning re double include paths; or just ignore??
+//  - add better pre-registering modularize pattern 
+//  - add better declaration and handle for main and parentNode
+//  - externalize define.string() script.request() to a shorter block
 //
 //  - revisit alias separator ("name := path/name" vs "path/name => name")
 //  - revisit global alias ({name} := path/name vs not supporting it)
 //  - revisit or punt on deep aliasing for mocks (like rewire)
-//
-//  - better declaration and handle for main and parentNode
-//    e.g.,  main.parentNode.appendChild(s);
-//
-//  - add namespace.error(fn(err){ show error and shut down});
 //
 //  - string constants for normalize()
 //  - move normalize into Module._resolveFilename???
@@ -26,6 +25,8 @@
 //  - better build.js for the above
 //  - webpagetest for the above
 //
+//  - verify legacy browsers (use webpagetest)
+//
 //  - gulp build with jshint, concat, uglify
 //  - gulp-convert-common-to-xyz
 //
@@ -33,17 +34,13 @@
 //  - revisit top-level unqualified names ("module" vs "./module")
 //  - revisit extensibility or reuse of given name vs draconian no-ext option
 //
-//  - enable var namespace = require('namespace');
-//    + expose ns.load, ns.include, ns.alias??
-//
-//  - slightly more capable global.require() ???
-//  - enable require('namespace')(__filename)(dependencyId)(function () {});
-//    + sugar it as define(__filename)(dependencyId)(function () {});
-//
 //  - support script-reload (or get rid of img cache)
 //
-//  - verify legacy browser support (trim, get rid of should.js for IE8, etc.)
-//
+//  - DONE add string#trim polyfill in browser.js
+//  - DONE remove should.js from browser tests
+//  - DONE fix script request to take parent instead of forId
+//  - DONE move namespace to define.namespace, make define the only global, and
+//      move namespace methods to define
 //  - DONE (via namespace() member methods) 
 //          encapsulate related methods into units, then expose the units
 //  - DONE move exec, string, and make to namespace.exec, namespace.string, 
