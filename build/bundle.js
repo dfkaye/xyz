@@ -45,26 +45,24 @@ global = (typeof global != 'undefined' && global) || window;
   var PREFIX = document.location.protocol + '//' + document.location.host;
 
   function normalize(path) {
-
+  
     if (!path || path == SLASH) {
       return SLASH
     }
-
+    
+    var absolute = path.indexOf(PREFIX) !== -1;
     var target = [];
-    var src, token;
+    var src, token, str;
 
-    if (path.indexOf(PREFIX) !== -1) {
-      // absolute path
+    if (absolute) {
       src = path.split(PREFIX)[1].split(SLASH);
     } else {
-      // relative path
       src = path.split(SLASH);    
     }
     
     for (var i = 0; i < src.length; ++i) {
-
       token = src[i];
-
+      
       if (token == DOTS) {
         target.pop();
       } else if (token != BLANK && token != DOT) {
@@ -72,19 +70,20 @@ global = (typeof global != 'undefined' && global) || window;
       }
     }
 
-    var result = target.join(SLASH).replace(/[\/]{2,}/g, SLASH);
-
-    if (result.indexOf('.js') !== result.length - 3) {
-      result = result + '.js';
+    str = PREFIX + SLASH + target.join(SLASH).replace(/[\/]{2,}/g, SLASH);
+    
+    if (str.indexOf('.js') !== str.length - 3) {
+      str = str + '.js';
     }
     
-    return PREFIX + SLASH + result;
+    return str;
   }
 
   //////////////////////////////////////////////////////
   
   /*
    * VERY REDUCED VERSION of node.js Module api and require() binding
+   * 
    * https://github.com/joyent/node/blob/f1dc55d7018e2669550a8be2c5b6c091da616483/lib/module.js
    *
    * requires:  assert, normalize, PREFIX, document.location.href
@@ -93,6 +92,7 @@ global = (typeof global != 'undefined' && global) || window;
     this.id = id;
     this.exports = {};
     this.parent = parent;
+    
     if (parent && parent.children) {
       parent.children.push(this);
     }
@@ -105,6 +105,7 @@ global = (typeof global != 'undefined' && global) || window;
   // BROWSER VERSION
   Module.prototype.load = function(filename) {
     assert(!this.loaded, 'module already loaded');
+    
     this.filename = filename;
     this.loaded = true;
   };
@@ -113,6 +114,7 @@ global = (typeof global != 'undefined' && global) || window;
   Module.prototype.require = function(path) {
     assert(typeof path == 'string', 'path must be a string');
     assert(path, 'missing path');
+    
     return Module._load(path, this);
   };
 
@@ -121,10 +123,13 @@ global = (typeof global != 'undefined' && global) || window;
 
   // BROWSER VERSION
   Module._load = function(request, parent, isMain) {
-
+  
     var id = Module._resolveFilename(request, parent);
-    var module = Module._cache[id] || (Module._cache[id] = new Module(id, parent));
-                  
+    
+    Module._cache[id] || (Module._cache[id] = new Module(id, parent));
+
+    var module = Module._cache[id];
+
     if (!module.loaded) {
       try {
         module.load(id);
@@ -141,18 +146,18 @@ global = (typeof global != 'undefined' && global) || window;
 
   // BROWSER VERSION
   Module._resolveFilename = function(request, parent) {
-
-    if (request.indexOf(PREFIX) == 0) {
-      // absolute path needs no parent resolution
-      return normalize(request);
+    
+    // absolute path needs no parent resolution
+    if (request.indexOf(PREFIX) === 0) { 
+      return normalize(request); 
     }
     
     // href as dirname corrects relative ../../../pathnames
     var parentId = (!!parent ? parent.id : document.location.href + '/');
     var sepIndex = parentId.lastIndexOf('/');
     
-    if (sepIndex != -1) {
-      parentId = parentId.substring(0, sepIndex + 1);
+    if (sepIndex != -1) { 
+      parentId = parentId.substring(0, sepIndex + 1); 
     }
       
     return normalize(parentId + request);
@@ -170,6 +175,7 @@ global = (typeof global != 'undefined' && global) || window;
   global.require || (function() {
 
     global.require = function require(request) {
+    
       var id = require.resolve(request);
             
       return require.cache[id] && require.cache[id].exports;
@@ -205,7 +211,6 @@ global = (typeof global != 'undefined' && global) || window;
    * fetch dependencies via htmlscriptelement
    */
   function script(request) {
-
     assert(request.filename, 'script.request: missing filename property');
     assert(request.parent, 'script.request: missing parent property');
     assert(request.onload, 'script.request: missing onload callback');
@@ -245,13 +250,13 @@ global = (typeof global != 'undefined' && global) || window;
    * new HTMLScriptElement
    */
   script.attach = function attach(src, callback) {
-    
     assert(typeof callback == 'function', 'attach callback required');
     
     var s = document.createElement('script');
 
     s.onload = s.onreadystatechange = function (e) {   
       var rs = s.readyState;
+      
       if (!rs || rs == 'loaded' || rs == 'complete') {
         s.onload = s.onreadystatechange = null;
         callback();
@@ -282,12 +287,12 @@ global = (typeof global != 'undefined' && global) || window;
    *  Steve Souders' ControlJS style of script caching
    */
   script.load = function load(src, callback) {
-
     assert(typeof callback == 'function', 'script callback required');
 
     script.cache || (script.cache = {});
     
     (script.cache[src] && script.attach(src, callback)) || (function () {
+    
       var img = new Image();
       
       /*
@@ -375,7 +380,7 @@ define.namespace = function namespace(filename) {
    * memoize pseudo-global key-value pairs to the monad as 'own' properties to 
    * be to written into scope by the exec() function.
    */
-
+   
   var context = monad.context = {};
   
   context.id = filename;
@@ -383,7 +388,7 @@ define.namespace = function namespace(filename) {
   context.__dirname = define.dirname(filename);
 
   // get real module from cache. load it if it's not there.  
-  Module._cache[filename] || Module._load(filename) && Module._cache[filename];
+  Module._cache[filename] || Module._load(filename);
   context.module = Module._cache[filename]; 
   
   context.require = function require(id) {
@@ -469,6 +474,7 @@ define.resolve = function resolve(id, visited) {
 
   for (var i = 0, deps = define.graph.items[id], msg; deps && i < deps.length; ++i) {
     msg = resolve(deps[i], visited);
+    
     if (msg) {
       return msg;
     }
@@ -516,6 +522,7 @@ define.make = function make(fn, context) {
  * normalizing separator character to unix (forward slash).
  */
 define.dirname = function dirname(filename) {
+
   var w = filename.lastIndexOf('\\'); // windows
   var u = filename.lastIndexOf('/'); // unix
 
@@ -656,6 +663,7 @@ define.string = function string(id, monad) {
            
           if (!err) {
             var exports = define.cache[filename].context.module.exports;
+            
             context[alias] = (globalName && global[alias]) || exports;
           }
           
