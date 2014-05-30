@@ -193,8 +193,9 @@ test('ok', function () {
 test('script.cache', function () {
   var filename = require.resolve('../../../test/mocha/fixture/browser-module');
   var script = require('script');
-  
+
   assert(script.cache[filename] instanceof Image, 'no img at: ' + filename);
+//  assert(script.cache[filename].script, 'no script at: ' + filename);
 });
 
 
