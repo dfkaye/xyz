@@ -25,12 +25,13 @@ global = (typeof global != 'undefined' && global) || window;
   // find self
   var scripts = document.scripts || document.getElementsByTagName('script');
   var main = scripts[scripts.length - 1];
-
+  var href = document.location.href;
+  
   assert(main.getAttribute('data-monad') !== void 0, 'missing main data-attr');
 
   global.__filename = main.src;
   global.__dirname = __filename.substring(0, __filename.lastIndexOf('/'));
-  global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
+  global.BASEPATH = href.substring(0, href.lastIndexOf('/') + 1);
 
   //////////////////////////////////////////////////////////////////////////////
   //
@@ -472,7 +473,9 @@ define.resolve = function resolve(id, visited) {
   
   visited[id] = visited[visited.push(id) - 1];
 
-  for (var i = 0, deps = define.graph.items[id], msg; deps && i < deps.length; ++i) {
+  var graph = define.graph;
+  
+  for (var i = 0, deps = graph.items[id], msg; deps && i < deps.length; ++i) {
     msg = resolve(deps[i], visited);
     
     if (msg) {

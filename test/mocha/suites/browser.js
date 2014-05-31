@@ -20,9 +20,110 @@ test('require', function () {
   assert(typeof require == 'function', 'require should be a function');
 });
 
+test('define', function () {
+  assert(typeof define === 'function', 'define should be a function');
+});
+
+
+suite('resolve/normalize pathnames');
+
+before(function () {
+  this.resolve = require('module')._resolveFilename;
+  this.href = document.location.href;
+  this.dirname = this.href.substring(0, this.href.lastIndexOf('/'));
+  this.prefix = document.location.protocol + '//' + document.location.host;
+});
+
+test('path', function () {
+  assert(this.resolve('path') === this.href + '/path' + '.js');
+});
+
+test('/path', function () {
+  assert(this.resolve('/path') === this.href + '/path' + '.js');
+});
+
+test('./path', function () {
+  assert(this.resolve('./path') === this.href + '/path' + '.js');
+});
+
+test('../path', function () {
+  assert(this.resolve('../path') === this.dirname + '/path' + '.js');
+});
+
+test('""', function () {
+  assert(this.resolve('') === this.href + '.js', this.resolve(''));
+});
+
+test('.', function () {
+  assert(this.resolve('.') === this.href + '.js', this.resolve('.'));
+});
+
+test('/', function () {
+  assert(this.resolve('/') === this.href + '.js', this.resolve('/'));
+});
+
+test('./', function () {
+  assert(this.resolve('./') === this.href + '.js', this.resolve('./'));
+});
+
+test('//', function () {
+  assert(this.resolve('//') === this.href + '.js', this.resolve('//'));
+});
+
+test('..', function () {
+  assert(this.resolve('..') === this.dirname  + '.js', this.resolve('..'));
+});
+
+test('../', function () {
+  assert(this.resolve('../') === this.dirname  + '.js',  this.resolve('../'));
+});
+
+test('./path, dirname', function () {
+  var dir = this.prefix + '/dir';
+  var parent = { id: dir + '/test/' };
+  var actual = this.resolve('./path', parent);
+
+  assert(actual === parent.id + 'path.js', actual);
+});
+
+test('./path, filename.js', function () {
+  var dir = this.prefix + '/dir';
+  var parent = { id: dir + '/filename.js' };
+  var actual = this.resolve('./path', parent);
+
+  assert(actual === dir + '/path.js', actual);
+});
+
+test('../path, dirname', function () {
+  var dir = this.prefix + '/dir';
+  var parent = { id: dir + '/test/' };
+  var actual = this.resolve('../path', parent);
+
+  assert(actual === dir + '/path.js', actual);
+});
+
+test('../path, filename.js', function () {
+  var dir = this.prefix + '/dir';
+  var parent = { id: dir + '/filename.js' };
+  var actual = this.resolve('../path', parent);
+  
+  assert(actual === this.prefix + '/path.js', actual);
+});
+
+test('/foo//bar/../baz////././../baz/spam, filename.js', function () {
+  var dir = this.prefix + '/dir';
+  var parent = { id: dir + '/filename.js' };
+  var actual = this.resolve('/foo//bar/../baz////././../baz/spam', parent);
+  
+  assert(actual === dir + '/foo/baz/spam.js', actual);
+});
+
+
+suite('browser builtins');
+
 test('require("module")', function () {
   var Module = require('module');
-  var cache = require.cache[require.resolve('module')];
+  var cache = Module._cache[Module._resolveFilename('module')];
     
   assert(Module, 'Module not loaded');
   assert(typeof Module == 'function', 'Module should be function');
@@ -33,7 +134,7 @@ test('require.resolve', function () {
   assert(require.resolve('module') === document.location.href + '/module.js');
 });
 
-test('Module cache and resolve', function () {
+test('Module load, cache and require', function () {
   function fake(s) { return 'fake ' + s; }
   
   var Module = require('module');
@@ -69,10 +170,6 @@ suite('define');
 
 beforeEach(function () {
   this.pathId = require.resolve('./fake/path', { id: __filename});
-});
-
-test('define', function () {
-  assert(typeof define === 'function');
 });
 
 test('(define)(__filename)', function () {
