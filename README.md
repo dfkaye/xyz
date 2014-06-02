@@ -269,16 +269,16 @@ more information.
 
 If you're under this restriction, the solution in place here as of 2 JUNE 2014 
 is to add the expected dependency aliases as parameter names in the callback 
-function:
+function, *in any order*:
 
     (define)(__filename)
     
-    ('./path/to/cool-module')
-    ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
+    ('./path/to/some-module')
+    ('./path/to/dependency := ./path/to/mock')
     
-    (function(coolModule, dependency) { // <= param names should match aliases
+    (function(dependency, someModule) { // <= params match aliases, any order
     
-      coolModule
+      someModule
       dependency //=> mock
     });
 

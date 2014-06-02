@@ -669,8 +669,10 @@ test('define.exec detects argname, runs sandbox', function () {
 test('sandbox real dependencies', function () {
 
   (define)(__filename)
+  
   ('../fixture/nested/c')
   ('../fixture/nested/m')
+  
   (function (m, c) {
   
     c('test').should.be.equal('[nested c]' + 'test');
@@ -682,8 +684,10 @@ test('sandbox real dependencies', function () {
 test('nested sandbox', function () {
 
   (define)(__filename)
+  
   ('../fixture/nested/c')
   ('../fixture/nested/m')
+  
   (function (m, c) {
   
     c('test').should.be.equal('[nested c]' + 'test');
