@@ -192,6 +192,8 @@ from the filename.  An export defined in a file referenced at
 if more than one file is named `'cool-module'`, we need a way to avoid the name 
 clash on `coolModule` that would result.
 
+to do that, specify an alias and delimiter along with the path name:
+
     (define)(__filename)
     
     ('./path/to/cool-module')
@@ -220,7 +222,7 @@ from the `global` scope:
 
 or use an alias to avoid clobbering, e.g., `'{alias} := path/name'`
 
-__that works but seems unnecessary__
+__this works but seems unnecessary__
 
     (define)(__filename)
     
