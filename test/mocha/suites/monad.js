@@ -678,7 +678,7 @@ test('sandbox real dependencies', function () {
   });
 });
 
-/*
+
 test('nested sandbox', function () {
 
   (define)(__filename)
@@ -687,14 +687,11 @@ test('nested sandbox', function () {
   (function (m, c) {
   
     c('test').should.be.equal('[nested c]' + 'test');
-
     
-    // this fails, looking for "real" define later
     (define)
     (function (m) {
-    
       m('test').should.be.equal('[nested m]' + 'test');
     });
     
   });
-});*/
+});

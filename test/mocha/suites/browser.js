@@ -447,3 +447,18 @@ test('exec should run csp sandbox when param detected in fn arg', function () {
 
   assert(exported == '[browser-module]' + '[sandbox]', 'sandbox msg incorrect');
 });
+
+test("nested csp sandbox", function () {
+  (define)(BASEPATH + './suites/nested-csp-sandbox-test.js')
+  ('../fixture/nested/c')
+  ('../fixture/nested/m')
+  (function (m, c) {
+  
+    assert(c('test') == '[nested c]' + 'test');
+    
+    (define)
+    (function (m) {
+      assert(m('test') == '[nested m]' + 'test');
+    });
+  });
+});
