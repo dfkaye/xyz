@@ -534,7 +534,7 @@ test('colliding', function () {
 test('aliasing', function () {
   (define)(__filename)
   ('../fixture/m')
-  ('m2:=../fixture/nested/m')
+  ('m2 := ../fixture/nested/m')
   (function () {  
     m('test').should.be.equal('[m]' + 'test');
     m2('test').should.be.equal('[nested m]' + 'test');
@@ -543,7 +543,7 @@ test('aliasing', function () {
 
 test('path aliasing', function () {
   (define)(__filename)
-  ('../fixture/nested/m:=../fixture/nested/mock')
+  ('../fixture/nested/m := ../fixture/nested/mock')
   (function () {  
     m('test').should.be.equal('[nested mock]' + 'test');
   });
@@ -559,7 +559,7 @@ test('global with no alias accessed by "global.name"', function () {
 
 test('global alias with "{name} := path"', function () {
   (define)(__filename)
-  ('{zuber}:=../fixture/zuber')
+  ('{zuber} := ../fixture/zuber')
   (function () {  
     zuber('test').should.be.equal('[global-zuber]' + 'test');
   });
@@ -607,10 +607,9 @@ test('trim alias whitespace', function () {
 });
 
 
+suite('csp');
 
-suite('csp sandbox');
-
-test('csp sandbox', function () {
+test('sandbox', function () {
 
   var sandbox = define.sandbox;
 
@@ -622,7 +621,8 @@ test('csp sandbox', function () {
                };
   var exports = before;
 
-  var context = { after: function () { return 'after'; },
+  var context = { id: 'csp test',
+                  after: function () { return 'after'; },
                   module: module,
                   exports: exports
                 };
@@ -632,38 +632,69 @@ test('csp sandbox', function () {
     (typeof module.load).should.be.equal('undefined');
 
     module.exports = after();
-    
   };
   
   var result = sandbox(fn, context);
   result.should.be.equal('after');
 });
 
-test('define.exec detects argname, runs csp', function () {
+test('define.exec detects argname, runs sandbox', function () {
   
-  function exec(fn, monad) {
 
-    define.exec(fn, monad);
-
-    return monad.context.module.exports;
-  }  
   
   var before = 'before';
-  var module = { exports: before };
   var exports = before;
+  var module = { exports: exports };
 
-  var context = { after: function () { return 'after'; },
+  var context = { id: 'csp multi arg test',
+                  after: function () { return 'after'; },
                   module: module,
-                  exports: exports
+                  exports: exports,
+                  later: function () { return 'later'; }
                 };
                 
   var monad = { context: context };
   
-  var fn = function (after) {
+  var fn = function (after, later) {
     (typeof after).should.be.equal('function');
-    module.exports = after();
+    (typeof later).should.be.equal('function');
+    
+    module.exports = after() + later();
   };
-  
-  var result = exec(fn, monad);
-  result.should.be.equal('after');
+
+  var result = define.exec(fn, monad);
+  result.should.be.equal('after' + 'later');
 });
+
+test('sandbox real dependencies', function () {
+
+  (define)(__filename)
+  ('../fixture/nested/c')
+  ('../fixture/nested/m')
+  (function (m, c) {
+  
+    c('test').should.be.equal('[nested c]' + 'test');
+    m('test').should.be.equal('[nested m]' + 'test');
+  });
+});
+
+/*
+test('nested sandbox', function () {
+
+  (define)(__filename)
+  ('../fixture/nested/c')
+  ('../fixture/nested/m')
+  (function (m, c) {
+  
+    c('test').should.be.equal('[nested c]' + 'test');
+
+    
+    // this fails, looking for "real" define later
+    (define)
+    (function (m) {
+    
+      m('test').should.be.equal('[nested m]' + 'test');
+    });
+    
+  });
+});*/
