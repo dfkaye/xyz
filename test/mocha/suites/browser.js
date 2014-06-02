@@ -205,7 +205,7 @@ test("(define)(__filename)('./fake/path')(function() {});", function () {
 });
 
 
-suite('exec with BASEPATH');
+suite('exec');
 
 before(function () {
   this.pathId = BASEPATH + 'fake/path.js';
@@ -432,4 +432,18 @@ test('verify same namespace runs after bad import path', function (done) {
     global.doneSame();
     delete global.doneSame;
   });
+});
+
+
+suite('csp sandbox');
+
+test('exec should run csp sandbox when param detected in fn arg', function () {
+
+  var exported = (define)(BASEPATH + './suites/csp-sandbox-test.js')
+  ('../../../test/mocha/fixture/browser-module')
+  (function (browserModule) {
+    module.exports = browserModule('[sandbox]');
+  });
+
+  assert(exported == '[browser-module]' + '[sandbox]', 'sandbox msg incorrect');
 });

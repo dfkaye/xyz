@@ -26,10 +26,10 @@ test('returns a new function', function () {
   s.should.containEql('return \'hello\';');
 });
 
-test('prints context.filename', function () {
+test('prints context.id', function () {
 
   var context = { 
-                  filename: 'this/is/my/file-name', 
+                  id: 'this/is/my/file-name', 
                   module: { exports: {} } 
                 };
   
@@ -41,7 +41,6 @@ test('prints context.filename', function () {
   
   f.toString().should.containEql('/* this/is/my/file-name */');
 });
-
 
 suite('make errors');
 
@@ -86,7 +85,6 @@ test('bad function arg type should throw', function () {
     make(fn, context);
   }).should.throw('make: fn should be a function.');
 });
-
 
 suite('make and exec');
 

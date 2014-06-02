@@ -20,7 +20,6 @@
 //  - rename string to "include"
 //  - rename make to "sandbox"
 //
-//  - content-security-policy no-eval version of exec/make/sandbox
 //  - three-star comments for function body (won't work with csp no-eval)
 //  - better build.js for the above
 //  - webpagetest for the above
@@ -36,6 +35,7 @@
 //
 //  - support script-reload (or get rid of img cache)
 //
+//  - DONE content-security-policy no-eval version of exec/make/sandbox
 //  - DONE add string#trim polyfill in browser.js
 //  - DONE remove should.js from browser tests
 //  - DONE fix script request to take parent instead of forId

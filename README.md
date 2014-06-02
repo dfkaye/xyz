@@ -324,9 +324,9 @@ JSON (modified MIT)
   </del> ~ browser only, __in progress__
 + <del>
   browser version of this ~ *once the node version is "locked" down enough*
-  </del> ~ __in progress__
-+ __HANDLE BAD URL ERRORS__
-+ content security policy ~ *workaround needed*
+  ~ __in progress__</del> 
++ <del>__HANDLE BAD URL ERRORS__</del>
++ <del>content security policy ~ *workaround needed*</del> DONE 6/2/2014
 + <del>rawgithub page</del> ~ __great example of loading with latency__
 + <del>webpagetest</del>
 + happy build/concat tool with tests  (use `task()` pattern)

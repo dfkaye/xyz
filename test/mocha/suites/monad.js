@@ -606,3 +606,64 @@ test('trim alias whitespace', function () {
   
 });
 
+
+
+suite('csp sandbox');
+
+test('csp sandbox', function () {
+
+  var sandbox = define.sandbox;
+
+  var before = 'before';
+  var module = { exports: before, 
+                 load: function () { 
+                   throw new Error('module.load() should be undefined'); 
+                 }
+               };
+  var exports = before;
+
+  var context = { after: function () { return 'after'; },
+                  module: module,
+                  exports: exports
+                };
+                
+  var fn = function (after) {
+    (typeof after).should.be.equal('function');
+    (typeof module.load).should.be.equal('undefined');
+
+    module.exports = after();
+    
+  };
+  
+  var result = sandbox(fn, context);
+  result.should.be.equal('after');
+});
+
+test('define.exec detects argname, runs csp', function () {
+  
+  function exec(fn, monad) {
+
+    define.exec(fn, monad);
+
+    return monad.context.module.exports;
+  }  
+  
+  var before = 'before';
+  var module = { exports: before };
+  var exports = before;
+
+  var context = { after: function () { return 'after'; },
+                  module: module,
+                  exports: exports
+                };
+                
+  var monad = { context: context };
+  
+  var fn = function (after) {
+    (typeof after).should.be.equal('function');
+    module.exports = after();
+  };
+  
+  var result = exec(fn, monad);
+  result.should.be.equal('after');
+});
