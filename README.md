@@ -10,7 +10,7 @@ trendy-but-wrong transpile-everything crowd.
 
 ## in progress
 
-Code is still a little messy but working under tests
+Code is a bit untidy but working under tests
   + see 
     <a href='https://rawgit.com/dfkaye/xyz/master/test/mocha/browser-suite.html' 
        target='_blank'>
@@ -25,6 +25,9 @@ Code is still a little messy but working under tests
 Probably some race conditions or long-delayed load events causing the occasional
 hiccough in browser remote script requests.
 
++ [2 JUN 2014] context security policy callback sandbox supported.
++ [29 MAY 2014] finished big refactor/merge of util and namespace methods on to 
+  the global define method.
 + [19 MAY 2014] More internal refactoring to do as I've finally realized this is
   more properly a `curry`, not a `monad`
 + [19 MAY 2014] start adding proper error handling for browser requests
@@ -49,7 +52,8 @@ path_alias and global_alias cases
 
 ## motivation
 
-exorcise code demons that disturb sleep ~ https://gist.github.com/dfkaye/7390424
+needed to exorcise code demons that disturbed sleep ~ 
+https://gist.github.com/dfkaye/7390424
 
 
 ## it's all about the syntax
@@ -226,7 +230,7 @@ __that works but seems unnecessary__
       zuber('test').should.be.equal('[global-zuber]' + 'test');
     });
 
-
+    
 ## path aliases
 
 __*re-thinking this one*__: *order may be confusing*
@@ -243,7 +247,7 @@ configuration injection close to the actual use of the thing
       coolModule
       dependency //=> mock
     });
-
+    
     
 ## deep aliasing
 
@@ -255,19 +259,30 @@ __*I am not sure that's wise*__ (though helpful for testing/mocking) as it moves
 the configuration out of local modules back to more global modules.
 
 
-## content security policy
+## Content Security Policy
 
-__*still being worked out*__
+CSP headers allow clients to disable script evaluation by default, 
+which means `Function()` can't be used, unless you declare 'unsafe-eval' in the 
+CSP response header or meta tag directive. See 
+https://developer.chrome.com/extensions/contentSecurityPolicy#relaxing-eval for 
+more information.
 
-CSP is a ES6 co-conspirator meant to make life better but actually raises one 
-more barrier to understanding and productivity by exposing developers to more 
-footguns and pitfalls.
+If you're under this restriction, the solution in place here as of 2 JUNE 2014 
+is to add the expected dependency aliases as parameter names in the callback 
+function:
 
-that said, CSP headers allow clients to disable script evaluation by default, 
-which means `Function()` can't be used.  
+    (define)(__filename)
+    
+    ('./path/to/cool-module')
+    ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
+    
+    (function(coolModule, dependency) { // <= param names should match aliases
+    
+      coolModule
+      dependency //=> mock
+    });
 
-this could be mitigated by a build process/nightmare and/or using `iframes` for 
-loading. maybe.
+This could also be mitigated by a build process/nightmare eventually.
 
 
 ## it will just be better
