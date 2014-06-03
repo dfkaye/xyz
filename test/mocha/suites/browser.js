@@ -211,10 +211,31 @@ before(function () {
   this.pathId = BASEPATH + 'fake/path.js';
 });
 
+test('exec with error', function () {
+  var pathId = this.pathId;
+
+  var exported;
+  var message;
+  try {
+    exported = (define)(pathId)
+    (function () {
+      module.exports = 'generated error message';
+      
+      throw new Error(module.exports);
+    });
+  } catch(error) {
+    message = error;
+  } finally {
+    assert(exported == 'generated error message', exported);
+    assert(!message, 'errors should be caught internally');
+  }
+});
+
 test("exec", function () {
   var pathId = this.pathId;
 
-  var exported = (define)(pathId)(function() {
+  var exported = (define)(pathId)
+  (function() {
     assert(module.id == global.BASEPATH + 'fake/path.js', 'id incorrect');
     module.exports = "OK";
   });
@@ -225,7 +246,8 @@ test("exec", function () {
 test("exec __dirname is localized", function () {
   var pathId = this.pathId;
   
-  (define)(pathId)(function () {
+  (define)(pathId)
+  (function () {
     assert(module.id == __dirname + '/path' + '.js', '__dirname incorrect');
   });
 });
@@ -233,7 +255,8 @@ test("exec __dirname is localized", function () {
 test("exec new exports", function () {
   var pathId = this.pathId;
   
-  var exported = (define)(pathId)(function () {
+  var exported = (define)(pathId)
+  (function () {
     assert(module.exports == 'OK', 'should return previous export value');
     
     // set new value
@@ -446,6 +469,17 @@ test('exec should run csp sandbox when param detected in fn arg', function () {
   });
 
   assert(exported == '[browser-module]' + '[sandbox]', 'sandbox msg incorrect');
+});
+
+test('sandbox with error should not corrupt the module', function () {
+  var exported = (define)(BASEPATH + './suites/csp-sandbox-error-test.js')
+  (function (undefined) {
+    module.exports = 'generated error message';
+    
+    throw new Error(module.exports);
+  });
+
+  assert(exported == 'generated error message', exported);
 });
 
 test("nested csp sandbox does not load correctly", function () {

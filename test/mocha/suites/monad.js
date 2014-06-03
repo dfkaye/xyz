@@ -445,17 +445,20 @@ test('inner context shares outer context vars', function () {
   });
 });
 
-test('inner define must be anonymous - has no method \'id\'', function () {
+test('inner define with error', function () {
 
   (function(){
     (define)(__filename)
     (function() {
       
-      // inner define has no method 'id'
-      (define)(__filename)
-
+      // inner define on same filename should cycle
+      var inner = (define)(__filename)
+      (function () {
+        module.exports = 'should cycle';
+      });
+      inner.should.be.equal('should cycle');
     });
-  }).should.throw();
+  }).should.not.throw();
 });
 
 test('inner context can require node_modules', function () {

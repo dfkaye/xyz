@@ -22,7 +22,8 @@ test('returns a new function', function () {
   
   var s = f.toString();
   s.should.containEql('use strict');
-  s.should.containEql(').call(exports);\r\n  return module.exports;');
+  s.should.containEql(').call(exports)');
+  s.should.containEql('return module.exports;');
   s.should.containEql('return \'hello\';');
 });
 
