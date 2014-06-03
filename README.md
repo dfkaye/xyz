@@ -25,7 +25,7 @@ Code is a bit untidy but working under tests
 Probably some race conditions or long-delayed load events causing the occasional
 hiccough in browser remote script requests.
 
-+ [2 JUN 2014] context security policy callback sandbox supported.
++ [2 JUN 2014] context security policy callback sandbox supported __almost__
 + [29 MAY 2014] finished big refactor/merge of util and namespace methods on to 
   the global define method.
 + [19 MAY 2014] More internal refactoring to do as I've finally realized this is
@@ -262,6 +262,8 @@ the configuration out of local modules back to more global modules.
 
 
 ## Content Security Policy
+
+__in progress__
 
 CSP headers allow clients to disable script evaluation by default, 
 which means `Function()` can't be used, unless you declare 'unsafe-eval' in the 

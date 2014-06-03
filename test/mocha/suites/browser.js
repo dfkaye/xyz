@@ -448,17 +448,30 @@ test('exec should run csp sandbox when param detected in fn arg', function () {
   assert(exported == '[browser-module]' + '[sandbox]', 'sandbox msg incorrect');
 });
 
-test("nested csp sandbox", function () {
+test("nested csp sandbox does not load correctly", function () {
   (define)(BASEPATH + './suites/nested-csp-sandbox-test.js')
-  ('../fixture/nested/c')
-  ('../fixture/nested/m')
-  (function (m, c) {
-  
-    assert(c('test') == '[nested c]' + 'test');
+  ('m := ../fixture/dependent-browser-module')
+  ('c := ../fixture/browser-module')
+  (function (c, m) {
+
+    module.exports = c;
+    assert(c('test') == '[browser-module]' + 'test', c('test'));
     
     (define)
     (function (m) {
-      assert(m('test') == '[nested m]' + 'test');
+      module.exports = m;
+
+      assert(m('test') == '[-dependent-browser-module]' + 'test', m('test'));
     });
   });
+});
+
+test('use strict not enforced in csp mode', function () {
+  var exported = (define)(BASEPATH + './suites/strict-csp-sandbox-test.js')
+  (function (q) {
+    x = 5;
+    module.exports = x;
+  });
+  console.log(exported);
+  assert(exported != 5, 'use strict should stop assignment to x');
 });
