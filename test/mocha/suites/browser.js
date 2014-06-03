@@ -461,17 +461,7 @@ test("nested csp sandbox does not load correctly", function () {
     (function (m) {
       module.exports = m;
 
-      assert(m('test') == '[-dependent-browser-module]' + 'test', m('test'));
+      assert(m('test') == '[dependent-browser-module]' + '[browser-module]' + 'test', m('test'));
     });
   });
-});
-
-test('use strict not enforced in csp mode', function () {
-  var exported = (define)(BASEPATH + './suites/strict-csp-sandbox-test.js')
-  (function (q) {
-    x = 5;
-    module.exports = x;
-  });
-  console.log(exported);
-  assert(exported != 5, 'use strict should stop assignment to x');
 });

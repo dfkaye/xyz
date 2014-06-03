@@ -634,14 +634,14 @@ test('sandbox', function () {
     module.exports = after();
   };
   
-  var result = sandbox(fn, context);
+  var stack = [{ define: define, require: require }];
+  
+  var result = sandbox(fn, context, stack);
   result.should.be.equal('after');
 });
 
 test('define.exec detects argname, runs sandbox', function () {
-  
-
-  
+   
   var before = 'before';
   var exports = before;
   var module = { exports: exports };
