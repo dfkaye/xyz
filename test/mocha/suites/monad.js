@@ -308,7 +308,7 @@ test('multiple dependencies', function() {
   (define)(__filename)
   ('../fixture/m')
   ('../fixture/c')
-  (function () {  
+  (function () {
     m.should.be.Function;
     c.should.be.Function;
   });
@@ -388,7 +388,7 @@ test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
 test('trim path whitespace', function () {
   (define)(__filename)
   ('  ../fixture/m   ')
-  (function () {  
+  (function () {
     m('test').should.be.equal('[m]' + 'test');
   });
 });
@@ -514,7 +514,7 @@ test('nesting', function () {
   (define)(__filename)
   ('../fixture/nested/c')
   ('../fixture/nested/m')
-  (function () {  
+  (function () {
     c('test').should.be.equal('[nested c]' + 'test');
     m('test').should.be.equal('[nested m]' + 'test');
   });
@@ -524,7 +524,7 @@ test('colliding', function () {
   (define)(__filename)
   ('../fixture/m')
   ('../fixture/nested/m')
-  (function () {  
+  (function () {
     m('test').should.be.equal('[nested m]' + 'test');
   });
 });
@@ -533,7 +533,7 @@ test('aliasing', function () {
   (define)(__filename)
   ('../fixture/m')
   ('m2 := ../fixture/nested/m')
-  (function () {  
+  (function () {
     m('test').should.be.equal('[m]' + 'test');
     m2('test').should.be.equal('[nested m]' + 'test');
   });
@@ -542,7 +542,7 @@ test('aliasing', function () {
 test('path aliasing', function () {
   (define)(__filename)
   ('../fixture/nested/m := ../fixture/nested/mock')
-  (function () {  
+  (function () {
     m('test').should.be.equal('[nested mock]' + 'test');
   });
 });
@@ -550,7 +550,7 @@ test('path aliasing', function () {
 test('global with no alias accessed by "global.name"', function () {
   (define)(__filename)
   ('../fixture/zuber')
-  (function () {  
+  (function () {
     global.zuber('test').should.be.equal('[global-zuber]' + 'test');
   });
 });
@@ -558,7 +558,7 @@ test('global with no alias accessed by "global.name"', function () {
 test('global alias with "{name} := path"', function () {
   (define)(__filename)
   ('{zuber} := ../fixture/zuber')
-  (function () {  
+  (function () {
     zuber('test').should.be.equal('[global-zuber]' + 'test');
   });
 });
@@ -567,7 +567,7 @@ test('trim alias whitespace', function () {
   (define)(__filename)
   ('  fm :=  ../fixture/m   ')
   ('  ../fixture/nested/m    :=    ../fixture/nested/mock    ')
-  (function () {  
+  (function () {
     fm('test').should.be.equal('[m]' + 'test');
     m('test').should.be.equal('[nested mock]' + 'test');
   });
@@ -632,9 +632,10 @@ test('sandbox', function () {
     module.exports = after();
   };
   
-  var stack = [{ define: define, require: require }];
+  var globals = { define: define, require: require };
   
-  var result = sandbox(fn, context, stack);
+  var result = sandbox(fn, context, globals);
+  
   result.should.be.equal('after');
 });
 
@@ -661,6 +662,7 @@ test('define.exec detects argname, runs sandbox', function () {
   };
 
   var result = define.exec(fn, monad);
+  
   result.should.be.equal('after' + 'later');
 });
 

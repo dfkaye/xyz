@@ -1,16 +1,21 @@
 xyz
 ===
 
+[![Build Status](https://travis-ci.org/dfkaye/xyz.png)](https://travis-ci.org/dfkaye/xyz)
+
 "(insane)(parenthetical)(module)(pattern); // working name" 
 
 so we can be productive again on both browser and node.js, and ignore the 
 trendy-but-wrong transpile-everything crowd. 
 
-[![Build Status](https://travis-ci.org/dfkaye/xyz.png)](https://travis-ci.org/dfkaye/xyz)
+## motivation
+
+needed to exorcise code demons that disturbed sleep ~ 
+https://gist.github.com/dfkaye/7390424
 
 ## in progress
 
-Code is a bit untidy but working under tests
+code still a bit untidy but working under tests
   + see 
     <a href='https://rawgit.com/dfkaye/xyz/master/test/mocha/browser-suite.html' 
        target='_blank'>
@@ -22,10 +27,11 @@ Code is a bit untidy but working under tests
       webpagetest browser-suite
     </a>
 
-Probably some race conditions or long-delayed load events causing the occasional
-hiccough in browser remote script requests.
+ideas and implementations and refactorings keep coming up
 
-+ [2 JUN 2014] context security policy callback sandbox supported __almost__
++ [3 JUN 2014] slightly better path.normalize and Module._resolveFilename
++ [2, 3 JUN 2014] context security policy callback sandbox supported ~ but now 
+  another idea regarding top-level or 'builtin' modules and prepubbing comes up
 + [29 MAY 2014] finished big refactor/merge of util and namespace methods on to 
   the global define method.
 + [19 MAY 2014] More internal refactoring to do as I've finally realized this is
@@ -48,12 +54,6 @@ dependencies
 issue resolved for alias case ~ demands a major refactoring to anticipate the 
 path_alias and global_alias cases
 + [9-10-11 APR 2014] node.js version "works" with mocha+should tests
-
-
-## motivation
-
-needed to exorcise code demons that disturbed sleep ~ 
-https://gist.github.com/dfkaye/7390424
 
 
 ## it's all about the syntax
@@ -219,6 +219,9 @@ from the `global` scope:
     (function () {  
       global.zuber('test').should.be.equal('[global-zuber]' + 'test');
     });
+
+*seems unexpected to have to specify that something is global ~ better to enable 
+straight references and disambiguate collisions by aliasing vs. global.whatever*
 
 or use an alias to avoid clobbering, e.g., `'{alias} := path/name'`
 
