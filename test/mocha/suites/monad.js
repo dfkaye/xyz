@@ -412,9 +412,9 @@ test('support very relative pathnames', function () {
 });
 
 
-suite('inner modules');
+suite('nested modules');
 
-test('inner context shares outer context vars', function () {
+test('inner does not see outer vars', function () {
 
   var a = 'a';
 
@@ -471,7 +471,7 @@ test('inner context can require node_modules', function () {
   });
 });
 
-test('pass values to nested modules', function() {
+test('pass values to nested modules via module properties', function() {
 
   (define)(__filename)
   
@@ -482,9 +482,7 @@ test('pass values to nested modules', function() {
     (function () {
       module.outer.should.be.equal('hello');    
     });
-    
   });
-
 });
 
 test('inner exports should not clobber outer exports', function() {
@@ -601,23 +599,23 @@ test('trim alias whitespace', function () {
       m.should.be.ok;
     });
   });
-  
 });
 
 
-suite('csp');
+suite('csp sandbox');
 
-test('sandbox', function () {
+test('sandbox api', function () {
 
   var sandbox = define.sandbox;
 
   var before = 'before';
+  var exports = before;
+  
   var module = { exports: before, 
                  load: function () { 
                    throw new Error('module.load() should be undefined'); 
                  }
                };
-  var exports = before;
 
   var context = { id: 'csp test',
                   after: function () { return 'after'; },
@@ -666,7 +664,7 @@ test('define.exec detects argname, runs sandbox', function () {
   result.should.be.equal('after' + 'later');
 });
 
-test('sandbox real dependencies', function () {
+test('with real dependencies', function () {
 
   (define)(__filename)
   
@@ -680,7 +678,7 @@ test('sandbox real dependencies', function () {
   });
 });
 
-test('nested sandbox', function () {
+test('nested sandbox sees outer vars', function () {
 
   (define)(__filename)
   
@@ -691,9 +689,12 @@ test('nested sandbox', function () {
   
     c('test').should.be.equal('[nested c]' + 'test');
     
+    var b = 'visible';
+    
     (define)
     (function (m) {
       m('test').should.be.equal('[nested m]' + 'test');
+      b.should.be.equal('visible');
     });
     
   });

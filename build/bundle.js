@@ -1,12 +1,16 @@
 /*
- * browser-side polyfill for assert, Module, require, and a script loader for
- * asynchronous requests.  'assert', 'module' and 'script' are registered into
- * the module system polyfill at bottom of this file.
+ * browser.js polyfill for global, string#trim, assert, path.normalize, Module, 
+ * require, plus a script loader for asynchronous requests.
+ *
+ * 'assert', 'module', 'path' and 'script' are registered into the module system 
+ * polyfill at the bottom of this file.
  */
 global = (typeof global != 'undefined' && global) || window;
 
 !global.document || (function () {
 
+  //////////////////////////////////////////////////////
+  
   function assert(ok, message) {
     ok || (function (msg) {
       throw new Error(msg);
@@ -15,12 +19,15 @@ global = (typeof global != 'undefined' && global) || window;
 
   assert(global, 'global not defined');
 
-  //////////////////////////////////////////////////////////////////////////////
-  //
-  //  TODO - better var management of scripts, main, parentNode,
-  //         __filename, __dirname, __BASEPATH
-  //
-  //////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+
+  // string#trim polyfill
+  typeof String.prototype.trim == 'function' ||
+  (String.prototype.trim = function trim() {
+    return this.replace(/^\s+|\s+$/gm, '');
+  });
+
+  //////////////////////////////////////////////////////
 
   // find self
   var scripts = document.scripts || document.getElementsByTagName('script');
@@ -32,23 +39,133 @@ global = (typeof global != 'undefined' && global) || window;
   global.__filename = main.src;
   global.__dirname = __filename.substring(0, __filename.lastIndexOf('/'));
   global.BASEPATH = href.substring(0, href.lastIndexOf('/') + 1);
+  
+  //////////////////////////////////////////////////////
 
-  //////////////////////////////////////////////////////////////////////////////
-  //
-  //  TODO - better var management of normalize() string constants
-  //
-  //////////////////////////////////////////////////////////////////////////////
+  /*
+   * script api for dom script element requests:
+   * script(request), ready, load, attach, & callback to request
+   * script.pending is created only if script(request) is called
+   *
+   * requires: main.parentNode, assert
+   */
 
-  var BLANK = '';
-  var SLASH = '/';
-  var DOT = '.';
-  var DOTS = DOT.concat(DOT);
-  var PREFIX = document.location.protocol + '//' + document.location.host;
+  /*
+   * fetch dependencies via htmlscriptelement
+   */
+  function script(request) {
+    assert(request.filename, 'script.request: missing filename property');
+    assert(request.parent, 'script.request: missing parent property');
+    assert(request.onload, 'script.request: missing onload callback');
 
-  function normalize(path) {
+    var filename = request.filename;
+    var id = request.parent.id;
+    var pending = script.pending || (script.pending = []);
 
+    pending[id] || (pending[id] = []);
+    pending[id].push(request);
+
+    script.load(filename, function callback(err) {
+      script.pending[id].pop();
+      request.onload(err, pending[id].length < 1);
+    });
+  };
+
+  /*
+   * are all deferred dependencies available?
+   */
+  script.ready = function ready(fn, monad) {
+
+    var p = script.pending && script.pending[monad.context.module.id];
+
+    if (p && p.length > 0) {
+      // memoize fn so that namespace.string() request callback can check it
+      monad.fn || (monad.fn = fn);
+    } else {
+      // don't expose fn as a symbol to make()
+      delete monad.fn;
+    }
+
+    return !monad.fn;
+  };
+
+  /*
+   * new HTMLScriptElement
+   */
+  script.attach = function attach(src, callback) {
+    assert(typeof callback == 'function', 'attach callback required');
+
+    var s = document.createElement('script');
+
+    s.onload = s.onreadystatechange = function (e) {
+
+      var rs = s.readyState;
+
+      if (!rs || rs == 'loaded' || rs == 'complete') {
+        s.onload = s.onreadystatechange = null;
+        callback();
+      }
+    };
+
+    /*
+     * for more info about errors see
+     * http://www.quirksmode.org/dom/events/error.html
+     */
+    s.onerror = function (e) {
+      callback({ type: 'error', message: 'file not found: ' + src });
+    };
+
+    s.src = src;
+
+    main.parentNode.appendChild(s);
+
+    return s;
+  };
+
+  /*
+   *  Steve Souders' ControlJS style of script caching
+   */
+  script.load = function load(src, callback) {
+    assert(typeof callback == 'function', 'script callback required');
+
+    script.cache || (script.cache = {});
+
+    (script.cache[src] && script.attach(src, callback)) || (function () {
+
+      var img = new Image();
+
+      /*
+       * onerror is always executed by browsers that receive js text instead of
+       * the expected img type, so ignore that and delegate to attach() which
+       * will handle bad url errors.
+       */
+      img.onerror = img.onload = function (e) {
+        script.attach(src, callback);
+      };
+
+      img.src = src;
+      script.cache[src] = img;
+    }());
+  };
+  
+  //////////////////////////////////////////////////////
+
+  /*
+   * BROWSER VERSION of node.js 'path' module with normalize() method
+   *
+   * https://github.com/joyent/node/blob/f1dc55d7018e2669550a8be2c5b6c091da616483/lib/path.js
+   *
+   * requires: document.location
+   */
+  var path = {};
+  
+  path.normalize = function normalize(path) {
+  
+    var SLASH = '/';
+    var PREFIX = document.location.protocol + '//' + document.location.host;
+    
     if (!path || path == SLASH) {
-      return SLASH
+      return PREFIX + SLASH;
     }
 
     var absolute = path.indexOf(PREFIX) !== -1;
@@ -64,21 +181,15 @@ global = (typeof global != 'undefined' && global) || window;
     for (var i = 0; i < src.length; ++i) {
       token = src[i];
 
-      if (token == DOTS) {
+      if (token == '..') {
         target.pop();
-      } else if (token != BLANK && token != DOT) {
+      } else if (token != '' && token != '.') {
         target.push(token);
       }
     }
 
-    str = PREFIX + SLASH + target.join(SLASH).replace(/[\/]{2,}/g, SLASH);
-
-    if (str.indexOf('.js') !== str.length - 3) {
-      str = str + '.js';
-    }
-
-    return str;
-  }
+    return PREFIX + SLASH + target.join(SLASH).replace(/[\/]{2,}/g, SLASH);
+  };
 
   //////////////////////////////////////////////////////
 
@@ -87,7 +198,7 @@ global = (typeof global != 'undefined' && global) || window;
    *
    * https://github.com/joyent/node/blob/f1dc55d7018e2669550a8be2c5b6c091da616483/lib/module.js
    *
-   * requires:  assert, normalize, PREFIX, document.location.href
+   * requires:  assert, path.normalize, document.location
    */
   function Module(id, parent) {
     this.id = id;
@@ -147,21 +258,41 @@ global = (typeof global != 'undefined' && global) || window;
 
   // BROWSER VERSION
   Module._resolveFilename = function(request, parent) {
+    assert(typeof request == 'string', 'resolve: request must be a string');
+    
+    var str, parentId, sepIndex;
+    
+    if (request.length && request.indexOf('/') === -1 && 
+        request.indexOf('.') === -1) {
+    
+      // builtin or 'node_module' type
+      return request;
+    } 
+    
+    if (request.indexOf(document.location.protocol) === 0) {
+    
+      // absolute path needs no parent resolution
+      str = path.normalize(request);
+      
+    } else {
 
-    // absolute path needs no parent resolution
-    if (request.indexOf(PREFIX) === 0) {
-      return normalize(request);
+      // href as dirname corrects relative ../../../pathnames
+      parentId = (!!parent ? parent.id : document.location.href + '/');
+      sepIndex = parentId.lastIndexOf('/');
+
+      if (sepIndex != -1) {
+        parentId = parentId.substring(0, sepIndex + 1);
+      }
+      
+      (request && request.length > 0) || (request = '/');
+      str = path.normalize(parentId + request);
+    }
+    
+    if (str.indexOf('.js') !== str.length - 3) {
+      str = str + '.js';
     }
 
-    // href as dirname corrects relative ../../../pathnames
-    var parentId = (!!parent ? parent.id : document.location.href + '/');
-    var sepIndex = parentId.lastIndexOf('/');
-
-    if (sepIndex != -1) {
-      parentId = parentId.substring(0, sepIndex + 1);
-    }
-
-    return normalize(parentId + request);
+    return str;    
   };
 
   //////////////////////////////////////////////////////
@@ -183,7 +314,7 @@ global = (typeof global != 'undefined' && global) || window;
     };
 
     global.require.resolve = function resolve(request) {
-      return Module._resolveFilename(request);
+      return Module._resolveFilename(request); // no self arg in browser version
     };
 
     global.require.cache = Module._cache;
@@ -192,133 +323,9 @@ global = (typeof global != 'undefined' && global) || window;
 
   //////////////////////////////////////////////////////
 
-  // string#trim polyfill
-  typeof String.prototype.trim == 'function' ||
-  (String.prototype.trim = function trim() {
-    return this.replace(/^\s+|\s+$/gm, '');
-  });
-
-  //////////////////////////////////////////////////////
-
   /*
-   * script api for dom script element requests:
-   * script(request), ready, load, attach, & callback to request
-   * script.pending is created only if script(request) is called
-   *
-   * requires: main.parentNode, assert
+   * pre-register the 'builtin' browser modules
    */
-
-  /*
-   * fetch dependencies via htmlscriptelement
-   */
-  function script(request) {
-    assert(request.filename, 'script.request: missing filename property');
-    assert(request.parent, 'script.request: missing parent property');
-    assert(request.onload, 'script.request: missing onload callback');
-
-    var filename = request.filename;
-    var id = request.parent.id;
-    var pending = script.pending || (script.pending = []);
-
-    pending[id] || (pending[id] = []);
-    pending[id].push(request);
-
-    script.load(filename, function callback(err) {
-      script.pending[id].pop();
-      request.onload(err, pending[id].length < 1);
-    });
-  };
-
-
-  /*
-   * are all deferred dependencies available?
-   */
-  script.ready = function ready(fn, monad) {
-
-    var p = script.pending && script.pending[monad.context.module.id];
-
-    if (p && p.length > 0) {
-      // memoize fn so that namespace.string() request callback can check it
-      monad.fn || (monad.fn = fn);
-    } else {
-      // don't expose fn as a symbol to make()
-      delete monad.fn;
-    }
-
-    return !monad.fn;
-  };
-
-
-  /*
-   * new HTMLScriptElement
-   */
-  script.attach = function attach(src, callback) {
-    assert(typeof callback == 'function', 'attach callback required');
-
-    var s = document.createElement('script');
-
-    s.onload = s.onreadystatechange = function (e) {
-
-      var rs = s.readyState;
-
-      if (!rs || rs == 'loaded' || rs == 'complete') {
-        s.onload = s.onreadystatechange = null;
-        callback();
-      }
-    };
-
-    /*
-     * for more info about errors see
-     * http://www.quirksmode.org/dom/events/error.html
-     */
-    s.onerror = function (e) {
-      callback({ type: 'error', message: 'file not found: ' + src });
-    };
-
-    s.src = src;
-
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    // TODO: better declaration and handle for main and parentNode
-    //
-    ////////////////////////////////////////////////////////////////////////////
-    main.parentNode.appendChild(s);
-
-    return s;
-  };
-
-
-  /*
-   *  Steve Souders' ControlJS style of script caching
-   */
-  script.load = function load(src, callback) {
-    assert(typeof callback == 'function', 'script callback required');
-
-    script.cache || (script.cache = {});
-
-    (script.cache[src] && script.attach(src, callback)) || (function () {
-
-      var img = new Image();
-
-      /*
-       * onerror is always executed by browsers that receive js text instead of
-       * the expected img type, so ignore that and delegate to attach() which
-       * will handle bad url errors.
-       */
-      img.onerror = img.onload = function (e) {
-        script.attach(src, callback);
-      };
-
-      img.src = src;
-      script.cache[src] = img;
-    }());
-  };
-
-  ////////////////////////////////////////////////////////////////////////////
-  //
-  // TODO: better pre-registering modularize pattern
-  //
-  ////////////////////////////////////////////////////////////////////////////
 
   // publish assert
   var assertID = Module._resolveFilename('assert');
@@ -330,6 +337,11 @@ global = (typeof global != 'undefined' && global) || window;
   Module._load(moduleID);
   Module._cache[moduleID].exports = Module;
 
+    // publish path
+  var pathID = Module._resolveFilename('path');
+  Module._load(pathID);
+  Module._cache[pathID].exports = path;
+  
   // publish script
   var scriptID = Module._resolveFilename('script');
   Module._load(scriptID);
@@ -337,13 +349,11 @@ global = (typeof global != 'undefined' && global) || window;
 
 }());
 
-//////////////////////////////////////////////////////
+/*----------------------------------------------------------------------------*/
 // lib/node/monad
 
 var assert = require('assert');
 var Module = require('module');
-
-/*---------------------------------*/
 
 /*
  * entry point for defining a namespace and returning a collector function (or
@@ -364,7 +374,6 @@ global.define = function define(id) {
 
   return cache[filename] || (cache[filename] = define.namespace(filename));
 };
-
 
 /*
  * registers the filename to monadic collector function which acts as a
@@ -413,7 +422,6 @@ define.namespace = function namespace(filename) {
   return monad;
 };
 
-
 /*
  *  convert pathnames to a camelCase alias
  */
@@ -446,12 +454,8 @@ define.camelize = function camelize(name) {
   return (id.substring(0, id.lastIndexOf('.')) || id).replace(RE_WS, BLANK);
 };
 
-
 /*
- * memoizing registry
- * maps id string if not mapped
- * maps dep string if not mapped
- * adds dep string to id map
+ * super simple dependency graph, uses memoizing registry for dependency map.
  */
 define.graph = function graph(id, dep) {
 
@@ -459,17 +463,18 @@ define.graph = function graph(id, dep) {
   graph.items || (graph.items = {});
 
   var item;
-
+  
+  // map id string if not mapped
   !id || (item = graph.items[id] || (graph.items[id] = []));
+  // map dep string if not mapped, and add dep string to id map
   !dep || (item[dep] || (item[dep] = item[item.push(dep) - 1]));
 
   return graph;
 };
 
-
 /*
- * recursively visits id string map items, depth first.
- * returns message string if a cycle is detected
+ * recursively visits graph's item map, depth first.
+ * returns message string only if a cycle is detected.
  */
 define.resolve = function resolve(id, visited) {
 
@@ -491,7 +496,6 @@ define.resolve = function resolve(id, visited) {
     }
   }
 };
-
 
 /*
  * make a new Function converting context properties to local varnames, and
@@ -522,13 +526,20 @@ define.make = function make(fn, context) {
 
   // prevent context leakage
   'context' in context || (code = code + 'context = undefined;\r\n  ');
-
-  code = code + '\r\n  (' + fn.toString() + ').call(exports);\r\n  ' +
-         'return module.exports;';
+  
+  //////////////////////////////////////////////////////////////////////////
+  // TODO - BETTER ERROR HANDLING
+  //////////////////////////////////////////////////////////////////////////
+  code = '\r\n  try {\r\n  ' + code + '\r\n  (' + fn.toString() + 
+         ').call(exports);\r\n  } catch(error) {\r\n    ' + 
+         'console.log(error);\r\n  } finally {\r\n    ' +
+         'return module.exports;\r\n  }';
+  
+  // code = code + '\r\n  (' + fn.toString() + ').call(exports);\r\n  ' +
+         // 'return module.exports;';
 
   return Function('context', code);
 };
-
 
 /*
  * alternate path when browser's Content Security Policy does not allow
@@ -540,21 +551,28 @@ define.make = function make(fn, context) {
  *
  * requires:  assert, string#trim
  */
-define.sandbox = function sandbox(fn, context) {
+define.sandbox = function sandbox(fn, context, globals) {
   assert(typeof fn == 'function', 'define.sandbox: fn should be a function');
   assert(context && context.module, 'define.sandbox: context.module missing');
-
+  assert(globals.define && globals.require, 'define.sandbox: globals missing');
+  
   return (function () {
-
-    var g = {};
+  
+    var g = globals;
+    var globalDefine = g.define;
+    var globalRequire = g.require;
+    
     var k;
 
     for (k in global) {
       g[k] = global[k];
     }
-
+    
+    var contextRequire = context.require;
+    context.require = globalRequire;
+    
     for (k in context) {
-      if (context.hasOwnProperty(k)) {
+      if (context.hasOwnProperty(k)  && k != 'define') {
         global[k] = context[k];
       }
     }
@@ -584,25 +602,32 @@ define.sandbox = function sandbox(fn, context) {
       args[i] = context[argNames[i].trim()];
     }
 
-    fn.apply(context.module.exports, args);
-
-    // remove pseudo-globals
-    for (k in context) {
-      if (k in global) {
-        delete global[k];
-        if (k in g) {
-          global[k] = g[k];
+    try {
+      fn.apply(context.module.exports, args);
+    } catch (error) {
+      //////////////////////////////////////////////////////////////////////////
+      // TODO - BETTER ERROR HANDLING
+      //////////////////////////////////////////////////////////////////////////
+      console.log(error.message + '\n' + error.stack);
+    } finally {
+      // remove pseudo-globals
+      for (k in context) {
+        if (k in global) {
+          delete global[k];
+          if (k in g) {
+            global[k] = g[k];
+          }
         }
       }
+
+      // restore previously defined global.define in this context
+      global.define = globalDefine;
+      global.require = globalRequire;
+      context.require = contextRequire;
     }
-
-    // restore previously defined global.define in this context
-    global.define = g.define;
-
     return context.module.exports;
   }());
 };
-
 
 /*
  * utility method returns the directory name for the given filename,
@@ -615,7 +640,6 @@ define.dirname = function dirname(filename) {
 
   return filename.substring(0, w > u ? w : u);
 };
-
 
 /*
  * factory method that returns a collector function for module definition data,
@@ -643,15 +667,14 @@ define.monad = function monad() {
   };
 };
 
-
 /*
  * executes the fn function when all dependencies are ready. returns the exports
  * value created or assigned in the fn function.
  *
- * if the fn function contains no params, then the make strategy is followed,
+ * if the fn function contains no params, then the make() strategy is followed,
  * which makes a new function from fn, passing keys in monad context as symbols.
  *
- * if the fn function contains a param name, then the sandbox strategy is
+ * if the fn function contains a param name, then the sandbox() strategy is
  * followed. this strategy is intended as an alternate path to make when a
  * browser's Content Security Policy does not allow 'unsafe-eval'.
  *
@@ -675,30 +698,26 @@ define.exec = function exec(fn, monad) {
   stack.push(context.id);
 
   if (fn.length > 0) {
-    result = define.sandbox(fn, context);
+    result = define.sandbox(fn, context, { define: define, require: require });
   } else {
     result = define.make(fn, context)(context);
   }
 
-  stack.pop(context.id);
+  stack.pop();
   !nested || (module.exports = exports);
   return result;
 };
 
-
 /*
- * parse, load, and away...
- *
  * LONG METHOD
+ * accepts a string id and the memoizing collector monad function, processes the 
+ * requested id for alias tokens, if any, camelCases the alias, loads the import 
+ * from cache, adds alias to the monad's context and returns the monad.  
+ 
+ * checks for circular dependencies, throws an error if cycle is detected.
  *
- * function accepts a string id and the memoizing collector monad function.
- * function processes the requested id for alias tokens, if any, camelCases the
- * alias, loads the import from cache, adds alias to the monad and returns the
- * monad.  function checks for circular dependencies and throws an error if one
- * is detected.
- *
- * requires:  camelize, Module, graph, define.cache, assert, script if document
- *            and string#trim polyfill if older browser
+ * requires:  camelize, Module, graph, define.cache, assert, script (if in a 
+ *            document) and string#trim polyfill (if in an older browser)
  */
 define.string = function string(id, monad) {
 
@@ -735,19 +754,13 @@ define.string = function string(id, monad) {
 
   // get filename's exports
   entry = define.cache[filename];
-  module = entry && entry.context && entry.context.module; // hmmm
+  module = entry && entry.context && entry.context.module;
 
   if (module && ('exports' in module)) {
 
     exports = module.exports;
 
   } else {
-
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    // TODO: externalize to a shorter block
-    //
-    ////////////////////////////////////////////////////////////////////////////
 
     // BROWSER SCRIPT ELEMENT REQUEST
     if (global.document) {
@@ -757,24 +770,19 @@ define.string = function string(id, monad) {
         filename: filename,
         parent: context.module,
         onload: function (err, done) {
-
-          /*
-           * creates a closure on context, filename, alias, globalName, monad
-           */
-
+        
+          // creates a closure on context, filename, alias, globalName, monad
+          
           if (!err) {
+
             var exports = define.cache[filename].context.module.exports;
 
             context[alias] = (globalName && global[alias]) || exports;
           }
-
           //////////////////////////////////////////////////////////////////////
-          //
-          // TODO: better error handler
-          //
+          // TODO - BETTER ERROR HANDLING
           //////////////////////////////////////////////////////////////////////
-
-          // monad.fn is here only if exec ran once before deps loaded
+          // monad.fn is here only if exec ran at least once before deps loaded
           if (done && monad.fn) {
             define.exec(monad.fn, monad);
           }

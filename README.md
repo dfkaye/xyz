@@ -5,14 +5,6 @@ xyz
 
 "(insane)(parenthetical)(module)(pattern); // working name" 
 
-so we can be productive again on both browser and node.js, and ignore the 
-trendy-but-wrong transpile-everything crowd. 
-
-## motivation
-
-needed to exorcise code demons that disturbed sleep ~ 
-https://gist.github.com/dfkaye/7390424
-
 ## in progress
 
 code still a bit untidy but working under tests
@@ -27,38 +19,20 @@ code still a bit untidy but working under tests
       webpagetest browser-suite
     </a>
 
+## motivation
+
+needed to exorcise code demons that disturbed sleep ~ 
+https://gist.github.com/dfkaye/7390424
+
 ideas and implementations and refactorings keep coming up
 
-+ [3 JUN 2014] slightly better path.normalize and Module._resolveFilename
-+ [2, 3 JUN 2014] context security policy callback sandbox supported ~ but now 
-  another idea regarding top-level or 'builtin' modules and prepubbing comes up
-+ [29 MAY 2014] finished big refactor/merge of util and namespace methods on to 
-  the global define method.
-+ [19 MAY 2014] More internal refactoring to do as I've finally realized this is
-  more properly a `curry`, not a `monad`
-+ [19 MAY 2014] start adding proper error handling for browser requests
-+ [17 MAY 2014] fix normalize/resolve to support file:// protocol and rawgithub. 
-+ [15 MAY 2014] browser loadscript finally working ~ lots of normalize/resolve problems.
-+ [12 MAY 2014] ! browser version underway ! __more to iron out__ 
-+ [9 MAY 2104] ! remove define.id(filename), just use define(filename) !
-+ [8 MAY 2104] make exec() local, make make() its own module
-+ [6 MAY 2104] ! collapse namespace into monad !
-+ [5 MAY 2014] require.resolve and self.module.require update
-+ [1 MAY 2014] super simple circular dependency detection added
-+ [23 - 27 APR] VACATION :)
-+ [22 APR 2014] SUCCESS! big rewrite using monadic pattern
-+ [18 APR 2014] __STARTING OVER (sort of)__ ~ better component tests (already 
-found a bug in exec()), and better model of the loading sequence and 
-dependencies
-+ [17 APR 2014] - var alias supported with `'x:=path/to/x'` ~ horrible caching 
-issue resolved for alias case ~ demands a major refactoring to anticipate the 
-path_alias and global_alias cases
-+ [9-10-11 APR 2014] node.js version "works" with mocha+should tests
+## main idea
 
+it's all about the syntax
 
-## it's all about the syntax
+but first&hellip;
 
-&hellip;and __[dojo already did that](http://www.youtube.com/watch?v=BY0-AI1Sxy0)__
+## [dojo already did that](http://www.youtube.com/watch?v=BY0-AI1Sxy0)
 
 this used to be simple. 
 
@@ -102,6 +76,8 @@ call that the `method chaining` pattern, which means returning the same *object*
 after each member method call on the object.
 
 that kind of chaining is more suited to BCE scripts, i.e., "before CommonJS era"
+
+## monadic chaining pattern
 
 I'm advocating something more *monadic* where the `define()` function returns 
 *itself* or another function which manages some other object internally. That's 
@@ -294,64 +270,18 @@ This could also be mitigated by a build process/nightmare eventually.
 
 ## it will just be better
 
-we'd be able to run a concat of scripts written in this way without having to 
-re-wrap and/or transform everything <i>&agrave; la</i> browserify or r.js or 
-traceur or es6ify or any of the other trendy-but-wrong, 
-might-as-well-be-coffeescript transpoilers&trade;.  
+we'd be able to run very minimal transformations on scripts written in this way. 
+we can replace the `(define)(__filename)` statements in each node file with the 
+file's app-relative pathname for use in the browser, we could concat the files 
+in dependency order using the `define` capability built in, without having to 
+re-wrap everything <i>&agrave; la</i> browserify or r.js, without having to 
+transform everything <i>&agrave; la</i> traceur or es6ify, or any of the other 
+trendy-but-wrong, might-as-well-be-coffeescript transpoilers&trade;.  
 
-then we could get back to work solving our real issues.
+then we could be productive again on both browser and node.js and get back to 
+work solving our real issues.
 
 
 ## License
 
 JSON (modified MIT)
-
-
-## TODO
-
-+ <del>travis config</del>
-+ <del>testem config</del>
-+ <del>cycle detection</del> ~ cycles are forbidden. period.
-+ <del>fix context init (facepalm 13 apr 2014)</del> ~ nope. first intuition was 
-    right ~ this api is *different* so need to make the mapping/loading rules 
-    more clear ~ *[22 APR 2014] fixed with monadic pattern*
-+ <del>should nested `define()` see deps in outer scope?</del> ~ deps and 
-    properties only, not vars
-+ var alias ~ *debating*
-  - `'x := path/to/something'` ~ *[17 APR 2014]*
-  - <del>`'{x} := path/to/something'`</del>
-+ alias expected global (not a module.export) ~ *done but may pull this out*
-  - <del>`'global.$ := path/to/jQuery'`</del>
-  - `'{$} := path/to/jQuery'` ~ *[23 APR 2014]*
-+ path alias ~ *debating*
-  - `'path/to/something := path/to/mock'` ~ *[22 APR 2014]*
-+ <del>pick an alias separator ~ *debating (excessively)*</del>
-  - ` : `   // this makes sense but harder to isolate in urls (scheme,port,etc)
-  - ` :- `  // prolog, kinda different
-  - ` := `  // this makes more sense esp on urls
-  - ` :: `  // scope resolution operator ~ already means lookup, not bind
-  - ` -> `  // <- mmmmmm, no ~ too coffeescript-y
-  - ` ? `   // unusual
-  - ` ! `   // loader plugin syntax
-  - ` !! `  // could do that
-  - ` % `   // mmmmmm, no
-  - ` @ `   // mmmmmm, no
-  - ` & `   // mmmmmm, no
-  - ` => `  // scala style: ~ `import java.io.{ File => JFile }` *seems* better
-+ <del>
-  dep inclusion from outer to inner scope
-  </del> ~ *[22 APR 2014 ~ yes. fixed]*
-+ <del>
-  handle over-the-wire requests based on protocol + scheme, etc.
-  </del> ~ browser only, __in progress__
-+ <del>
-  browser version of this ~ *once the node version is "locked" down enough*
-  ~ __in progress__</del> 
-+ <del>__HANDLE BAD URL ERRORS__</del>
-+ <del>content security policy ~ *workaround needed*</del> DONE 6/2/2014
-+ <del>rawgithub page</del> ~ __great example of loading with latency__
-+ <del>webpagetest</del>
-+ happy build/concat tool with tests  (use `task()` pattern)
-+ acknowledgements & support
-+ rename it ("currier") 
-+ push to npm (squatting as "currier" at the moment)

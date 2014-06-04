@@ -531,7 +531,7 @@ test('verify same namespace runs after bad import path', function (done) {
 
 suite('csp sandbox');
 
-test('exec should run csp sandbox when param detected in fn arg', function () {
+test('define.exec detects argname, runs sandbox', function () {
 
   var exported = (define)(BASEPATH + './suites/csp-sandbox-test.js')
   ('../../../test/mocha/fixture/browser-module')
@@ -553,7 +553,7 @@ test('sandbox with error should not corrupt the module', function () {
   assert(exported == 'generated error message', exported);
 });
 
-test("nested csp sandbox does not load correctly", function () {
+test('nested sandbox sees outer vars', function () {
   (define)(BASEPATH + './suites/nested-csp-sandbox-test.js')
   ('m := ../fixture/dependent-browser-module')
   ('c := ../fixture/browser-module')
@@ -562,12 +562,16 @@ test("nested csp sandbox does not load correctly", function () {
     module.exports = c;
     assert(c('test') == '[browser-module]' + 'test', c('test'));
     
+    var b = 'visible';
+    
     (define)
     (function (m) {
       module.exports = m;
 
       assert(m('test') == '[dependent-browser-module]' + '[browser-module]' + 
              'test', m('test'));
+             
+      assert(b === 'visible', 'should see outer var');
     });
   });
 });
