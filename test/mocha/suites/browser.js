@@ -1,6 +1,8 @@
 // mocha/suites/browser
 
 global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
+global.SERVER = document.location.protocol + '//' + document.location.host;
+
 
 suite('browser globals');
 
@@ -25,95 +27,153 @@ test('define', function () {
 });
 
 
-suite('resolve/normalize pathnames');
+suite('path.normalize');
 
 before(function () {
-  this.resolve = require('module')._resolveFilename;
-  this.href = document.location.href;
-  this.dirname = this.href.substring(0, this.href.lastIndexOf('/'));
-  this.prefix = document.location.protocol + '//' + document.location.host;
+  global.path = require('path');
+});
+
+after(function () {
+  delete global.path;
 });
 
 test('path', function () {
-  assert(this.resolve('path') === this.href + '/path' + '.js');
-});
-
-test('/path', function () {
-  assert(this.resolve('/path') === this.href + '/path' + '.js');
+  assert(path.normalize('path') == SERVER + '/' + 'path', path.normalize('path'));
 });
 
 test('./path', function () {
-  assert(this.resolve('./path') === this.href + '/path' + '.js');
+  assert(path.normalize('./path') == SERVER + '/' + 'path', path.normalize('./path'));
 });
 
 test('../path', function () {
-  assert(this.resolve('../path') === this.dirname + '/path' + '.js');
-});
-
-test('""', function () {
-  assert(this.resolve('') === this.href + '.js', this.resolve(''));
-});
-
-test('.', function () {
-  assert(this.resolve('.') === this.href + '.js', this.resolve('.'));
-});
-
-test('/', function () {
-  assert(this.resolve('/') === this.href + '.js', this.resolve('/'));
-});
-
-test('./', function () {
-  assert(this.resolve('./') === this.href + '.js', this.resolve('./'));
-});
-
-test('//', function () {
-  assert(this.resolve('//') === this.href + '.js', this.resolve('//'));
-});
-
-test('..', function () {
-  assert(this.resolve('..') === this.dirname  + '.js', this.resolve('..'));
+  // THIS SHOULD BE DIFFERENT FROM REAL FILESYSTEM, NO??
+  assert(path.normalize('../path') == SERVER + '/' + 'path', path.normalize('../path'));
 });
 
 test('../', function () {
-  assert(this.resolve('../') === this.dirname  + '.js',  this.resolve('../'));
+  assert(path.normalize('../') == SERVER + '/', path.normalize('../'));
+});
+
+test('..', function () {
+  assert(path.normalize('..') == SERVER + '/', path.normalize('..'));
+});
+
+test('./', function () {
+  assert(path.normalize('./') == SERVER + '/', path.normalize('./'));
+});
+
+test('""', function () {
+  assert(path.normalize('') == SERVER + '/', path.normalize(''));
+});
+
+
+suite('require.resolvee');
+
+before(function () {
+  global.HREF = document.location.href;
+  global.DIRNAME = global.HREF.substring(0, global.HREF.lastIndexOf('/'));  
+});
+
+after(function () {
+  delete global.HREF;
+  delete global.DIRNAME;  
+});
+
+test('path', function () {
+  assert(require.resolve('path') == 'path', require.resolve('path'));
+});
+
+test('/path', function () {
+  assert(require.resolve('/path') === global.HREF + '/path' + '.js', require.resolve('/path'));
+});
+
+test('./path', function () {
+  assert(require.resolve('./path') === global.HREF + '/path' + '.js', require.resolve('./path'));
+});
+
+test('../path', function () {
+  assert(require.resolve('../path') === global.DIRNAME + '/path' + '.js', require.resolve('../path'));
+});
+
+test('""', function () {
+  assert(require.resolve('') === global.HREF + '.js', require.resolve(''));
+});
+
+test('.', function () {
+  assert(require.resolve('.') === global.HREF + '.js', require.resolve('.'));
+});
+
+test('/', function () {
+  assert(require.resolve('/') === global.HREF + '.js', require.resolve('/'));
+});
+
+test('./', function () {
+  assert(require.resolve('./') === global.HREF + '.js', require.resolve('./'));
+});
+
+test('//', function () {
+  assert(require.resolve('//') === global.HREF + '.js', require.resolve('//'));
+});
+
+test('..', function () {
+  assert(require.resolve('..') === global.DIRNAME  + '.js', require.resolve('..'));
+});
+
+test('../', function () {
+  assert(require.resolve('../') === global.DIRNAME  + '.js',  require.resolve('../'));
+});
+
+
+suite('Module._resolveFilename');
+
+before(function () {
+  global._resolveFilename = require('module')._resolveFilename;
+  global.HREF = document.location.href;
+  global.DIRNAME = global.HREF.substring(0, global.HREF.lastIndexOf('/'));  
+});
+
+after(function () {
+  delete global._resolveFilename;
+  delete global.HREF;
+  delete global.DIRNAME;  
 });
 
 test('./path, dirname', function () {
-  var dir = this.prefix + '/dir';
+  var dir = SERVER + '/dir';
   var parent = { id: dir + '/test/' };
-  var actual = this.resolve('./path', parent);
+  var actual = global._resolveFilename('./path', parent);
 
   assert(actual === parent.id + 'path.js', actual);
 });
 
 test('./path, filename.js', function () {
-  var dir = this.prefix + '/dir';
+  var dir = SERVER + '/dir';
   var parent = { id: dir + '/filename.js' };
-  var actual = this.resolve('./path', parent);
+  var actual = global._resolveFilename('./path', parent);
 
   assert(actual === dir + '/path.js', actual);
 });
 
 test('../path, dirname', function () {
-  var dir = this.prefix + '/dir';
+  var dir = SERVER + '/dir';
   var parent = { id: dir + '/test/' };
-  var actual = this.resolve('../path', parent);
+  var actual = global._resolveFilename('../path', parent);
 
   assert(actual === dir + '/path.js', actual);
 });
 
 test('../path, filename.js', function () {
-  var dir = this.prefix + '/dir';
+  var dir = SERVER + '/dir';
   var parent = { id: dir + '/filename.js' };
-  var actual = this.resolve('../path', parent);
+  var actual = global._resolveFilename('../path', parent);
   
-  assert(actual === this.prefix + '/path.js', actual);
+  assert(actual === SERVER + '/path.js', actual);
 });
 
 test('/foo//bar/../baz////././../baz/spam, filename.js', function () {
-  var dir = this.prefix + '/dir';
+  var dir = SERVER + '/dir';
   var parent = { id: dir + '/filename.js' };
-  var actual = this.resolve('/foo//bar/../baz////././../baz/spam', parent);
+  var actual = global._resolveFilename('/foo//bar/../baz////././../baz/spam', parent);
   
   assert(actual === dir + '/foo/baz/spam.js', actual);
 });
@@ -131,7 +191,7 @@ test('require("module")', function () {
 });
 
 test('require.resolve', function () {  
-  assert(require.resolve('module') === document.location.href + '/module.js');
+  assert(require.resolve('module') === 'module', require.resolve('module'));
 });
 
 test('Module load, cache and require', function () {

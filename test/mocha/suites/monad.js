@@ -7,7 +7,6 @@
 require('../../../lib/node/monad');
 require('should');
 
-
 /* TESTS START HERE */
 
 /*
@@ -682,7 +681,6 @@ test('sandbox real dependencies', function () {
     m('test').should.be.equal('[nested m]' + 'test');
   });
 });
-
 
 test('nested sandbox', function () {
 
