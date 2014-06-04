@@ -1,6 +1,7 @@
 // mocha/suites/browser
 
-global.BASEPATH = document.location.href.substring(0, document.location.href.lastIndexOf('/') + 1);
+global.BASEPATH = document.location.href.
+                  substring(0, document.location.href.lastIndexOf('/') + 1);
 global.SERVER = document.location.protocol + '//' + document.location.host;
 
 
@@ -38,16 +39,18 @@ after(function () {
 });
 
 test('path', function () {
-  assert(path.normalize('path') == SERVER + '/' + 'path', path.normalize('path'));
+  assert(path.normalize('path') == SERVER + '/path', path.normalize('path'));
 });
 
 test('./path', function () {
-  assert(path.normalize('./path') == SERVER + '/' + 'path', path.normalize('./path'));
+  assert(path.normalize('./path') == SERVER + '/path', 
+         path.normalize('./path'));
 });
 
 test('../path', function () {
-  // THIS SHOULD BE DIFFERENT FROM REAL FILESYSTEM, NO??
-  assert(path.normalize('../path') == SERVER + '/' + 'path', path.normalize('../path'));
+  // THIS IS DIFFERENT THAN NODE.JS AND A REAL FILESYSTEM
+  assert(path.normalize('../path') == SERVER + '/path', 
+         path.normalize('../path'));
 });
 
 test('../', function () {
@@ -84,15 +87,18 @@ test('path', function () {
 });
 
 test('/path', function () {
-  assert(require.resolve('/path') === global.HREF + '/path' + '.js', require.resolve('/path'));
+  assert(require.resolve('/path') === global.HREF + '/path' + '.js', 
+         require.resolve('/path'));
 });
 
 test('./path', function () {
-  assert(require.resolve('./path') === global.HREF + '/path' + '.js', require.resolve('./path'));
+  assert(require.resolve('./path') === global.HREF + '/path' + '.js', 
+         require.resolve('./path'));
 });
 
 test('../path', function () {
-  assert(require.resolve('../path') === global.DIRNAME + '/path' + '.js', require.resolve('../path'));
+  assert(require.resolve('../path') === global.DIRNAME + '/path' + '.js', 
+         require.resolve('../path'));
 });
 
 test('""', function () {
@@ -116,11 +122,13 @@ test('//', function () {
 });
 
 test('..', function () {
-  assert(require.resolve('..') === global.DIRNAME  + '.js', require.resolve('..'));
+  assert(require.resolve('..') === global.DIRNAME  + '.js', 
+         require.resolve('..'));
 });
 
 test('../', function () {
-  assert(require.resolve('../') === global.DIRNAME  + '.js',  require.resolve('../'));
+  assert(require.resolve('../') === global.DIRNAME  + '.js', 
+         require.resolve('../'));
 });
 
 
@@ -173,7 +181,8 @@ test('../path, filename.js', function () {
 test('/foo//bar/../baz////././../baz/spam, filename.js', function () {
   var dir = SERVER + '/dir';
   var parent = { id: dir + '/filename.js' };
-  var actual = global._resolveFilename('/foo//bar/../baz////././../baz/spam', parent);
+  var actual = global._resolveFilename('/foo//bar/../baz////././../baz/spam', 
+                                       parent);
   
   assert(actual === dir + '/foo/baz/spam.js', actual);
 });
@@ -222,7 +231,8 @@ test('module api', function () {
   assert(exports === require(id), 'exports should equal require(id)');
   assert('length' in module.children, 'module.children should be Array');
   assert(module.parent === parent, 'module.parent should equal parent');
-  assert(typeof module.require === 'function', 'module.require should be function');
+  assert(typeof module.require === 'function', 
+         'module.require should be function');
 });
 
 
@@ -455,11 +465,12 @@ test('require previously defined path', function () {
 
   (define)(BASEPATH + './suites/base.js')
   (function () {
-  
-    var b = require('../../../test/mocha/fixture/dependent-browser-module');
+    var depPath = '../../../test/mocha/fixture/dependent-browser-module';
+
+    var b = require(depPath);
     assert(b, 'b not found');
     
-    var m = module.require('../../../test/mocha/fixture/dependent-browser-module');
+    var m = module.require(depPath);
     assert(m === b, 'should get same path');
   });
 });
@@ -555,7 +566,8 @@ test("nested csp sandbox does not load correctly", function () {
     (function (m) {
       module.exports = m;
 
-      assert(m('test') == '[dependent-browser-module]' + '[browser-module]' + 'test', m('test'));
+      assert(m('test') == '[dependent-browser-module]' + '[browser-module]' + 
+             'test', m('test'));
     });
   });
 });
