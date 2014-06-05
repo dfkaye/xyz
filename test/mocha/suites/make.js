@@ -1,9 +1,9 @@
 // suites/make
 
 require('../../../lib/node/monad');
-require('should');
 
 var make = define.make;
+var assert = require('assert');
 
 /* TESTS START HERE */
 
@@ -18,13 +18,19 @@ test('returns a new function', function () {
   };
   
   var f = make(fn, context);
-  f.should.be.Function;
+
+  assert(typeof f == 'function', 'make should return a function');
   
   var s = f.toString();
-  s.should.containEql('use strict');
-  s.should.containEql(').call(exports)');
-  s.should.containEql('return module.exports;');
-  s.should.containEql('return \'hello\';');
+  
+  var tokens = ['use strict', ').call(exports)', 'return module.exports'];
+  
+  for (var i = 0; i < tokens.length; ++i ) {
+    assert(s.indexOf(tokens[i]) > -1, 'made fn missing token: ' + tokens[i]);
+  }
+  
+  assert(s.indexOf('return \'hello\';') > -1, 'made fn missing return statement');
+  
 });
 
 test('prints context.id', function () {
@@ -40,22 +46,27 @@ test('prints context.id', function () {
   
   var f = make(fn, context);
   
-  f.toString().should.containEql('/* this/is/my/file-name */');
+  assert(f.toString().indexOf('/* this/is/my/file-name */') > -1, 
+         'should print file name');
 });
+
 
 suite('make errors');
 
 test('no args should throw', function () {
-  (function () {
+
+  assert.throws(function () {
     make();
-  }).should.throw('make: requires fn and context arguments.');
+  }, 'make: requires fn and context arguments.');
 });
 
 test('context missing should throw', function () {
+
   var fn = function () {};
-  (function () {
+  
+  assert.throws(function () {
     make(fn);
-  }).should.throw('make: requires fn and context arguments.');
+  }, 'make: requires fn and context arguments.');
 });
 
 test('module missing should throw', function () {
@@ -63,9 +74,9 @@ test('module missing should throw', function () {
   var context = {};
   var fn = function () {};
   
-  (function () {
+  assert.throws(function () {
     make(fn, context);
-  }).should.throw('make: module is not defined.');
+  }, 'make: module is not defined.');
 });
 
 test('exports missing should throw', function () {
@@ -73,19 +84,21 @@ test('exports missing should throw', function () {
   var context = { module: {} };
   var fn = function () {};
   
-  (function () {  
+  assert.throws(function () {  
     make(fn, context);
-  }).should.throw('make: module.exports is not defined.');
+  }, 'make: module.exports is not defined.');
 });
 
 test('bad function arg type should throw', function () {
+
   var fn = {};
   var context = { module: { exports: {} } };
 
-  (function () {
+  assert.throws(function () {
     make(fn, context);
-  }).should.throw('make: fn should be a function.');
+  }, 'make: fn should be a function.');
 });
+
 
 suite('make and exec');
 
@@ -99,12 +112,12 @@ function exec(fn, context) {
 
 test('should not leak internal var refs', function () {
 
-  var context = { module: { exports: {} } };
+  var context = { module: { exports: {} }, assert: assert };
   
   var fn = function () {
-    (typeof fn).should.be.equal('undefined');
-    (typeof context).should.be.equal('undefined');
-    (typeof exec).should.be.equal('undefined');
+    assert(typeof fn === 'undefined');
+    assert(typeof context === 'undefined');
+    assert(typeof exec === 'undefined');
   };
   
   exec(fn, context);
@@ -112,10 +125,10 @@ test('should not leak internal var refs', function () {
 
 test('module.exports should be exports', function () {
 
-  var context = { module: { exports: {} } };
+  var context = { module: { exports: {} }, assert: assert };
   
   var fn = function () { 
-    module.exports.should.be.equal(exports);
+    assert(module.exports === exports);
   };
 
   exec(fn, context);
@@ -123,10 +136,10 @@ test('module.exports should be exports', function () {
 
 test('exports should be this', function () {
 
-  var context = { module: { exports: {} } };
+  var context = { module: { exports: {} }, assert: assert };
   
   var fn = function () {
-    exports.should.be.equal(this);
+    assert(exports === this);
   };
 
   exec(fn, context);
@@ -142,7 +155,7 @@ test('returns module.exports', function () {
 
   var r = exec(fn, context);
   
-  r.should.be.equal('good morning');
+  assert(r === 'good morning');
 });
 
 test('does not return a "return value"', function () {
@@ -155,7 +168,7 @@ test('does not return a "return value"', function () {
   
   var h = exec(fn, context);
   
-  h.should.not.be.equal('hello');
+  assert(h !== 'hello');
 });
 
 test('module.load() should be undefined', function () {
@@ -168,5 +181,5 @@ test('module.load() should be undefined', function () {
   
   var t = exec(fn, context);
   
-  t.should.be.equal('undefined');
+  assert(t === 'undefined');
 });

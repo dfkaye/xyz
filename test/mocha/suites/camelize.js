@@ -1,79 +1,77 @@
 // suites/camelize
 
-require('should');
-
 require('../../../lib/node/monad');
 
 var camelize = define.camelize;
+var assert = require('assert');
 
 /* TESTS START HERE */
 
 suite('camelize');
 
 test('exists', function () {
-  should.should.be.ok
-  camelize.should.be.Function
+  assert(typeof camelize == 'function');
 });
 
 test('path/to/file', function () {
-  camelize('path/to/file').should.be.equal('file');
+  assert(camelize('path/to/file') === 'file');
 });
 
-test('path/to/some-module', function () {
-  camelize('path/to/some-module').should.be.equal('someModule');
+test('path/to/some-file', function () {
+  assert(camelize('path/to/some-module') === 'someModule');
 });
 
 test('path/to/some-other-module', function () {
-  camelize('path/to/some-other-module').should.be.equal('someOtherModule');
+  assert(camelize('path/to/some-other-module') === 'someOtherModule');
 });
 
 test('path/to/dot.name.ext', function () {
-  camelize('path/to/dot.name.ext').should.be.equal('dotName');
+  assert(camelize('path/to/dot.name.ext') === 'dotName');
 });
 
 test('path/to/ WHITE SPACE ', function () {
-  camelize('path/to/ WHITE SPACE ').should.be.equal('WHITESPACE');
+  assert(camelize('path/to/ WHITE SPACE ') === 'WHITESPACE');
 });
 
 test('replace windows backslash with *nix forslash', function () {
-  camelize(__filename).should.be.equal('camelize');
+  assert(camelize(__filename) === 'camelize');
 });
 
 
 suite('does not camelize');
 
 test('path/to/under_score', function () {
-  camelize('path/to/under_score').should.be.equal('under_score');
+  assert(camelize('path/to/under_score') === 'under_score');
 });
 
 test('path/to/this', function () {
-  camelize('path/to/this').should.be.equal('this');
+  assert(camelize('path/to/this') === 'this');
 });
 
 test('path/to/undefined', function () {
-  camelize('path/to/undefined').should.be.equal('undefined');
+  assert(camelize('path/to/undefined') === 'undefined');
 });
 
 test('path/to/null', function () {
-  camelize('path/to/null').should.be.equal('null');
+  assert(camelize('path/to/null') === 'null');
 });
 
 test('path/to/""', function () {
-  camelize('path/to/""').should.be.equal('""');
+  assert(camelize('path/to/""') === '""');
 });
 
 test('path/to/0', function () {
-  camelize('path/to/0').should.be.equal('0');
+  assert(camelize('path/to/0') === '0');
 });
 
 test('path/to/""', function () {
-  camelize('path/to/-1').should.be.equal('-1');
+  assert(camelize('path/to/-1') === '-1');
 });
 
 test('path/to/true', function () {
-  camelize('path/to/true').should.be.equal('true');
+  assert(camelize('path/to/true') === 'true');
 });
 
 test('path/to/false', function () {
-  camelize('path/to/false').should.be.equal('false');
+  assert(camelize('path/to/false') === 'false');
 });

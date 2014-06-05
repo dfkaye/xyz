@@ -1,10 +1,11 @@
 // graph test
 
-require('should');
-
 require('../../../lib/node/monad');
 
 var graph = define.graph;
+
+var assert = require('assert');
+
 
 var id = __filename.replace(/\\/g, '/');
 var dep = './some/dep.js';
@@ -13,33 +14,30 @@ var dep2 = './some/dep2.js';
 suite('graph');
 
 test('add id', function () {
-  graph(id).should.be.equal(graph);
+  assert(graph(id) === graph, 'should return graph');
 });
 
 test('add dep', function () {
-  (typeof graph.items[id][dep]).should.equal('undefined');
+  assert(typeof graph.items[id][dep] === 'undefined');
   
-  graph(id, dep).items[id].length.should.equal(1);
-  graph.items[id][dep].should.equal(dep);
+  assert(graph(id, dep).items[id].length=== 1, 'should have 1 item');
+  assert(graph.items[id][dep] === dep, 'should map dependency');
 });
 
 test('add dep2 to dep', function () {
-  graph(dep, dep2).items[dep].length.should.equal(1);
+  assert(graph(dep, dep2).items[dep].length === 1, 'should add 1 item');
 });
 
-test('resolve deps', function () {
-  var msg = graph.resolve(id);
-  
-  (typeof msg).should.be.equal('undefined');
+test('resolve deps ok', function () {  
+  assert(typeof graph.resolve(id) === 'undefined', 'should return undefined');
 });
 
 test('detect cycle', function () {
     
-  graph(dep2, id).items[dep2].length.should.equal(1);
+  assert(graph(dep2, id).items[dep2].length === 1, 'add new item');
 
-  var msg = graph.resolve(id);
-  
-  msg.should.be.equal('cycle: ' + id + ' > ' + dep + ' > ' + dep2 + ' > ' + id);
+  var msg = 'cycle: ' + id + ' > ' + dep + ' > ' + dep2 + ' > ' + id;
+  assert(graph.resolve(id) === msg, 'incorrect cycle message');
   
   // clean up
   delete graph.items[dep2];

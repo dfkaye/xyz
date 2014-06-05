@@ -2,6 +2,8 @@
 
 as of 4 JUN --30,29,25,23,21,16 MAY 2014
 
+- CONVERT SHOULD TESTS TO ASSERT
+
 - revisit nested defs - anon vs named
 - revisit top-level unqualified names ("module" vs "./module")
 - revisit extensibility or reuse of given name vs draconian no-ext option

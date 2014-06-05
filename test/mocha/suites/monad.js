@@ -7,6 +7,14 @@
 require('../../../lib/node/monad');
 require('should');
 
+
+////////////////////////////////////////////////
+//
+// CONVERT SHOULD TESTS TO ASSERT
+//
+////////////////////////////////////////////////
+
+
 /* TESTS START HERE */
 
 /*
@@ -20,7 +28,7 @@ test('define should be global', function () {
 });
 
 test('these should not be global', function () {
-  //('assert' in global).should.be.false;
+  ('assert' in global).should.be.false;
   ('namespace' in global).should.be.false;
   ('Module' in global).should.be.false;
 });
