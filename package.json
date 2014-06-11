@@ -4,8 +4,7 @@
   "description": "insane js module pattern",
   "main": "lib/node/xyz.js",
   "devDependencies": {
-    "mocha": ">= 1.7",
-    "should": ">= 3.0.1"
+    "mocha": ">= 1.7"
   },
   "scripts": {
     "test": "node ./test/mocha/node-suite.js",
