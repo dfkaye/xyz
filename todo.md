@@ -1,8 +1,6 @@
 ## TODO
 
-as of 4 JUN --30,29,25,23,21,16 MAY 2014
-
-- CONVERT SHOULD TESTS TO ASSERT
+as of 11 JUN -- 4 JUN, 30,29,25,23,21,16 MAY 2014
 
 - revisit nested defs - anon vs named
 - revisit top-level unqualified names ("module" vs "./module")
@@ -35,6 +33,7 @@ as of 4 JUN --30,29,25,23,21,16 MAY 2014
 - rename it
 - push to npm
 
+- DONE CONVERT ALL SHOULD TESTS TO ASSERT
 - DONE reduce string constants for normalize()
 - DONE create 'path' module, put normalize there (do not move normalize into 
         Module._resolveFilename)

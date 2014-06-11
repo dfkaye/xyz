@@ -1,19 +1,8 @@
 // mocha/suites/monad
 
-/* 
- * TEST #1 
- * BY REQUIRING IN THIS ORDER WE VERIFY THAT should() isn't broken by define().
- */
 require('../../../lib/node/monad');
-require('should');
 
-
-////////////////////////////////////////////////
-//
-// CONVERT SHOULD TESTS TO ASSERT
-//
-////////////////////////////////////////////////
-
+var assert = require('assert');
 
 /* TESTS START HERE */
 
@@ -23,78 +12,88 @@ require('should');
 suite('define');
 
 test('define should be global', function () {
-  should.should.be.ok
-  global.define.should.be.Function
+  assert(typeof global.define == 'function', 'define should be function');
 });
 
 test('these should not be global', function () {
-  ('assert' in global).should.be.false;
-  ('namespace' in global).should.be.false;
-  ('Module' in global).should.be.false;
+  assert(!('assert' in global), 'assert should not be global');
+  assert(!('namespace' in global), 'namespace should not be global');
+  assert(!('Module' in global), 'Module should not be global');
 });
 
 test('assert id is string', function () {
-  (function() {
+  assert.throws(function() {
     (define)({})
-  }).should.throw('id must be string');
+  }, 'id must be string');
 });
 
 test('assert param is string or function', function () {
-  (function() {
+  assert.throws(function() {
     (define)(__filename)
     ({});
-  }).should.throw('param must be string or function');
+  }, 'param must be string or function');
 });
 
 test('scope globals', function () {
   (define)(__filename)
   (function () {
-    require.should.be.Function;
-    module.should.be.ok;
-    exports.should.be.ok;
-    global.should.be.ok;
-    __dirname.should.be.ok;
-    __filename.should.be.ok;
+    var assert = require('assert');
+    
+    assert(typeof require == 'function', 'require should be function');
+    assert(module, 'module should be object');
+    assert(exports, 'exports should be object');
+    assert(global, 'global should be object');
+    assert(typeof __dirname == 'string', '__dirname should be string');
+    assert(typeof __filename == 'string', '__filename should be string');
   });
 });
 
 test('module', function () {
   (define)(__filename)
   (function () {
-    module.require.should.be.Function;
+    var assert = require('assert');
     
-    module.id.should.be.String;
-    module.parent.should.be.ok;
-    module.filename.should.be.equal(module.id);
-    module.loaded.should.be.true;    
-    module.children.should.be.Array;
-    
-    (module.parent instanceof module.constructor).should.be.true;
-    module.parent.constructor.should.be.equal(module.constructor);
+    assert(typeof module.require == 'function', 
+           'module.require should be function');
+    assert(typeof module.id == 'string', 'module.id should be string');
+    assert(module.filename === module.id, 'module.filename should be id');
+    assert(module.parent, 'module.parent should be object');
+    assert(module.loaded, 'module.loaded should be true');
+    assert(typeof module.children.length == 'number', 
+           'module.children should be array');
+    assert(module.parent instanceof module.constructor, 
+           'module.parent should be a module instance');
+    assert(module.parent.constructor === module.constructor, 
+           'module.parent constructor should be module constructor');
   });
 });
 
 test('module.load() should be undefined', function () {
   (define)(__filename)
   (function () {
-    (typeof module.load).should.be.equal('undefined');
+    var assert = require('assert');
+
+    assert(typeof module.load === 'undefined');
   });
 });
 
 test('exports', function () {
   (define)(__filename)
   (function () {
-    module.exports.should.be.ok;
-    exports.should.be.equal(module.exports);
-    this.should.be.equal(module.exports);
+    var assert = require('assert');
+
+    assert(module.exports === exports, 'module.exports should be exports');
+    assert(this === exports, 'exports should be this');
   });
 });
 
 test('no context leaks', function () {
   (define)(__filename)
   (function () {
-    (typeof id).should.be.equal('undefined');
-    (typeof context).should.be.equal('undefined');
+    var assert = require('assert');
+
+    assert(typeof id === 'undefined');
+    assert(typeof context === 'undefined');
   });
 });
 
@@ -106,22 +105,22 @@ test('returns module.exports', function () {
                     module.exports = { id: 'exported' };
                   });
   
-  exported.id.should.be.equal('exported');
+  assert(exported.id === 'exported');
 });
 
 test('does not return a "return" value', function () {
-  
-  (f === undefined).should.be.true;
-  
+    
   var f = (define)(__filename)
-            ('../fixture/c')
-            (function () {
-              'use strict';
-              c.should.be.Function;
-              return c;
-            });
+          ('../fixture/c')
+          (function () {
+            'use strict';
+            var assert = require('assert');
+            
+            assert(typeof c == 'function');
+            return c;
+          });
 
-  f.should.not.be.Function;
+  assert(typeof f !== 'function');
 });
 
 test('intercept namespace define, then continue', function () {
@@ -129,8 +128,8 @@ test('intercept namespace define, then continue', function () {
   // intercept it from the initial statement
   var monad = (define)(__filename);
   
-  monad.should.be.Function;
-  monad.context.id.should.be.equal(__filename);
+  assert(typeof monad === 'function');
+  assert(monad.context.id === __filename);
   
   // continue using it
   var exports = (monad)
@@ -138,14 +137,14 @@ test('intercept namespace define, then continue', function () {
     exports.current = true;
   });
   
-  exports.current.should.be.true;
+  assert(exports.current === true);
 });
 
 test('define filename not found', function () {
 
-  (function() {
+  assert.throws(function() {
     (define)('&8*(D');
-  }).should.throw(/Cannot find module/);
+  }, 'Cannot find module');
 });
 
 
@@ -162,7 +161,7 @@ test('"global" require()', function () {
                 module.exports = require('../fixture/c');
               });
   
-  c('exported').should.be.equal('[c]' + 'exported');
+  assert(c('exported') === '[c]' + 'exported');
 });
 
 test('module.require()', function () {
@@ -173,10 +172,11 @@ test('module.require()', function () {
                 module.exports = module.require('../fixture/c');
               });
   
-  c('exported').should.be.equal('[c]' + 'exported');
+  assert(c('exported') === '[c]' + 'exported');
 });
 
 test('require.resolve', function () {
+
   var c = (define)(__filename)
               (function () {
                 'use strict';
@@ -184,7 +184,7 @@ test('require.resolve', function () {
               });
   
   // tested on windows
-  c.replace(/\\/g, '/').should.containEql('/fixture/c');
+  assert(c.replace(/\\/g, '/').indexOf('/fixture/c') !== -1);
 });
 
 test('require.cache', function () {
@@ -193,43 +193,39 @@ test('require.cache', function () {
   ('../fixture/c')
   (function () {
   
+    var assert = require('assert');
+    
     var m = module.constructor._cache;
     var r = require.cache;
     var filename = module.constructor._resolveFilename('../fixture/c', module);
     
-    (!!r && !!m && (m === r)).should.be.true;
-    (m[filename].exports === c).should.be.true;
-    (r[filename].exports === c).should.be.true;
+    assert(!!r && !!m && (m === r));
+    assert(m[filename].exports === c);
+    assert(r[filename].exports === c);
     
     delete r[filename];
     
-    (r[filename] === undefined).should.be.true;
-    (m[filename] === undefined).should.be.true;
+    assert(r[filename] === undefined);
+    assert(m[filename] === undefined);
   });
 });
 
-test('delete and re-require should.js', function() {
+test('delete and re-require fixture', function() {
 
   (define)(__filename)
+  ('../fixture/c')
+  
   (function() {
-    require.cache['should'].should.be.ok;
-    module.constructor._cache['should'].should.be.ok;
+    var assert = require('assert');
+    var Module = require('module');
+    var path = require.resolve('../fixture/c');
     
-    delete require.cache['should'];
-    //(require.cache['should']).should.be.Null;
-    //(typeof module.constructor._cache['should']).should.be.Null;
-    should.should.be.ok;
+    assert(require.cache[path] != undefined);
+    
+    delete require.cache[path];
+    assert(!require.cache[path]);
 
-    /*
-     * Don't do this with should.js - it breaks all existing objects and tests 
-     * with should which defines with ES5 Object.defineProperty
-     */
-    //delete Object.prototype.should;
-
-    // instead, nullify should.should, then verify that require() restores it
-    should.should = undefined;
-    require('should');
-    should.should.be.ok;
+    assert(typeof require(path) == 'function');
   });
 });
 
@@ -243,24 +239,24 @@ suite('import cycles should always throw');
 
 test('file cannot require itself', function() {
 
-  (function() {
+  assert.throws(function() {
     (define)(__filename)
     (__filename)
     (function () {
-      monad.should.not.be.ok;
+      throw new Error('should not execute');
     });
-  }).should.throw();
+  }, 'file cannot require itself');
 });
 
 test('dependency cannot require itself', function() {
 
-  (function() {
+  assert.throws(function() {
     (define)(__filename)
     ('../fixture/self-cycle')
     (function () {
-      selfCycle.should.not.be.ok;
+      throw new Error('should not execute');
     });
-  }).should.throw();
+  }, 'dependency cannot require itself');
 });
 
 test('deep cycle throws', function() {
@@ -272,9 +268,9 @@ test('deep cycle throws', function() {
       // cycle requires nested/cycle
       // nested/cycle requires cycle, 
       // and attaches 'nested' property to imported cycle
-      cycle.nested.should.not.be.ok;
+      throw new Error('should not execute');
     });
-  }).should.throw();
+  }, 'deep cycle throws');
 });
 
 
@@ -285,136 +281,153 @@ suite('import paths');
 
 test('node_modules', function () {
   (define)(__filename)
-  ('fs')
+  ('assert')
   ('path')
   (function () {
-    fs.should.be.ok;
-    path.should.be.ok;
+    assert(path, 'should import node modules');
   });
 });
 
 test('monad requires common', function () {
   (define)(__filename)
+  ('assert')
   ('../fixture/c')
   (function() {
-    c('test').should.be.equal('[c]' + 'test');
+    assert(c('test') === '[c]' + 'test');
   });
 });
 
 test('use strict', function () {
 
   (define)(__filename)
+  ('assert')  
   ('../fixture/c')
   (function () {
     'use strict';
-    c.should.be.Function;
+    assert(typeof c == 'function');
   });
 });
 
 test('multiple dependencies', function() {
 
   (define)(__filename)
+  ('assert')
   ('../fixture/m')
   ('../fixture/c')
   (function () {
-    m.should.be.Function;
-    c.should.be.Function;
+    assert(typeof m == 'function');
+    assert(typeof c == 'function');
   });
   
-  (typeof m).should.be.equal('undefined');
-  (typeof c).should.be.equal('undefined');
+  assert(typeof m == 'undefined');
+  assert(typeof c == 'undefined');
 });
 
 test('windows path separator handled', function() {
   (define)(__filename)
+  ('assert')  
   ('..\\fixture\\m')
   (function () {
-    m.should.be.Function;
+    assert(typeof m == 'function');
   });
 });
 
 test('pass values by module properties', function() {
 
   (define)(__filename)
+  ('assert')  
+  
   (function () {
     module.hello = 'hello';    
   });
   
   (define)(__filename)
   (function () {
-    module.hello.should.be.equal('hello');    
+    assert(module.hello === 'hello');    
   });
 });
 
 test('pollute other modules by properties', function () {
   (define)(__filename)
+  ('assert')  
+  
   ('../fixture/c')
   (function () {
     c.hello = 'hello';    
   });
   
   (define)(__filename)
+  ('assert')  
+  
   ('../fixture/c')
   (function () {
-    module.exports.should.not.be.equal(c);
-    c.hello.should.be.equal('hello');    
+    assert(module.exports !== c);
+    assert(c.hello === 'hello');    
   });
 });
 
 test('monad requires monad', function () {
   (define)(__filename)
+  ('assert')
   ('../fixture/m')
   (function() {
-    m('test').should.be.equal('[m]' + 'test');
+    assert(m('test') === '[m]' + 'test');
   });
 });
 
 test('monad requires nested monad', function () {
   (define)(__filename)
+  ('assert')
   ('../fixture/m2m')
   (function() {
-    m2m('test').should.be.equal('[m2m][m]' + 'test');
+    assert(m2m('test') === '[m2m][m]' + 'test');
   });
 });
 
 test('common requires monad', function () {
   (define)(__filename)
+  ('assert')
   ('../fixture/c2m')
   (function() {
-    c2m('test').should.be.equal('[c2m][m]' + 'test');
+    assert(c2m('test') === '[c2m][m]' + 'test');
   });
 });
 
 test('import ./hyphenated-test-module as hyphenatedTestModule', function() {
   (define)(__filename)
+  ('assert')
   ('../fixture/hyphenated-test-module')
   (function () {
-    hyphenatedTestModule().should.be.equal('hyphenated');
+    assert(hyphenatedTestModule() === 'hyphenated');
   });
 });
 
 test('trim path whitespace', function () {
   (define)(__filename)
+  ('assert')
+  
   ('  ../fixture/m   ')
   (function () {
-    m('test').should.be.equal('[m]' + 'test');
+    assert(m('test') === '[m]' + 'test');
   });
 });
 
 test('support very relative pathnames', function () {
 
   (define)(__filename)
+  ('assert')
+  
   ('../../../test/mocha/fixture/c2m')
   (function() {
   
-    c2m('a').should.be.equal('[c2m][m]' + 'a');
+    assert(c2m('a') === '[c2m][m]' + 'a');
     
     // inner
     (define)
     ('../fixture/m')
     (function () {
-      c2m('b').should.be.equal('[c2m][m]' + 'b');
-      m('bob').should.be.equal('[m]' + 'bob');
+      assert(c2m('b') === '[c2m][m]' + 'b');
+      assert(m('bob') === '[m]' + 'bob');
     });
   });
 });
@@ -431,37 +444,38 @@ test('inner does not see outer vars', function () {
   ('../fixture/c2m')
   (function() {
   
+    var assert = require('assert');
+    
     var b = 'b';
     
-    (typeof a).should.be.equal('undefined');
-    c2m('a').should.be.equal('[c2m][m]' + 'a');
+    assert(typeof a === 'undefined');
+    assert(c2m('a') === '[c2m][m]' + 'a');
 
     // inner define call on same context
     (define)
     (function() {
     
-      (typeof a).should.be.equal('undefined');
-      (typeof b).should.be.equal('undefined');
+      assert(typeof a === 'undefined');
+      assert(typeof b === 'undefined');
       
-      c2m('b').should.be.equal('[c2m][m]' + 'b');
+      assert(c2m('b') === '[c2m][m]' + 'b');
     });
   });
 });
 
-test('inner define with error', function () {
+test('inner define with cycle', function () {
 
-  (function(){
+  assert.doesNotThrow(function(){
     (define)(__filename)
     (function() {
-      
-      // inner define on same filename should cycle
+     
+      // inner define on same filename should cycle but not throw
       var inner = (define)(__filename)
       (function () {
         module.exports = 'should cycle';
       });
-      inner.should.be.equal('should cycle');
     });
-  }).should.not.throw();
+  }, 'should cycle but not throw');
 });
 
 test('inner context can require node_modules', function () {
@@ -470,11 +484,10 @@ test('inner context can require node_modules', function () {
   (function() {
   
     (define)
-    ('fs')
+    ('assert')
     ('path')
     (function () {
-      fs.should.be.ok;
-      path.should.be.ok;
+      assert(path);
     });
   });
 });
@@ -488,7 +501,7 @@ test('pass values to nested modules via module properties', function() {
 
     (define)
     (function () {
-      module.outer.should.be.equal('hello');    
+      require('assert')(module.outer === 'hello');    
     });
   });
 });
@@ -505,10 +518,10 @@ test('inner exports should not clobber outer exports', function() {
       module.exports = 'whatever';    
     });
     
-    inner.should.be.equal('whatever');
+    require('assert')(inner === 'whatever');
   });
   
-  exported.should.be.equal('hello');
+  assert(exported === 'hello');
 });
 
 /*
@@ -518,38 +531,45 @@ suite('aliasing');
 
 test('nesting', function () {
   (define)(__filename)
+  ('assert')
   ('../fixture/nested/c')
   ('../fixture/nested/m')
   (function () {
-    c('test').should.be.equal('[nested c]' + 'test');
-    m('test').should.be.equal('[nested m]' + 'test');
+    assert(c('test') === '[nested c]' + 'test');
+    assert(m('test') === '[nested m]' + 'test');
   });
 });
 
 test('colliding', function () {
   (define)(__filename)
+  ('assert')
+
   ('../fixture/m')
   ('../fixture/nested/m')
   (function () {
-    m('test').should.be.equal('[nested m]' + 'test');
+    assert(m('test') === '[nested m]' + 'test');
   });
 });
 
 test('aliasing', function () {
   (define)(__filename)
+  ('assert')
+
   ('../fixture/m')
   ('m2 := ../fixture/nested/m')
   (function () {
-    m('test').should.be.equal('[m]' + 'test');
-    m2('test').should.be.equal('[nested m]' + 'test');
+    assert(m('test') === '[m]' + 'test');
+    assert(m2('test') === '[nested m]' + 'test');
   });
 });
 
 test('path aliasing', function () {
   (define)(__filename)
+  ('assert')
+  
   ('../fixture/nested/m := ../fixture/nested/mock')
   (function () {
-    m('test').should.be.equal('[nested mock]' + 'test');
+    assert(m('test') === '[nested mock]' + 'test');
   });
 });
 
@@ -563,35 +583,41 @@ test('global with no alias accessed by "global.name"', function () {
 
 test('global alias with "{name} := path"', function () {
   (define)(__filename)
+  ('assert')
+
   ('{zuber} := ../fixture/zuber')
   (function () {
-    zuber('test').should.be.equal('[global-zuber]' + 'test');
+    assert(zuber('test') === '[global-zuber]' + 'test');
   });
 });
 
 test('trim alias whitespace', function () {
   (define)(__filename)
+  ('assert')
+  
   ('  fm :=  ../fixture/m   ')
   ('  ../fixture/nested/m    :=    ../fixture/nested/mock    ')
   (function () {
-    fm('test').should.be.equal('[m]' + 'test');
-    m('test').should.be.equal('[nested mock]' + 'test');
+    assert(fm('test') === '[m]' + 'test');
+    assert(m('test') === '[nested mock]' + 'test');
   });
 });
 
 // wrap suite - hence aliases - inside def
 (define)(__filename)
+('assert')
+
 ('m := ../fixture/m')
 (function () {
 
   suite('wrapped suite');
   
   test('first', function () {
-    m.should.be.ok;
+    assert(m);
   });
   
   test('second', function () {
-    m.should.be.ok;
+    assert(m);
   });
   
   (define)
@@ -600,11 +626,11 @@ test('trim alias whitespace', function () {
     suite('wrapped and nested suite');
     
     test('first', function () {
-      m.should.be.ok;
+      assert(m);
     });
     
     test('second', function () {
-      m.should.be.ok;
+      assert(m);
     });
   });
 });
@@ -632,8 +658,9 @@ test('sandbox api', function () {
                 };
                 
   var fn = function (after) {
-    (typeof after).should.be.equal('function');
-    (typeof module.load).should.be.equal('undefined');
+    
+    assert(typeof after === 'function');
+    assert(typeof module.load === 'undefined');
 
     module.exports = after();
   };
@@ -642,7 +669,7 @@ test('sandbox api', function () {
   
   var result = sandbox(fn, context, globals);
   
-  result.should.be.equal('after');
+  assert(result === 'after');
 });
 
 test('define.exec detects argname, runs sandbox', function () {
@@ -661,49 +688,50 @@ test('define.exec detects argname, runs sandbox', function () {
   var monad = { context: context };
   
   var fn = function (after, later) {
-    (typeof after).should.be.equal('function');
-    (typeof later).should.be.equal('function');
+    assert(typeof after === 'function');
+    assert(typeof later === 'function');
     
     module.exports = after() + later();
   };
 
   var result = define.exec(fn, monad);
   
-  result.should.be.equal('after' + 'later');
+  assert(result === 'after' + 'later');
 });
 
 test('with real dependencies', function () {
 
   (define)(__filename)
+  ('assert')
   
   ('../fixture/nested/c')
   ('../fixture/nested/m')
   
   (function (m, c) {
   
-    c('test').should.be.equal('[nested c]' + 'test');
-    m('test').should.be.equal('[nested m]' + 'test');
+    assert(c('test') === '[nested c]' + 'test');
+    assert(m('test') === '[nested m]' + 'test');
   });
 });
 
 test('nested sandbox sees outer vars', function () {
 
   (define)(__filename)
-  
+  ('assert')
+
   ('../fixture/nested/c')
   ('../fixture/nested/m')
   
   (function (m, c) {
   
-    c('test').should.be.equal('[nested c]' + 'test');
+    assert(c('test') === '[nested c]' + 'test');
     
     var b = 'visible';
     
     (define)
     (function (m) {
-      m('test').should.be.equal('[nested m]' + 'test');
-      b.should.be.equal('visible');
+      assert(m('test') === '[nested m]' + 'test');
+      assert(b === 'visible');
     });
-    
   });
 });
