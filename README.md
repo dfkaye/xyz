@@ -28,65 +28,6 @@ ideas and implementations and refactorings keep coming up
 
 ## main idea
 
-it's all about the syntax
-
-but first&hellip;
-
-## [dojo already did that](http://www.youtube.com/watch?v=BY0-AI1Sxy0)
-
-this used to be simple. 
-
-    dojo.provide("my.module");
-
-    dojo.require("dojo.io.script");
-
-    // dojo.provide made sure that my.module was created as a JavaScript object,
-    // so properties can be assigned to it:
-    my.module.name = "my module";
-    
-however:
-
-1) it was coupled to dojo itself (same with YUI, curl, google closure, et al), 
-
-2) they ruined it with AMD
-
-      define(['dojo/_base/kernel', 'dojo/io/script', 'dojo/_base/loader'], 
-        function(dojo, ioScript){
-          dojo.provide("my.module");
-        
-          // dojo.provide made sure that my.module was created as a JavaScript object,
-          // so properties can be assigned to it:
-          my.module.name = "my module";
-        });
-    
-    
-## es6 imports
-
-es6 `imports` means this =>  
-[https://gist.github.com/wycats/51c96e3adcdb3a68cbc3#comment-801392] ~ 
-the only people who could possibly favor it are unlikely to make their living 
-working in __cross-browser__ JavaScript on a daily basis.
-
-## js dependency loading api via chaining pattern
-
-the chaining pattern of jQuery is one way to do this ~ see 
-[Labjs](http://labjs.com/documentation.php), for example.
-
-call that the `method chaining` pattern, which means returning the same *object* 
-after each member method call on the object.
-
-that kind of chaining is more suited to BCE scripts, i.e., "before CommonJS era"
-
-## monadic chaining pattern
-
-I'm advocating something more *monadic* where the `define()` function returns 
-*itself* or another function which manages some other object internally. That's 
-not really a *monad* - more like *currying* - and *memoizing* of search/load 
-results.  It's a bit more declarative (though there's work behind the scenes and 
-the order matters), making it more readable, IMO.
-
-## what do you mean?
-
 instead of commonjs `require`
 
     var asyncModule = require('asyncModule')
@@ -111,8 +52,6 @@ really to be more wasteful indirection and fakery
 
 &hellip;
     
-# instead of all that
-
 I am advocating a chaining pattern for describing the whole module, not merely 
 for loading, by pulling the dependency statements up and skipping the extra 
 `require` statement
@@ -146,6 +85,7 @@ an assignment like `var name = require('module-name');`  that api is, however,
 synchronous which means it doesn't play well in the asynchronous world of the 
 browser.
 
+to handle that in this library, module names are automatically aliased.
 
 ## default aliases
 
@@ -163,7 +103,7 @@ from the filename.  An export defined in a file referenced at
     });
     
     
-## var aliases
+## var aliases for collisions
 
 if more than one file is named `'cool-module'`, we need a way to avoid the name 
 clash on `coolModule` that would result.
@@ -173,7 +113,7 @@ to do that, specify an alias and delimiter along with the path name:
     (define)(__filename)
     
     ('./path/to/cool-module')
-    ('alias := ./path/to/another/cool-module')  // := token denotes name alias
+    ('./path/to/another/cool-module {as} alias')  // {as} token denotes alias
     
     (function() {
       coolModule
@@ -199,13 +139,13 @@ from the `global` scope:
 *seems unexpected to have to specify that something is global ~ better to enable 
 straight references and disambiguate collisions by aliasing vs. global.whatever*
 
-or use an alias to avoid clobbering, e.g., `'{alias} := path/name'`
+or use an alias to avoid clobbering, e.g., `'path/name {as} {alias}'`
 
 __this works but seems unnecessary__
 
     (define)(__filename)
     
-    ('{zuber}:=../fixture/zuber')
+    ('../fixture/zuber {as} {zuber}')
     
     (function () {  
       zuber('test').should.be.equal('[global-zuber]' + 'test');
@@ -222,7 +162,7 @@ configuration injection close to the actual use of the thing
     (define)(__filename)
     
     ('./path/to/cool-module')
-    ('./path/to/dependency := ./path/to/mock')  // := token denotes name alias
+    ('./path/to/mock {as} ./path/to/dependency')  // {as} token denotes name alias
     
     (function() {
       coolModule
@@ -257,7 +197,7 @@ function, *in any order*:
     (define)(__filename)
     
     ('./path/to/some-module')
-    ('./path/to/dependency := ./path/to/mock')
+    ('./path/to/mock {as} ./path/to/dependency')
     
     (function(dependency, someModule) { // <= params match aliases, any order
     
