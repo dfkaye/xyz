@@ -528,7 +528,11 @@ define.make = function make(fn, context) {
   //////////////////////////////////////////////////////////////////////////
   code = '\r\n  try {\r\n  ' + code + '\r\n  (' + fn.toString() + 
          ').call(exports);\r\n  } catch(error) {\r\n    ' + 
-         'console.log(error);\r\n  } finally {\r\n    ' +
+                  
+         '(module.error = error);' +
+         //'console.log(module.error);\r\n  ' +
+         
+         '\r\n  } finally {\r\n    ' +
          'return module.exports;\r\n  }';
   
   // code = code + '\r\n  (' + fn.toString() + ').call(exports);\r\n  ' +
@@ -604,7 +608,10 @@ define.sandbox = function sandbox(fn, context, globals) {
       //////////////////////////////////////////////////////////////////////////
       // TODO - BETTER ERROR HANDLING
       //////////////////////////////////////////////////////////////////////////
-      console.log(error.message);// + '\n' + error.stack);
+      
+      (module.error = error.message + '\n' + error.stack);
+      //console.log(module.error);
+
     } finally {
       // remove pseudo-globals
       for (k in context) {
@@ -621,6 +628,7 @@ define.sandbox = function sandbox(fn, context, globals) {
       global.require = globalRequire;
       context.require = contextRequire;
     }
+    
     return context.module.exports;
   }());
 };
@@ -701,7 +709,14 @@ define.exec = function exec(fn, monad) {
 
   stack.pop();
   !nested || (module.exports = exports);
-  return result;
+  
+  try {
+    if (module.error) {
+      throw new Error(module.error);
+    }
+  } finally {
+    return result;
+  }
 };
 
 /*
@@ -764,21 +779,22 @@ define.string = function string(id, monad) {
         filename: filename,
         parent: context.module,
         onload: function (err, done) {
-        
           // creates a closure on context, filename, alias, globalName, monad
-          
           if (!err) {
-
-            var exports = define.cache[filename].context.module.exports;
-
-            context[alias] = (globalName && global[alias]) || exports;
+            context[alias] = (globalName && global[alias]) || 
+                             define.cache[filename].context.module.exports;
           }
-          //////////////////////////////////////////////////////////////////////
-          // TODO - BETTER ERROR HANDLING
-          //////////////////////////////////////////////////////////////////////
           // monad.fn is here only if exec ran at least once before deps loaded
           if (done && monad.fn) {
             define.exec(monad.fn, monad);
+          }
+          //////////////////////////////////////////////////////////////////////
+          //
+          //  BETTER ERROR HANDLING
+          //
+          //////////////////////////////////////////////////////////////////////
+          if (err) {
+            //throw new Error(err.message);
           }
         }
       });
