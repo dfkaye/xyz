@@ -1,7 +1,11 @@
 ## PROGRESS
 
-as of 4 JUN --30,29,25,23,21,16 MAY 2014
+as of 8 JUL -- 11,4 JUN, 30,29,25,23,21,16 MAY 2014
 
++ [8 JUL 2014] - `graph.resolve` cycle always throws
++ [8 JUL 2014] - add `module.error` in exec and sandbox for better handling
++ [8 JUL 2014] - convert alias separator from "name := path/name" to 
+    "path/name {as} name"
 + [11 JUN] - finish converting should.js tests to assert();
 + [5 - 14 JUN] VACATION :)
 + [3 JUN 2014] slightly better path.normalize and Module._resolveFilename

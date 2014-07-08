@@ -1,6 +1,6 @@
 ## TODO
 
-as of 11 JUN -- 4 JUN, 30,29,25,23,21,16 MAY 2014
+as of 8 JUL -- 11,4 JUN, 30,29,25,23,21,16 MAY 2014
 
 - use the util methods themselves to build the builds
 
@@ -9,16 +9,9 @@ as of 11 JUN -- 4 JUN, 30,29,25,23,21,16 MAY 2014
   + dotmodules?  '.module-name' similar to '#name'
 - revisit extensibility or reuse of given name vs draconian no-ext option
 
-- revisit alias separator ("name := path/name" vs "path/name {as} name")
-  + as `string.prototype.as = fn(alias) { return this.concat('{as}', alias; }`
   
 - revisit global alias ({name} := path/name vs not supporting it)
 - revisit or punt on deep aliasing for mocks (like rewire)
-
-- better error handling
-  + add namespace.error(fn(err){ show error and shut down});
-  + let require throw
-  + let graph throw
   
 - add warning re double include paths; or just ignore??
 - add better pre-registering modularize pattern <<< require.refresh() or sim?
@@ -42,6 +35,9 @@ as of 11 JUN -- 4 JUN, 30,29,25,23,21,16 MAY 2014
 - rename it
 - push to npm
 
+- DONE better error handling in exec()
+- DONE cycles always throw
+- DONE convert alias separator from "name := path/name" to "path/name {as} name"
 - DONE CONVERT ALL SHOULD TESTS TO ASSERT
 - DONE reduce string constants for normalize()
 - DONE create 'path' module, put normalize there (do not move normalize into 
