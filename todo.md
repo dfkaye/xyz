@@ -2,17 +2,26 @@
 
 as of 11 JUN -- 4 JUN, 30,29,25,23,21,16 MAY 2014
 
+- use the util methods themselves to build the builds
+
 - revisit nested defs - anon vs named
 - revisit top-level unqualified names ("module" vs "./module")
+  + dotmodules?  '.module-name' similar to '#name'
 - revisit extensibility or reuse of given name vs draconian no-ext option
 
-- revisit alias separator ("name := path/name" vs "path/name => name")
+- revisit alias separator ("name := path/name" vs "path/name {as} name")
+  + as `string.prototype.as = fn(alias) { return this.concat('{as}', alias; }`
+  
 - revisit global alias ({name} := path/name vs not supporting it)
 - revisit or punt on deep aliasing for mocks (like rewire)
 
-- add namespace.error(fn(err){ show error and shut down});
+- better error handling
+  + add namespace.error(fn(err){ show error and shut down});
+  + let require throw
+  + let graph throw
+  
 - add warning re double include paths; or just ignore??
-- add better pre-registering modularize pattern 
+- add better pre-registering modularize pattern <<< require.refresh() or sim?
 - add better declaration and handle for main and parentNode
 
 - externalize define.string() script.request() to a shorter block

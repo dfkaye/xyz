@@ -32,14 +32,21 @@ test('resolve deps ok', function () {
   assert(typeof graph.resolve(id) === 'undefined', 'should return undefined');
 });
 
-test('detect cycle', function () {
+test('throws if cycle detected', function () {
     
   assert(graph(dep2, id).items[dep2].length === 1, 'add new item');
 
   var msg = 'cycle: ' + id + ' > ' + dep + ' > ' + dep2 + ' > ' + id;
-  assert(graph.resolve(id) === msg, 'incorrect cycle message');
-  
-  // clean up
-  delete graph.items[dep2];
-  graph(dep2);
+  var cycle;
+  try {
+    graph.resolve(id);
+  } catch(error) {
+    cycle = error.message;
+  } finally {
+    assert(cycle === msg, 'incorrect cycle message');
+    
+    // clean up
+    delete graph.items[dep2];
+    graph(dep2);
+  }
 });
