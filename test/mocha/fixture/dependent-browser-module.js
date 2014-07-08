@@ -2,7 +2,7 @@
 
 (define)('../../../test/mocha/fixture/dependent-browser-module')
 
-('bm := ./browser-module')
+('./browser-module {as} bm')
 
 (function() {
 
@@ -11,5 +11,4 @@
     return '[dependent-browser-module]' + bm(msg);
   }
   
-  //console.log(dpm('loaded'));
 });

@@ -393,10 +393,10 @@ test('load', function (done) {
   global.doneLoad = done;
 
   (define)(BASEPATH + './suites/base.js')
-  ('a := ../../../test/mocha/fixture/browser-module')
-  ('b := ../../../test/mocha/fixture/dependent-browser-module')
+  ('../../../test/mocha/fixture/browser-module {as} a')
+  ('../../../test/mocha/fixture/dependent-browser-module {as} b')
   (function () {
-  
+
     var s = '[dependent-browser-module]' + a('success');
     assert(b('success') === s, 'should be dep + mod success');
 
@@ -409,8 +409,8 @@ test('load again', function (done) {
   global.doneAgain = done;
 
   (define)(BASEPATH + './suites/base.js')
-  ('a := ../../../test/mocha/fixture/browser-module')
-  ('b := ../../../test/mocha/fixture/dependent-browser-module')
+  ('../../../test/mocha/fixture/browser-module {as} a')
+  ('../../../test/mocha/fixture/dependent-browser-module {as} b')
   (function () {
 
     var s = '[dependent-browser-module]' + a('success again');
@@ -425,8 +425,8 @@ test('load in reverse', function (done) {
   global.doneReverse = done;
 
   (define)(BASEPATH + './suites/base.js')
-  ('hey := ../../../test/mocha/fixture/dependent-browser-module')
-  ('there := ../../../test/mocha/fixture/browser-module')
+  ('../../../test/mocha/fixture/dependent-browser-module {as} hey')
+  ('../../../test/mocha/fixture/browser-module {as} there')
   (function () {
   
     var s = '[dependent-browser-module]' + there('there');
@@ -441,13 +441,13 @@ test('load nested', function (done) {
   global.doneNested = done;
 
   (define)(BASEPATH + './suites/base.js')
-  ('there := ../../../test/mocha/fixture/browser-module')
+  ('../../../test/mocha/fixture/browser-module {as} there')
   (function () {
     assert(there, 'there not defined');
 
     // nested calls are anonymous
     (define)
-    ('hey := ../../../test/mocha/fixture/dependent-browser-module')
+    ('../../../test/mocha/fixture/dependent-browser-module {as} hey')
     (function () {
     
       var s = '[dependent-browser-module]' + there('there');
@@ -555,8 +555,8 @@ test('sandbox with error should not corrupt the module', function () {
 
 test('nested sandbox sees outer vars', function () {
   (define)(BASEPATH + './suites/nested-csp-sandbox-test.js')
-  ('m := ../fixture/dependent-browser-module')
-  ('c := ../fixture/browser-module')
+  ('../fixture/dependent-browser-module {as} m')
+  ('../fixture/browser-module {as} c')
   (function (c, m) {
 
     module.exports = c;

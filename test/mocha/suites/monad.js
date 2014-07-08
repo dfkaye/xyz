@@ -556,7 +556,7 @@ test('aliasing', function () {
   ('assert')
 
   ('../fixture/m')
-  ('m2 := ../fixture/nested/m')
+  ('../fixture/nested/m {as} m2')
   (function () {
     assert(m('test') === '[m]' + 'test');
     assert(m2('test') === '[nested m]' + 'test');
@@ -567,7 +567,7 @@ test('path aliasing', function () {
   (define)(__filename)
   ('assert')
   
-  ('../fixture/nested/m := ../fixture/nested/mock')
+  ('../fixture/nested/mock {as} ../fixture/nested/m')
   (function () {
     assert(m('test') === '[nested mock]' + 'test');
   });
@@ -577,15 +577,15 @@ test('global with no alias accessed by "global.name"', function () {
   (define)(__filename)
   ('../fixture/zuber')
   (function () {
-    global.zuber('test').should.be.equal('[global-zuber]' + 'test');
+    assert( global.zuber('test') === '[global-zuber]' + 'test');
   });
 });
 
-test('global alias with "{name} := path"', function () {
+test('global alias with "path {as} {name}"', function () {
   (define)(__filename)
   ('assert')
 
-  ('{zuber} := ../fixture/zuber')
+  ('../fixture/zuber {as} {zuber}')
   (function () {
     assert(zuber('test') === '[global-zuber]' + 'test');
   });
@@ -595,8 +595,8 @@ test('trim alias whitespace', function () {
   (define)(__filename)
   ('assert')
   
-  ('  fm :=  ../fixture/m   ')
-  ('  ../fixture/nested/m    :=    ../fixture/nested/mock    ')
+  ('  ../fixture/m  {as}  fm  ')
+  ('  ../fixture/nested/mock   {as}   ../fixture/nested/m  ')
   (function () {
     assert(fm('test') === '[m]' + 'test');
     assert(m('test') === '[nested mock]' + 'test');
@@ -607,7 +607,7 @@ test('trim alias whitespace', function () {
 (define)(__filename)
 ('assert')
 
-('m := ../fixture/m')
+('../fixture/m {as} m')
 (function () {
 
   suite('wrapped suite');

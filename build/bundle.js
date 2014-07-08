@@ -481,7 +481,7 @@ define.resolve = function resolve(id, visited) {
   visited || (visited = []);
 
   if (visited[id]) {
-    return 'cycle: ' + visited.concat(id).join(' > ');
+    throw new Error('cycle: ' + visited.concat(id).join(' > '));
   }
 
   visited[id] = visited[visited.push(id) - 1];
@@ -489,11 +489,7 @@ define.resolve = function resolve(id, visited) {
   var graph = define.graph;
 
   for (var i = 0, deps = graph.items[id], msg; deps && i < deps.length; ++i) {
-    msg = resolve(deps[i], visited);
-
-    if (msg) {
-      return msg;
-    }
+    resolve(deps[i], visited);
   }
 };
 
@@ -608,7 +604,7 @@ define.sandbox = function sandbox(fn, context, globals) {
       //////////////////////////////////////////////////////////////////////////
       // TODO - BETTER ERROR HANDLING
       //////////////////////////////////////////////////////////////////////////
-      console.log(error.message + '\n' + error.stack);
+      console.log(error.message);// + '\n' + error.stack);
     } finally {
       // remove pseudo-globals
       for (k in context) {
@@ -721,36 +717,34 @@ define.exec = function exec(fn, monad) {
  */
 define.string = function string(id, monad) {
 
-  id = id.replace(/\\/g, '/').trim();
+  var name = id.replace(/\\/g, '/').trim();
 
-  var pair = id.split(':=');
+  var pair = name.split('{as}');
   var context = monad.context;
   var alias, globalName, filename, cycle, entry, module, exports;
 
   if (pair.length > 1) {
 
     // var alias
-    alias = pair[0].trim();
-    id = pair[1].trim();
+    alias = pair[1].trim();
+    name = pair[0].trim();
 
     // global alias
     globalName = alias.match(/\{[^\}]+\}/);
     globalName && (alias = globalName[0].replace(/\{|\}/g, ''));
 
-    // id alias
+    // name alias
     alias.indexOf('/') === -1 || (alias = define.camelize(alias));
 
   } else {
-    alias = define.camelize(id);
+    alias = define.camelize(name);
   }
 
   // handle required pathnames relative to the module, not monad file
-  filename = Module._resolveFilename(id, context.module);
+  filename = Module._resolveFilename(name, context.module);
 
-  // cycles are forbidden, no matter what
-  if (cycle = define.graph(context.module.id, filename).resolve(filename) ) {
-    assert(!cycle, cycle);
-  }
+  // throws if cycle is detected, no matter what
+  define.graph(context.module.id, filename).resolve(filename);
 
   // get filename's exports
   entry = define.cache[filename];

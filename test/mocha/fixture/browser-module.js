@@ -9,6 +9,4 @@
     return '[browser-module]' + msg;
   }
   
-  //console.log(mod('loaded'));
-  
 });
