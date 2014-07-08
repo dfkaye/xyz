@@ -52,20 +52,22 @@ really to be more wasteful indirection and fakery
 
 &hellip;
     
-I am advocating a chaining pattern for describing the whole module, not merely 
-for loading, by pulling the dependency statements up and skipping the extra 
-`require` statement
+I am advocating a functional chaining pattern for describing the whole module. 
+Each function call returns the same function in order to receive input for the 
+next step (either a dependency or an execution scope function).  This pattern 
+works by pulling the dependency statements up and skipping the extra `require` 
+statement:
 
-    (define)(__filename)
-    
-    ('asyncModule')
-    ('another-module')
-    
-    (function () {
+    (define)(__filename) // pathname of current scope
+    ('asyncModule')      // dependency name or path
+    ('another-module')   // dependency name or path
+    (function () {       // execution scope or factory function
     
       asyncModule(arg1)(arg2)(arg3);
       anotherModule('hi, module');
-      
+
+      // ...rest of commonjs, etc.
+      module.exports = ...  
     });
 
 Each dependency is declared in a single statement, removing the need for commas 
@@ -100,6 +102,9 @@ from the filename.  An export defined in a file referenced at
     
     (function() {
       coolModule
+      
+      // ...rest of commonjs, etc.
+      module.exports = ...  
     });
     
     
@@ -118,6 +123,9 @@ to do that, specify an alias and delimiter along with the path name:
     (function() {
       coolModule
       alias
+      
+      // ...rest of commonjs, etc.
+      module.exports = ...      
     });
 
     
