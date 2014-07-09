@@ -2,15 +2,21 @@
 
 as of 8 JUL -- 11,4 JUN, 30,29,25,23,21,16 MAY 2014
 
+- still need grind out the error handling ~ too many try-catch-sanitize stops
+
 - use the util methods themselves to build the builds
 
-- revisit nested defs - anon vs named
+- revisit nested defs
+  + should take '#id'
+  + should append #id to current def ns, e.g, 'path/to/ns.js#id'
+  
 - revisit top-level unqualified names ("module" vs "./module")
   + dotmodules?  '.module-name' similar to '#name'
-- revisit extensibility or reuse of given name vs draconian no-ext option
-
   
-- revisit global alias ({name} := path/name vs not supporting it)
+- revisit extensibility or reuse of given name vs draconian no-ext option
+  + #id requirement effectively stops that
+  
+- revisit global alias (`path/name {as} {name}` vs *not* supporting it)
 - revisit or punt on deep aliasing for mocks (like rewire)
   
 - add warning re double include paths; or just ignore??
