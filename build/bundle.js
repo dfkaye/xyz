@@ -6,6 +6,7 @@
  * polyfill at the bottom of this file.
  */
 global = (typeof global != 'undefined' && global) || window;
+//var global = this;
 
 !global.document || (function () {
 
@@ -117,9 +118,7 @@ global = (typeof global != 'undefined' && global) || window;
 
     s.src = src;
 
-    main.parentNode.appendChild(s);
-
-    return s;
+    return main.parentNode.insertBefore(s, main);
   };
 
   /*
@@ -366,12 +365,11 @@ global.define = function define(id) {
   assert(typeof id == 'string', 'id must be string');
 
   var filename = Module._resolveFilename(id);
-
+  var cache = define.cache || (define.cache = {});
+  
   // track requests for cycle checking later
   define.graph(filename);
-
-  var cache = define.cache || (define.cache = {});
-
+  
   return cache[filename] || (cache[filename] = define.namespace(filename));
 };
 
@@ -488,7 +486,7 @@ define.resolve = function resolve(id, visited) {
 
   var graph = define.graph;
 
-  for (var i = 0, deps = graph.items[id], msg; deps && i < deps.length; ++i) {
+  for (var i = 0, deps = graph.items[id]; deps && i < deps.length; ++i) {
     resolve(deps[i], visited);
   }
 };
@@ -517,7 +515,7 @@ define.make = function make(fn, context) {
 
   code = code + 'var exports = module.exports;\r\n  ';
 
-  // load method should only be used by environment loader
+  // module.load should only be used by environment loader
   code = code + 'module.load = undefined;\r\n  ';
 
   // prevent context leakage
@@ -577,7 +575,7 @@ define.sandbox = function sandbox(fn, context, globals) {
       }
     }
 
-    // load method should only be used by environment loader
+    // module.load should only be used by environment loader
     context.module.load = undefined;
 
     // bind global define to run against the current context monad
@@ -732,17 +730,20 @@ define.exec = function exec(fn, monad) {
  */
 define.string = function string(id, monad) {
 
-  var name = id.replace(/\\/g, '/').trim();
-
-  var pair = name.split('{as}');
   var context = monad.context;
+  var pair = id.replace(/\\/g, '/').trim().split('{as}');
+  var name = pair[0].trim();
+  
   var alias, globalName, filename, cycle, entry, module, exports;
 
-  if (pair.length > 1) {
+  if (pair.length === 1) {
+  
+    alias = define.camelize(name);
+    
+  } else {
 
     // var alias
     alias = pair[1].trim();
-    name = pair[0].trim();
 
     // global alias
     globalName = alias.match(/\{[^\}]+\}/);
@@ -750,9 +751,6 @@ define.string = function string(id, monad) {
 
     // name alias
     alias.indexOf('/') === -1 || (alias = define.camelize(alias));
-
-  } else {
-    alias = define.camelize(name);
   }
 
   // handle required pathnames relative to the module, not monad file

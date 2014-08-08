@@ -4,10 +4,8 @@ as of 8 JUL -- 11,4 JUN, 30,29,25,23,21,16 MAY 2014
 
 - still need grind out the error handling ~ too many try-catch-sanitize stops
 
-- use the util methods themselves to build the builds
-
 - revisit nested defs
-  + should take '#id'
+  + should accept '#id'
   + should append #id to current def ns, e.g, 'path/to/ns.js#id'
   
 - revisit top-level unqualified names ("module" vs "./module")
@@ -17,10 +15,12 @@ as of 8 JUL -- 11,4 JUN, 30,29,25,23,21,16 MAY 2014
   + #id requirement effectively stops that
   
 - revisit global alias (`path/name {as} {name}` vs *not* supporting it)
-- revisit or punt on deep aliasing for mocks (like rewire)
   
 - add warning re double include paths; or just ignore??
-- add better pre-registering modularize pattern <<< require.refresh() or sim?
+- revisit or punt on deep aliasing for mocks (like rewire)
+  + add better pre-registering modularize pattern <<< require.refresh() or sim?
+- add script-reload (or get rid of img cache)
+- add x-domain dom script loading (scheme, protocol, prefix, whatever://)
 - add better declaration and handle for main and parentNode
 
 - externalize define.string() script.request() to a shorter block
@@ -31,12 +31,11 @@ as of 8 JUL -- 11,4 JUN, 30,29,25,23,21,16 MAY 2014
 
 - verify legacy browsers (use webpagetest)
 
-- gulp build with jshint, concat, uglify
-- gulp-convert-common-to-xyz
-
-- support script-reload (or get rid of img cache)
-
 - happy build/concat tool with tests  (use `task()` pattern)
+  + gulp build with jshint, concat, uglify
+  + gulp-convert-common-to-xyz
+  + use the define.#util methods themselves to build the builds
+
 - acknowledgements & support
 - rename it
 - push to npm
