@@ -11,7 +11,7 @@ code still a bit untidy but working under tests
   + see 
     <a href='https://rawgit.com/dfkaye/xyz/master/test/mocha/browser-suite.html' 
        target='_blank'>
-      rawgithub browser-suite
+      rawgit browser-suite
     </a>
   + and 
     <a href='http://www.webpagetest.org/result/140512_5T_WX3/'
